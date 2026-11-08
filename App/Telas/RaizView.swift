@@ -9,6 +9,7 @@ enum Aba: Hashable {
 
 struct RaizView: View {
     @State var aba: Aba = .hoje
+    @State var estado = EstadoApp()
 
     var body: some View {
         TabView(selection: $aba) {
@@ -26,5 +27,15 @@ struct RaizView: View {
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
+        .environment(estado)
+        .fullScreenCover(item: $estado.gravadorAtivo) { gravador in
+            CorridaView(gravador: gravador)
+                .environment(estado)
+        }
+        .sheet(item: $estado.sessaoParaRecuperar) { salva in
+            RecuperarCorridaView(salva: salva)
+                .environment(estado)
+        }
+        .task { estado.verificarSessaoPendente() }
     }
 }

@@ -19,6 +19,10 @@ enum Preferencias {
     static let tema = "tema"
     static let unidade = "unidade"
     static let modoDesenvolvimento = "modoDesenvolvimento"
+    static let pausaAutomatica = "pausaAutomatica"
+    static let telaAcesa = "telaAcesa"
+    static let simularGPS = "simularGPS"
+    static let velocidadeSimulacao = "velocidadeSimulacao"
 }
 
 enum Tema: String, CaseIterable, Identifiable {

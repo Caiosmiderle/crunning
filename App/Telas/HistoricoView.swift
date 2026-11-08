@@ -20,23 +20,31 @@ struct HistoricoView: View {
                         .entradaCascata(2)
                 } else {
                     ForEach(corridas) { corrida in
-                        LinhaCorrida(corrida: corrida, unidade: unidade)
-                            .contextMenu {
-                                Button("Apagar corrida", systemImage: "trash", role: .destructive) {
-                                    contexto.delete(corrida)
-                                }
+                        NavigationLink(value: corrida) {
+                            LinhaCorrida(corrida: corrida, unidade: unidade)
+                        }
+                        .buttonStyle(.plain)
+                        .contextMenu {
+                            Button("Apagar corrida", systemImage: "trash", role: .destructive) {
+                                contexto.delete(corrida)
+                                try? contexto.save()
                             }
+                        }
                     }
                 }
                 if modoDesenvolvimento {
                     Button("Gerar corrida de exemplo", systemImage: "wand.and.stars") {
                         contexto.insert(Corrida.deExemplo())
+                        try? contexto.save()
                     }
                     .buttonStyle(.glass)
                     .padding(.top, 8)
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .navigationDestination(for: Corrida.self) { corrida in
+                DetalheCorridaView(corrida: corrida)
+            }
         }
     }
 

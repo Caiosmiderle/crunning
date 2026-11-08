@@ -5,7 +5,7 @@ import SwiftUI
 struct HojeView: View {
     @Query(sort: \Corrida.inicio, order: .reverse) var corridas: [Corrida]
     @AppStorage(Preferencias.unidade) var unidade: UnidadeDistancia = .quilometros
-    @State var mostrandoAviso = false
+    @Environment(EstadoApp.self) var estadoApp
 
     var body: some View {
         NavigationStack {
@@ -20,18 +20,21 @@ struct HojeView: View {
                     .entradaCascata(2)
                 cartaoSemana
                     .entradaCascata(3)
-                DeslizarParaConfirmar(rotulo: "Deslize para correr") {
-                    mostrandoAviso = true
+                Button {
+                    estadoApp.abrirCorridaLivre()
+                } label: {
+                    Label("Correr agora", systemImage: "figure.run")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(Color.black)
+                        .frame(maxWidth: .infinity, minHeight: 60)
+                        .background(Paleta.verdeLogo, in: Capsule())
                 }
+                .buttonStyle(.plain)
+                .accessibilityHint("Abre a tela de corrida livre com GPS")
                 .padding(.top, 8)
                 .entradaCascata(4)
             }
             .toolbar(.hidden, for: .navigationBar)
-            .alert("Quase lá", isPresented: $mostrandoAviso) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text("A corrida livre com GPS chega na próxima versão do app.")
-            }
         }
     }
 
@@ -42,7 +45,7 @@ struct HojeView: View {
                 .foregroundStyle(.secondary)
             Text("Nada planejado")
                 .font(.title2.weight(.semibold))
-            Text("Os planos de treino chegam numa próxima versão. Primeiro vem a corrida livre com GPS.")
+            Text("Os planos de treino chegam numa próxima versão. Enquanto isso, faça uma corrida livre: o app mede distância, ritmo, parciais e o trajeto.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

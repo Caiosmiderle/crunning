@@ -4,7 +4,7 @@ App nativo de iPhone para planejar e executar treinos de corrida. Uso pessoal, u
 
 ## Situação
 
-Fase 2 (esqueleto e instalação): abas Hoje, Plano, Histórico e Ajustes, SwiftData, design com vidro líquido, ícone a partir do logo, extensão da Live Activity (esqueleto) e CI gerando o `.ipa`. Instalar: [docs/INSTALAR.md](docs/INSTALAR.md).
+Fase 3 (corrida livre com GPS): gravação em segundo plano com pausa manual e automática, tempo em movimento, ritmo atual, parciais, recuperação se o iOS fechar o app, histórico com mapa colorido pelo ritmo, gráficos de ritmo e altitude, esforço percebido e exportação em GPX. Simulação de GPS para testar em casa. Instalar: [docs/INSTALAR.md](docs/INSTALAR.md). Testar na rua: [docs/TESTES-NA-RUA.md](docs/TESTES-NA-RUA.md).
 
 ## Como é feito
 
