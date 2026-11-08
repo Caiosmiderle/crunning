@@ -59,7 +59,12 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CURRENT_PROJECT_VERSION=${{ github.run_number }} \
             COMPILER_INDEX_STORE_ENABLE=NO \
-            2>&1 | tee "$RUNNER_TEMP/xcodebuild.log" | grep -E 'error:|warning: .*(Swift 6|concurrency)|\*\* (ARCHIVE|BUILD)' || true
+            > "$RUNNER_TEMP/xcodebuild.log" 2>&1 || true
+          echo "::group::Erros e avisos do compilador (sem repetição)"
+          grep -E 'error:|warning:' "$RUNNER_TEMP/xcodebuild.log" | sed "s|$GITHUB_WORKSPACE/||" | sort -u || echo "nenhum"
+          echo "::endgroup::"
+          echo "Avisos: $(grep -E 'warning:' "$RUNNER_TEMP/xcodebuild.log" | sort -u | wc -l | tr -d ' ')"
+          grep -E '\*\* (ARCHIVE|BUILD) (SUCCEEDED|FAILED) \*\*' "$RUNNER_TEMP/xcodebuild.log" || true
           test -d "$RUNNER_TEMP/CRUNNING.xcarchive/Products/Applications/CRUNNING.app"
 
       - name: Guardar o log do Xcode se falhar
