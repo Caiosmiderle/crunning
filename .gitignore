@@ -1,0 +1,41 @@
+# --- Xcode / Swift ---
+# O .xcodeproj é gerado pelo XcodeGen a partir de project.yml; não versionar.
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+.build/
+.swiftpm/
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.xcarchive
+
+# --- Assinatura e segredos (nunca no repositório) ---
+*.p12
+*.p8
+*.cer
+*.mobileprovision
+*.provisionprofile
+.env
+.env.*
+secrets/
+*.key
+
+# --- Análise de referência (fica em C:\Users\caiog\crunning-artifacts) ---
+*.apk
+*.apks
+*.aab
+*.xapk
+*.mp4
+*.mov
+*.webm
+captures/
+artifacts/
+
+# --- Sistemas ---
+.DS_Store
+Thumbs.db
+desktop.ini
