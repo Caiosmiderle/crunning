@@ -1,0 +1,78 @@
+# Projeto do Xcode gerado pelo XcodeGen (o .xcodeproj não é versionado).
+# Gerar: xcodegen generate   (o CI faz isso; no Windows não é preciso rodar nada)
+name: CRUNNING
+
+options:
+  bundleIdPrefix: io.github.caiosmiderle
+  deploymentTarget:
+    iOS: "26.0"
+  developmentLanguage: pt-BR
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.2.0"
+    CURRENT_PROJECT_VERSION: "1"     # o CI troca pelo número do build
+    TARGETED_DEVICE_FAMILY: "1"      # só iPhone
+    GENERATE_INFOPLIST_FILE: "YES"   # Info.plist = chaves INFOPLIST_KEY_* + arquivo em Suporte/
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_USER_SCRIPT_SANDBOXING: "YES"
+    DEAD_CODE_STRIPPING: "YES"
+
+packages:
+  CrunningCore:
+    path: CrunningCore
+
+targets:
+  CRUNNING:
+    type: application
+    platform: iOS
+    sources:
+      - App
+      - Compartilhado
+    dependencies:
+      - package: CrunningCore
+        product: CrunningCore
+      - target: CrunningWidgets
+    settings:
+      base:
+        PRODUCT_NAME: CRUNNING
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.caiosmiderle.crunning
+        INFOPLIST_FILE: Suporte/App-Info.plist
+        INFOPLIST_KEY_CFBundleDisplayName: CRUNNING
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.healthcare-fitness
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: "YES"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+
+  # Extensão da Live Activity (tela de bloqueio e Dynamic Island).
+  # Conta como um App ID a mais na conta gratuita.
+  CrunningWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - Widgets
+      - Compartilhado
+    dependencies:
+      - package: CrunningCore
+        product: CrunningCore
+    settings:
+      base:
+        PRODUCT_NAME: CrunningWidgets
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.caiosmiderle.crunning.widgets
+        INFOPLIST_FILE: Suporte/Widgets-Info.plist
+        INFOPLIST_KEY_CFBundleDisplayName: CRUNNING
+        SKIP_INSTALL: "YES"
+        APPLICATION_EXTENSION_API_ONLY: "YES"
+
+schemes:
+  CRUNNING:
+    build:
+      targets:
+        CRUNNING: all
+    run:
+      config: Debug
+    archive:
+      config: Release

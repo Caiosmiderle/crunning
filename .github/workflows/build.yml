@@ -1,0 +1,106 @@
+# Compila o CRUNNING num Mac do GitHub e publica o .ipa NÃO assinado.
+# A assinatura acontece no seu PC, pelo Sideloadly, com o seu Apple ID.
+# Roda só quando você pede (aba Actions > Build > Run workflow) ou ao criar uma tag v*.
+name: Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      publicar_release:
+        description: "Publicar o .ipa também como Release (link fixo para baixar)"
+        type: boolean
+        default: true
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write   # necessário para criar a Release
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v6
+
+      - name: Escolher o Xcode estável mais novo
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_[0-9]*.app | grep -viE 'beta|rc|release_candidate' | sort -V | tail -1)
+          echo "Usando $XCODE"
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+          swift --version
+
+      - name: Testar o motor (CrunningCore)
+        run: swift test --package-path CrunningCore
+
+      - name: Instalar o XcodeGen
+        run: brew install xcodegen
+
+      - name: Gerar o projeto do Xcode
+        run: xcodegen generate
+
+      - name: Compilar (archive sem assinatura)
+        run: |
+          set -o pipefail
+          xcodebuild archive \
+            -project CRUNNING.xcodeproj \
+            -scheme CRUNNING \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/CRUNNING.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CURRENT_PROJECT_VERSION=${{ github.run_number }} \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            2>&1 | tee "$RUNNER_TEMP/xcodebuild.log" | grep -E 'error:|warning: .*(Swift 6|concurrency)|\*\* (ARCHIVE|BUILD)' || true
+          test -d "$RUNNER_TEMP/CRUNNING.xcarchive/Products/Applications/CRUNNING.app"
+
+      - name: Guardar o log do Xcode se falhar
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: xcodebuild-log-${{ github.run_number }}
+          path: ${{ runner.temp }}/xcodebuild.log
+          retention-days: 7
+
+      - name: Empacotar o .ipa
+        run: |
+          mkdir -p "$RUNNER_TEMP/ipa/Payload"
+          cp -R "$RUNNER_TEMP/CRUNNING.xcarchive/Products/Applications/CRUNNING.app" "$RUNNER_TEMP/ipa/Payload/"
+          ls "$RUNNER_TEMP/ipa/Payload/CRUNNING.app/PlugIns"
+          (cd "$RUNNER_TEMP/ipa" && zip -qry "$GITHUB_WORKSPACE/CRUNNING.ipa" Payload)
+          ls -lh CRUNNING.ipa
+          shasum -a 256 CRUNNING.ipa | tee CRUNNING.ipa.sha256
+
+      - name: Guardar o .ipa como artefato
+        uses: actions/upload-artifact@v6
+        with:
+          name: CRUNNING-build-${{ github.run_number }}
+          path: |
+            CRUNNING.ipa
+            CRUNNING.ipa.sha256
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Publicar a Release
+        if: startsWith(github.ref, 'refs/tags/') || inputs.publicar_release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            TAG="$GITHUB_REF_NAME"; EXTRA=""
+          else
+            TAG="build-${{ github.run_number }}"; EXTRA="--prerelease"
+          fi
+          gh release create "$TAG" CRUNNING.ipa CRUNNING.ipa.sha256 \
+            --target "$GITHUB_SHA" \
+            --title "CRUNNING $TAG" \
+            --notes "Build ${{ github.run_number }} (commit ${GITHUB_SHA::7}). .ipa NÃO assinado: instale pelo Sideloadly seguindo docs/INSTALAR.md." \
+            $EXTRA
