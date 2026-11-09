@@ -87,17 +87,38 @@ struct PreviaPlanoView: View {
             } header: {
                 Text("Hoje")
             } footer: {
-                Text(tempoReferencia > 0 ? "Ritmos pela prova de referência de Meus ritmos." : "Sem prova em Meus ritmos: as distâncias são estimadas pelo nível.")
+                Text("A maior corrida das últimas 4 semanas limita as corridas do plano: nenhuma passa 10% dela, e ela cresce até 10% por semana. " + (tempoReferencia > 0 ? "Ritmos pela prova de referência de Meus ritmos." : "Sem prova em Meus ritmos: as distâncias são estimadas pelo nível."))
             }
 
             Section {
-                Button("Gerar prévia") { gerar() }
-                    .font(.headline)
-                    .disabled(dias.count < 2)
+                switch GeradorPlano.viabilidade(entradaAtual) {
+                case .viavel:
+                    Button("Gerar prévia") { gerar() }
+                        .font(.headline)
+                        .disabled(dias.count < 2)
+                case let .curto(minimas, motivo):
+                    Label(motivo, systemImage: "exclamationmark.triangle.fill")
+                        .font(.subheadline)
+                        .foregroundStyle(Paleta.foraLeve)
+                    Button("Usar \(minimas) semanas") { semanas = minimas }
+                        .font(.headline)
+                case let .naoRecomendado(motivo):
+                    Label(motivo, systemImage: "exclamationmark.triangle.fill")
+                        .font(.subheadline)
+                        .foregroundStyle(Paleta.foraForte)
+                }
             }
 
             if let plano {
                 let erros = ValidadorPlano.validar(plano)
+                let alertas = GeradorPlano.alertas(plano)
+                if !alertas.isEmpty {
+                    Section("Atenção") {
+                        ForEach(alertas, id: \.self) {
+                            Label($0, systemImage: "exclamationmark.circle").font(.subheadline)
+                        }
+                    }
+                }
                 Section("Por que este plano?") {
                     ForEach(plano.regras, id: \.self) { Text($0).font(.subheadline) }
                 }
@@ -122,7 +143,7 @@ struct PreviaPlanoView: View {
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                 Spacer()
-                                Text(Formatador.distancia(semana.volumeTotal, unidade: unidade, casas: 0))
+                                Text(Formatador.distancia(semana.volumeTreino, unidade: unidade, casas: 0) + (semana.temProva ? " + prova" : ""))
                                     .font(.subheadline.monospacedDigit())
                             }
                         }
@@ -134,13 +155,16 @@ struct PreviaPlanoView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private func gerar() {
+    private var entradaAtual: EntradaPlano {
         let vdot = tempoReferencia > 0 ? Daniels.vdot(distanciaMetros: distanciaReferencia, tempoSegundos: tempoReferencia) : nil
-        let entrada = EntradaPlano(
+        return EntradaPlano(
             objetivo: opcao.objetivo, semanas: semanas, nivel: nivel, diasDisponiveis: dias, diaLongao: diaLongao,
             volumeAtual: Double(volumeKm) * 1000, longaoAtual: Double(longaoKm) * 1000, vdot: vdot
         )
-        withAnimation { plano = GeradorPlano.gerar(entrada) }
+    }
+
+    private func gerar() {
+        withAnimation { plano = GeradorPlano.gerar(entradaAtual) }
     }
 
     @ViewBuilder

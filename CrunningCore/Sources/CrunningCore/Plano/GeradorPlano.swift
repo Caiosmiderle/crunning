@@ -84,7 +84,7 @@ public enum GeradorPlano {
             let base = max(1, Int((Double(e.semanas) * 0.4).rounded()))
             return Array(repeating: .base, count: base) + Array(repeating: .construcao, count: e.semanas - base)
         case let .prova(d):
-            let polimento = min(RegrasPlano.semanasPolimento(d), e.semanas)
+            let polimento = RegrasPlano.semanasPolimento(d, totalSemanas: e.semanas)
             let resto = e.semanas - polimento
             var base = Int((Double(resto) * 0.40).rounded())
             var construcao = Int((Double(resto) * 0.35).rounded())
@@ -181,13 +181,18 @@ public enum GeradorPlano {
         let corridas = diasCorrida.count
         let picoCorrida = RegrasPlano.picoMaximoCorrida
             * (h.maiores.suffix(RegrasPlano.janelaPico).max() ?? RegrasPlano.pisoLongaoReferencia)
-        let maiorPermitida = min(
+        let tetoLongao = min(
             picoCorrida,
-            RegrasPlano.fracaoMaximaCorrida(corridas: corridas, volume: alvo) * alvo,
-            distanciaParaDuracao(RegrasPlano.duracaoMaximaCorrida, zonas: zonas),
+            RegrasPlano.fracaoMaximaCorrida(corridas: corridas, volume: alvo, objetivo: e.objetivo) * alvo,
+            distanciaParaDuracao(RegrasPlano.duracaoMaximaCorrida(e.objetivo), zonas: zonas),
             RegrasPlano.tetoLongao(e.objetivo)
         )
-        let longao = abaixo100(maiorPermitida)
+        // Na meia e na maratona o longão é o treino-chave: cresce o que as travas deixam.
+        // Nas provas curtas e sem prova, fica numa fração do volume.
+        let provaLonga = (e.objetivo.distanciaProva ?? 0) >= 15_000
+        let longao = abaixo100(provaLonga ? tetoLongao : min(tetoLongao, RegrasPlano.fracaoLongaoAlvo(corridas: corridas) * alvo))
+        let tetoFacil = abaixo100(longao * RegrasPlano.fracaoFacilDoLongao)
+        let tetoQualidade = abaixo100(longao * RegrasPlano.fracaoQualidadeDoLongao)
 
         // Dia do longão: a prova na última semana, o longão nas outras.
         if semanaDaProva, let distancia = e.objetivo.distanciaProva {
@@ -196,14 +201,15 @@ public enum GeradorPlano {
             dias[e.diaLongao] = sessao(Modelos.longao, dose: longao, zonas: zonas)
         }
 
-        // Aceleracoes numa corrida fácil (base, construção e semana da prova), se o limite de repetições deixar.
+        // Acelerações numa corrida fácil (base, construção e semana da prova), se o limite de repetições deixar.
         let querAceleracoes = fase == .base || fase == .construcao || semanaDaProva
-        let trabalhoAceleracoes = SessaoPlanejada(treino: Modelos.aceleracoes.treino(dose: 3000), zonas: zonas)
-            .trabalho[.repeticoes] ?? 0
+        let referenciaAceleracoes = SessaoPlanejada(treino: Modelos.aceleracoes.treino(dose: 3000), zonas: zonas)
+        let trabalhoAceleracoes = referenciaAceleracoes.trabalho[.repeticoes] ?? 0
+        let extraAceleracoes = max(0, referenciaAceleracoes.distancia - 3000)
         let aceleracoes = querAceleracoes && (e.nivel != .iniciante || fase != .base)
             && trabalhoAceleracoes <= RegrasPlano.limiteTrabalho(.repeticoes, volumeSemana: alvo)
 
-        // Qualidade.
+        // Qualidade, sempre menor que o longão.
         let quantidade = semanaDaProva ? 0 : qualidadeDesejada(fase, nivel: e.nivel, corridas: corridas)
         var orcamento = RegrasPlano.fracaoMaximaQualidade * alvo - (aceleracoes ? trabalhoAceleracoes : 0)
         var diasQualidade: [Int] = []
@@ -214,13 +220,14 @@ public enum GeradorPlano {
         for (slot, dia) in diasQualidade.enumerated() {
             let modelo = escolherModelo(slot: slot, numero: numero, fase: fase, e: e)
             if let s = sessaoQualidade(modelo, e: e, zonas: zonas, fase: fase, alvo: alvo, orcamento: orcamento,
-                                       maiorDistancia: max(longao, RegrasPlano.corridaMinima)) {
+                                       maiorDistancia: tetoQualidade) {
                 dias[dia] = s
                 orcamento -= s.trabalhoDeQualidade
             }
         }
 
-        // Corridas fáceis com o que sobra do volume, nunca maiores que o longão.
+        // Corridas fáceis com o que sobra do volume, até 75% do longão. Se não couber o volume
+        // todo, a semana fica menor: o volume cresce junto com o longão.
         var faceis = diasCorrida.filter { dias[$0] == nil }
         let usado = dias.compactMap { $0 }.filter { !$0.ehProva }.reduce(0) { $0 + $1.distancia }
         let restante = alvo - usado
@@ -228,37 +235,41 @@ public enum GeradorPlano {
             faceis.removeLast()
         }
         if !faceis.isEmpty {
-            let cada = abaixo100(min(restante / Double(faceis.count), max(longao, RegrasPlano.corridaMinima)))
+            let cada = abaixo100(min(restante / Double(faceis.count), tetoFacil))
             if cada >= RegrasPlano.corridaMinima {
                 var colocouAceleracoes = false
                 for dia in faceis {
                     let depoisDeForte = dias[(dia + 6) % 7]?.ehForte ?? false
-                    let modelo: ModeloTreino
-                    if aceleracoes && !colocouAceleracoes && !depoisDeForte {
-                        modelo = Modelos.aceleracoes
+                    let doseAceleracoes = abaixo100(cada - extraAceleracoes)
+                    if aceleracoes && !colocouAceleracoes && !depoisDeForte && doseAceleracoes >= RegrasPlano.corridaMinima {
+                        dias[dia] = sessao(Modelos.aceleracoes, dose: doseAceleracoes, zonas: zonas)
                         colocouAceleracoes = true
+                    } else if depoisDeForte {
+                        // Depois de um dia forte, uma corrida um pouco mais curta para recuperar.
+                        dias[dia] = sessao(Modelos.recuperacao, dose: max(RegrasPlano.corridaMinima, abaixo100(cada * 0.85)), zonas: zonas)
                     } else {
-                        modelo = depoisDeForte ? Modelos.recuperacao : Modelos.facil
+                        dias[dia] = sessao(Modelos.facil, dose: cada, zonas: zonas)
                     }
-                    dias[dia] = sessao(modelo, dose: cada, zonas: zonas)
                 }
             }
         }
 
         var semana = SemanaPlano(numero: numero, fase: fase, alivio: alivio, dias: dias)
-        equilibrar(&semana, zonas: zonas, limite: limite, picoCorrida: picoCorrida)
+        equilibrar(&semana, objetivo: e.objetivo, zonas: zonas, limite: limite, picoCorrida: picoCorrida)
         return semana
     }
 
     // MARK: Equilíbrio final (garante as travas depois do arredondamento)
 
     /// A primeira trava da semana que ainda não fecha: o dia a encolher e até quanto.
-    static func primeiroProblema(_ semana: SemanaPlano, limite: Double, picoCorrida: Double, distanciaMaxima: Double) -> (dia: Int, alvo: Double)? {
+    static func primeiroProblema(
+        _ semana: SemanaPlano, objetivo: Objetivo, limite: Double, picoCorrida: Double, distanciaMaxima: Double
+    ) -> (dia: Int, alvo: Double)? {
         let volume = semana.volumeTreino
-        if volume > limite + 1, let dia = maiorContinua(semana) ?? maiorSessao(semana) {
+        if volume > limite + 1, let dia = maiorFacil(semana) ?? maiorContinua(semana) ?? maiorSessao(semana) {
             return (dia, semana.dias[dia]!.distancia - (volume - limite))
         }
-        let fracao = RegrasPlano.fracaoMaximaCorrida(corridas: semana.corridas, volume: volume)
+        let fracao = RegrasPlano.fracaoMaximaCorrida(corridas: semana.corridas, volume: volume, objetivo: objetivo)
         let tetoFracao = semana.corridas <= 1 ? Double.infinity : fracao * volume
         let teto = min(tetoFracao, picoCorrida, distanciaMaxima)
         for dia in 0..<7 {
@@ -272,6 +283,19 @@ public enum GeradorPlano {
                 return (dia, s.distancia * 0.85)
             }
         }
+        // O longão é a maior corrida da semana.
+        if let diaLongao = semana.dias.indices.first(where: { semana.dias[$0]?.tipo == .longao }) {
+            let longao = semana.dias[diaLongao]!.distancia
+            let tetoFacil = abaixo100(longao * RegrasPlano.fracaoFacilDoLongao) + 100
+            for dia in 0..<7 where dia != diaLongao {
+                guard let s = semana.dias[dia], !s.ehProva else { continue }
+                let facil = s.tipo == .facil || s.tipo == .recuperacao
+                let teto = facil ? tetoFacil : longao * RegrasPlano.fracaoMaximaDoLongao
+                if s.distancia > teto + 1 {
+                    return (dia, abaixo100(longao * (facil ? RegrasPlano.fracaoFacilDoLongao : RegrasPlano.fracaoQualidadeDoLongao)))
+                }
+            }
+        }
         let qualidade = semana.sessoes.reduce(0) { $0 + $1.trabalhoDeQualidade }
         if qualidade > RegrasPlano.fracaoMaximaQualidade * volume + 1,
            let dia = semana.dias.indices.filter({ (semana.dias[$0]?.trabalhoDeQualidade ?? 0) > 0 })
@@ -281,21 +305,29 @@ public enum GeradorPlano {
         return nil
     }
 
-    static func equilibrar(_ semana: inout SemanaPlano, zonas: Zonas, limite: Double, picoCorrida: Double) {
-        let distanciaMaxima = distanciaParaDuracao(RegrasPlano.duracaoMaximaCorrida, zonas: zonas)
+    static func equilibrar(_ semana: inout SemanaPlano, objetivo: Objetivo, zonas: Zonas, limite: Double, picoCorrida: Double) {
+        let distanciaMaxima = distanciaParaDuracao(RegrasPlano.duracaoMaximaCorrida(objetivo), zonas: zonas)
         for _ in 0..<300 {
-            guard let problema = primeiroProblema(semana, limite: limite, picoCorrida: picoCorrida, distanciaMaxima: distanciaMaxima) else {
+            guard let p = primeiroProblema(semana, objetivo: objetivo, limite: limite, picoCorrida: picoCorrida, distanciaMaxima: distanciaMaxima) else {
                 return
             }
-            let antes = semana.dias[problema.dia]
-            reduzir(&semana, dia: problema.dia, para: problema.alvo, zonas: zonas)
+            let antes = semana.dias[p.dia]
+            reduzir(&semana, dia: p.dia, para: p.alvo, zonas: zonas)
             // Sem progresso (sessão que não encolhe mais): vira descanso.
-            if semana.dias[problema.dia] == antes { semana.dias[problema.dia] = nil }
+            if semana.dias[p.dia] == antes { semana.dias[p.dia] = nil }
         }
         // Rede de segurança: tira sessões até todas as travas fecharem.
-        while let problema = primeiroProblema(semana, limite: limite, picoCorrida: picoCorrida, distanciaMaxima: distanciaMaxima) {
-            semana.dias[problema.dia] = nil
+        while let p = primeiroProblema(semana, objetivo: objetivo, limite: limite, picoCorrida: picoCorrida, distanciaMaxima: distanciaMaxima) {
+            semana.dias[p.dia] = nil
         }
+    }
+
+    /// Maior corrida fácil (fácil, recuperação ou com acelerações).
+    static func maiorFacil(_ semana: SemanaPlano) -> Int? {
+        let faceis: Set<String> = [Modelos.facil.id, Modelos.recuperacao.id, Modelos.aceleracoes.id]
+        return semana.dias.indices
+            .filter { semana.dias[$0].map { faceis.contains($0.treino.modeloID ?? "") } ?? false }
+            .max { semana.dias[$0]!.distancia < semana.dias[$1]!.distancia }
     }
 
     static func ehContinua(_ s: SessaoPlanejada) -> Bool {
@@ -540,6 +572,64 @@ public enum GeradorPlano {
         segundos / zonas.faixa(.facil).alvo * 1000
     }
 
+    // MARK: Viabilidade e alertas (CIENCIA: "Viabilidade do plano")
+
+    /// Longão de pico recomendado para a prova, limitado pelo tempo máximo de corrida e pelo teto do objetivo.
+    static func longaoRecomendado(_ e: EntradaPlano, zonas: Zonas) -> Double? {
+        guard let d = e.objetivo.distanciaProva else { return nil }
+        return min(
+            RegrasPlano.longaoRecomendado(d, nivel: e.nivel),
+            distanciaParaDuracao(RegrasPlano.duracaoMaximaCorrida(e.objetivo), zonas: zonas),
+            RegrasPlano.tetoLongao(e.objetivo)
+        )
+    }
+
+    /// Dá para preparar a prova no tempo pedido? O longão sobe até 10% por semana, com alívio e polimento.
+    public static func viabilidade(_ entrada: EntradaPlano) -> Viabilidade {
+        let e = normalizar(entrada)
+        guard let d = e.objetivo.distanciaProva, let recomendado = longaoRecomendado(e, zonas: zonasDa(e)) else { return .viavel }
+        func km(_ m: Double) -> String { Formatador.numero(m / 1000, casas: m >= 10_000 ? 0 : 1) + " km" }
+        let atual = max(e.longaoAtual, RegrasPlano.pisoLongaoReferencia)
+        let crescimento = atual >= recomendado ? 0 : Int((log(recomendado / atual) / log(RegrasPlano.picoMaximoCorrida)).rounded(.up))
+        let alivios = crescimento / max(1, RegrasPlano.aliviaACada(e.nivel) - 1)
+        let porLongao = crescimento + alivios + RegrasPlano.semanasPolimento(d)
+        let minimo = RegrasPlano.semanasMinimas(d, nivel: e.nivel)
+        let necessarias = max(minimo, porLongao)
+        let nome = e.objetivo.nome.lowercased()
+        if necessarias > 30 {
+            return .naoRecomendado(motivo: "Para a \(nome) a partir de um longão de \(km(atual)), seriam mais de 30 semanas. Comece por uma prova mais curta ou pelo condicionamento.")
+        }
+        guard e.semanas < necessarias else { return .viavel }
+        let motivo = porLongao > minimo
+            ? "Com o seu longão atual de \(km(atual)), a \(nome) pede pelo menos \(necessarias) semanas: o longão precisa chegar a cerca de \(km(recomendado)), subindo até 10% por semana, com alívio e polimento."
+            : "A \(nome) pede pelo menos \(necessarias) semanas de preparação."
+        return .curto(semanasMinimas: necessarias, motivo: motivo)
+    }
+
+    /// Avisos sobre o plano gerado, em linguagem de treinador.
+    public static func alertas(_ plano: Plano) -> [String] {
+        let e = plano.entrada
+        func km(_ m: Double) -> String { Formatador.numero(m / 1000, casas: 1) + " km" }
+        var lista: [String] = []
+        switch viabilidade(e) {
+        case let .curto(_, motivo): lista.append(motivo + " Este plano tem \(e.semanas).")
+        case let .naoRecomendado(motivo): lista.append(motivo)
+        case .viavel: break
+        }
+        guard e.objetivo != .comecarACorrer, let primeira = plano.semanas.first else { return lista }
+        if e.volumeAtual > 0, primeira.volumeTreino < 0.8 * e.volumeAtual {
+            let maior = max(e.longaoAtual, RegrasPlano.pisoLongaoReferencia)
+            lista.append("A primeira semana (\(km(primeira.volumeTreino))) fica abaixo do que você corre hoje (\(km(e.volumeAtual))): nenhuma corrida passa 10% da sua maior corrida recente (\(km(maior))) e as outras ficam menores que o longão. O volume sobe junto com o longão. Se você já corre mais longe, informe a maior corrida das últimas 4 semanas.")
+        }
+        if let recomendado = longaoRecomendado(e, zonas: plano.zonas) {
+            let maior = plano.semanas.map(\.maiorCorrida).max() ?? 0
+            if maior < 0.9 * recomendado {
+                lista.append("O maior longão do plano (\(km(maior))) fica abaixo do recomendado para a prova (cerca de \(km(recomendado))). Mais semanas, mais dias de corrida ou mais volume ajudam.")
+            }
+        }
+        return lista
+    }
+
     // MARK: "Por que este plano?"
 
     static func regras(_ e: EntradaPlano, semanas: [SemanaPlano]) -> [String] {
@@ -564,10 +654,10 @@ public enum GeradorPlano {
         let referencia = max(e.volumeAtual, RegrasPlano.pisoVolumeReferencia)
         linhas.append("O volume parte de \(km(referencia)) por semana e sobe no máximo \(Int((e.tetoProgressao * 100).rounded()))% sobre as 3 semanas anteriores, nunca mais de 25% de uma semana para a outra.")
         linhas.append("Semana de alívio a cada \(RegrasPlano.aliviaACada(e.nivel)) semanas, com 20% menos volume.")
-        linhas.append("Nenhuma corrida passa 10% da maior das 4 semanas anteriores; o longão fica em até 25% a 40% do volume (conforme o número de corridas) e 150 minutos.")
+        linhas.append("Nenhuma corrida passa 10% da maior das 4 semanas anteriores. O longão é a maior corrida da semana (as fáceis ficam em até 75% dele) e tem limite de fração do volume e de tempo (\(Int(RegrasPlano.duracaoMaximaCorrida(e.objetivo) / 60)) minutos).")
         linhas.append("No máximo \(RegrasPlano.maximoQualidade(e.nivel)) treinos de qualidade por semana, nunca em dias seguidos nem colados no longão, e até 20% do volume em qualidade.")
         if let d = e.objetivo.distanciaProva {
-            let n = min(RegrasPlano.semanasPolimento(d), semanas.count)
+            let n = RegrasPlano.semanasPolimento(d, totalSemanas: semanas.count)
             linhas.append("Polimento de \(n) semana\(n == 1 ? "" : "s"): o volume cai até cerca de metade do pico, com a mesma intensidade e o mesmo número de corridas.")
         }
         if let v = e.vdot {

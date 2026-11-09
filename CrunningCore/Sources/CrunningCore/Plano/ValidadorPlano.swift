@@ -11,6 +11,7 @@ public enum Violacao: Equatable, Sendable, CustomStringConvertible {
     case corridaAcimaDoPico(semana: Int, dia: Int)
     case corridaAcimaDaFracao(semana: Int, dia: Int)
     case corridaLongaDemais(semana: Int, dia: Int)
+    case corridaMaiorQueOLongao(semana: Int, dia: Int)
     case trabalhoAcimaDoLimite(semana: Int, dia: Int)
     case qualidadeAcimaDoLimite(semana: Int)
     case semPolimento
@@ -29,7 +30,8 @@ public enum Violacao: Equatable, Sendable, CustomStringConvertible {
         case let .acimaDoTeto(s): "Semana \(s) passa o teto de progressão."
         case let .corridaAcimaDoPico(s, d): "Semana \(s), dia \(d): corrida mais de 10% acima da maior das 4 semanas anteriores."
         case let .corridaAcimaDaFracao(s, d): "Semana \(s), dia \(d): corrida grande demais para o volume da semana."
-        case let .corridaLongaDemais(s, d): "Semana \(s), dia \(d): corrida de mais de 150 minutos."
+        case let .corridaLongaDemais(s, d): "Semana \(s), dia \(d): corrida mais longa que o tempo máximo."
+        case let .corridaMaiorQueOLongao(s, d): "Semana \(s), dia \(d): corrida do tamanho do longão (o longão tem que ser a maior)."
         case let .trabalhoAcimaDoLimite(s, d): "Semana \(s), dia \(d): trabalho de qualidade acima do limite da sessão."
         case let .qualidadeAcimaDoLimite(s): "Semana \(s) com mais de 20% do volume em qualidade."
         case .semPolimento: "Plano de prova sem polimento."
@@ -68,7 +70,7 @@ public enum ValidadorPlano {
 
         var volumes = [max(e.volumeAtual, RegrasPlano.pisoVolumeReferencia)]
         var maiores = [max(e.longaoAtual, RegrasPlano.pisoLongaoReferencia)]
-        let distanciaMaxima = RegrasPlano.duracaoMaximaCorrida / zonas.faixa(.facil).alvo * 1000
+        let distanciaMaxima = RegrasPlano.duracaoMaximaCorrida(e.objetivo) / zonas.faixa(.facil).alvo * 1000
 
         for semana in plano.semanas {
             let n = semana.numero
@@ -83,12 +85,16 @@ public enum ValidadorPlano {
             if !cabe(volume, em: max(janela * (1 + e.tetoProgressao), volumes.max()!)) { erros.append(.acimaDoTeto(semana: n)) }
 
             let pico = RegrasPlano.picoMaximoCorrida * maiores.suffix(RegrasPlano.janelaPico).max()!
-            let fracao = RegrasPlano.fracaoMaximaCorrida(corridas: semana.corridas, volume: volume)
+            let fracao = RegrasPlano.fracaoMaximaCorrida(corridas: semana.corridas, volume: volume, objetivo: e.objetivo)
+            let longao = semana.sessoes.first(where: { $0.tipo == .longao })?.distancia
             for (dia, sessao) in semana.dias.enumerated() {
                 guard let s = sessao, !s.ehProva else { continue }
                 if !cabe(s.distancia, em: pico) { erros.append(.corridaAcimaDoPico(semana: n, dia: dia)) }
                 if semana.corridas > 1, !cabe(s.distancia, em: fracao * volume) { erros.append(.corridaAcimaDaFracao(semana: n, dia: dia)) }
                 if !cabe(s.distancia, em: distanciaMaxima) { erros.append(.corridaLongaDemais(semana: n, dia: dia)) }
+                if let longao, s.tipo != .longao, !cabe(s.distancia, em: longao * RegrasPlano.fracaoMaximaDoLongao) {
+                    erros.append(.corridaMaiorQueOLongao(semana: n, dia: dia))
+                }
                 if s.trabalho.contains(where: { !cabe($0.value, em: RegrasPlano.limiteTrabalho($0.key, volumeSemana: volume)) }) {
                     erros.append(.trabalhoAcimaDoLimite(semana: n, dia: dia))
                 }
@@ -110,7 +116,7 @@ public enum ValidadorPlano {
         guard let ultima = plano.semanas.last else { return [.semProva] }
         var erros: [Violacao] = []
         if !ultima.temProva { erros.append(.semProva) }
-        let esperadas = max(1, min(RegrasPlano.semanasPolimento(distancia), plano.semanas.count - plano.semanasConcluidas))
+        let esperadas = max(1, min(RegrasPlano.semanasPolimento(distancia, totalSemanas: plano.semanas.count), plano.semanas.count - plano.semanasConcluidas))
         let finais = plano.semanas.suffix(esperadas)
         let antes = plano.semanas.dropLast(esperadas)
         let referencia = max(plano.entrada.volumeAtual, RegrasPlano.pisoVolumeReferencia)

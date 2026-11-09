@@ -25,17 +25,57 @@ public enum RegrasPlano {
 
     // MARK: Longão
 
-    public static let duracaoMaximaCorrida: TimeInterval = 150 * 60
+    /// 150 minutos (Daniels); na maratona, 180 (planos de maratona passam disso com longões de 30 km).
+    public static func duracaoMaximaCorrida(_ objetivo: Objetivo) -> TimeInterval {
+        (objetivo.distanciaProva ?? 0) >= 30_000 ? 180 * 60 : 150 * 60
+    }
 
     /// Fração máxima do volume semanal para a maior corrida, conforme o número de corridas.
-    public static func fracaoMaximaCorrida(corridas: Int, volume: Double) -> Double {
+    /// Daniels (25% a 30%) nas provas curtas e sem prova; na meia e na maratona, a faixa
+    /// mais alta usada por planos de maratona (prática de treinadores, ver CIENCIA.md).
+    public static func fracaoMaximaCorrida(corridas: Int, volume: Double, objetivo: Objetivo) -> Double {
+        let distancia = objetivo.distanciaProva ?? 0
+        if distancia >= 30_000 {
+            switch corridas {
+            case ...2: return 0.55
+            case 3: return 0.48
+            case 4: return 0.42
+            default: return 0.38
+            }
+        }
+        if distancia >= 15_000 {
+            switch corridas {
+            case ...2: return 0.55
+            case 3: return 0.43
+            case 4: return 0.38
+            default: return 0.33
+            }
+        }
         switch corridas {
-        case ...2: 0.55
-        case 3: 0.40
-        case 4: 0.35
-        default: volume > 64_000 ? 0.25 : 0.30
+        case ...2: return 0.55
+        case 3: return 0.40
+        case 4: return 0.35
+        default: return volume > 64_000 ? 0.25 : 0.30
         }
     }
+
+    /// Fração do volume semanal que o longão busca, conforme o número de corridas (escolha do app,
+    /// dentro do teto acima): com ela, o longão fica cerca de 30% maior que as outras corridas.
+    public static func fracaoLongaoAlvo(corridas: Int) -> Double {
+        switch corridas {
+        case ...2: 0.50
+        case 3: 0.37
+        case 4: 0.31
+        case 5: 0.27
+        default: 0.24
+        }
+    }
+
+    /// As outras corridas da semana ficam abaixo do longão: fáceis até 75% dele, qualidade até 85%.
+    public static let fracaoFacilDoLongao = 0.75
+    public static let fracaoQualidadeDoLongao = 0.85
+    /// Folga do validador para "nenhuma corrida maior que o longão" (arredondamento de 100 m).
+    public static let fracaoMaximaDoLongao = 0.90
 
     public static func tetoLongao(_ objetivo: Objetivo) -> Double {
         switch objetivo {
@@ -87,6 +127,37 @@ public enum RegrasPlano {
         case ..<30_000: 2
         default: 3
         }
+    }
+
+    /// Polimento num plano de `total` semanas: nunca mais que um quarto do plano.
+    public static func semanasPolimento(_ distancia: Double, totalSemanas total: Int) -> Int {
+        min(semanasPolimento(distancia), max(1, total / 4), max(1, total))
+    }
+
+    // MARK: Viabilidade (CIENCIA: "Viabilidade do plano")
+
+    /// Longão de pico recomendado para a prova (prática de treinadores).
+    public static func longaoRecomendado(_ distancia: Double, nivel: Nivel) -> Double {
+        let base: Double
+        switch distancia {
+        case ..<7_000: base = 8_000
+        case ..<15_000: base = 12_000
+        case ..<30_000: base = 18_000
+        default: base = 26_000
+        }
+        return nivel == .iniciante ? base * 0.85 : base
+    }
+
+    /// Mínimo de semanas por distância (prática de treinadores); iniciante pede 50% a mais.
+    public static func semanasMinimas(_ distancia: Double, nivel: Nivel) -> Int {
+        let base: Int
+        switch distancia {
+        case ..<7_000: base = 4
+        case ..<15_000: base = 6
+        case ..<30_000: base = 8
+        default: base = 12
+        }
+        return nivel == .iniciante ? Int((Double(base) * 1.5).rounded(.up)) : base
     }
 
     /// Volume de cada semana do polimento em relação ao pico (a última é a da prova).

@@ -177,3 +177,10 @@ public struct Plano: Codable, Sendable, Equatable {
         entrada.vdot.flatMap { Zonas(vdot: $0) } ?? Zonas.estimativaSemReferencia(entrada.nivel)
     }
 }
+
+/// Resposta de `GeradorPlano.viabilidade`.
+public enum Viabilidade: Equatable, Sendable {
+    case viavel
+    case curto(semanasMinimas: Int, motivo: String)
+    case naoRecomendado(motivo: String)
+}

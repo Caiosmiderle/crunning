@@ -56,7 +56,7 @@ public enum OperacoesPlano {
         for anterior in plano.semanas.prefix(i) { h.registrar(anterior) }
         let picoCorrida = RegrasPlano.picoMaximoCorrida
             * (h.maiores.suffix(RegrasPlano.janelaPico).max() ?? RegrasPlano.pisoLongaoReferencia)
-        GeradorPlano.equilibrar(&novo.semanas[i], zonas: zonas, limite: .greatestFiniteMagnitude, picoCorrida: picoCorrida)
+        GeradorPlano.equilibrar(&novo.semanas[i], objetivo: plano.entrada.objetivo, zonas: zonas, limite: .greatestFiniteMagnitude, picoCorrida: picoCorrida)
         return try refazer(novo, aPartirDaSemana: semana + 1)
     }
 

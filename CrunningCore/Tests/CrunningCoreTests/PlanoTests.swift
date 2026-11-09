@@ -96,6 +96,54 @@ struct PlanoTests {
         #expect(semReferencia.regras.contains { $0.contains("esforço percebido") })
     }
 
+    @Test func maratonaEmQuatroSemanasNaoEhViavel() {
+        let e = entrada(.maratona, semanas: 4, volume: 30_000, maior: 8_000, vdot: nil)
+        guard case let .curto(minimas, motivo) = GeradorPlano.viabilidade(e) else {
+            Issue.record("maratona em 4 semanas deveria ser curta")
+            return
+        }
+        #expect(minimas >= 12)
+        #expect(motivo.contains("longão"))
+        #expect(GeradorPlano.viabilidade(entrada(.maratona, semanas: minimas, volume: 30_000, maior: 8_000, vdot: nil)) == .viavel)
+        #expect(GeradorPlano.viabilidade(entrada(.condicionamento, semanas: 4)) == .viavel)
+    }
+
+    @Test func longaoMuitoCurtoParaMaratonaNaoEhRecomendado() {
+        if case .naoRecomendado = GeradorPlano.viabilidade(entrada(.maratona, semanas: 30, nivel: .iniciante, volume: 10_000, maior: 3_000)) {
+        } else {
+            Issue.record("maratona a partir de 3 km deveria não ser recomendada")
+        }
+    }
+
+    @Test(arguments: [Objetivo.cincoK, .dezK, .meia, .maratona, .condicionamento])
+    func longaoEhAMaiorCorrida(objetivo: Objetivo) {
+        let p = GeradorPlano.gerar(entrada(objetivo, semanas: 16, dias: [0, 1, 3, 4, 6], volume: 40_000, maior: 14_000))
+        #expect(ValidadorPlano.validar(p) == [])
+        for semana in p.semanas {
+            guard let longao = semana.sessoes.first(where: { $0.tipo == .longao }) else { continue }
+            for s in semana.sessoes where s.tipo == .facil || s.tipo == .recuperacao {
+                #expect(s.distancia <= longao.distancia * RegrasPlano.fracaoFacilDoLongao + 100, "semana \(semana.numero)")
+            }
+        }
+    }
+
+    @Test func volumeLimitadoPeloLongaoTemAlerta() {
+        let p = GeradorPlano.gerar(entrada(.dezK, semanas: 12, volume: 30_000, maior: 5_000))
+        #expect(GeradorPlano.alertas(p).contains { $0.hasPrefix("A primeira semana") })
+        #expect((p.semanas.first?.volumeTreino ?? 0) < 30_000 * 0.8)
+        let volumes = p.semanas.map(\.volumeTreino)
+        #expect((volumes.max() ?? 0) > (volumes.first ?? 0) * 1.5)
+    }
+
+    @Test func meiaEMaratonaComLongaoDeVerdade() {
+        let meia = GeradorPlano.gerar(entrada(.meia, semanas: 16, dias: [0, 1, 3, 4, 6], volume: 35_000, maior: 12_000))
+        #expect((meia.semanas.map(\.maiorCorrida).max() ?? 0) >= 16_000)
+        let maratona = GeradorPlano.gerar(entrada(.maratona, semanas: 18, dias: [0, 1, 3, 4, 6], volume: 45_000, maior: 18_000))
+        #expect((maratona.semanas.map(\.maiorCorrida).max() ?? 0) >= 23_000)
+        #expect(ValidadorPlano.validar(meia) == [])
+        #expect(ValidadorPlano.validar(maratona) == [])
+    }
+
     @Test func moverQualidadeParaPertoDoLongaoEhRecusado() throws {
         let p = GeradorPlano.gerar(entrada(semanas: 12))
         let semana = try #require(p.semanas.first { $0.fase == .construcao })
