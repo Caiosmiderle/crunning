@@ -92,6 +92,7 @@ final class GravadorCorrida: Identifiable {
     @ObservationIgnored private var observadores: [any NSObjectProtocol] = []
     @ObservationIgnored private var avisosAtivos: Set<DiagnosticoGPS.Tipo> = []
     private let locutor = Locutor.compartilhado
+    private let atividade = AtividadeAoVivo()
     @ObservationIgnored private var contagemEm: Date?
 
     /// Corrida nova.
@@ -196,6 +197,58 @@ final class GravadorCorrida: Identifiable {
         tratarExecucao(eventos, interromperFala: false)
         ligarGravacao()
         salvarSessao(forcar: true)
+        iniciarAtividade()
+    }
+
+    private func iniciarAtividade() {
+        let titulo = execucao?.treino.nome ?? (esteira ? "Esteira" : simulada ? "Corrida simulada" : "Corrida livre")
+        atividade.iniciar(titulo: titulo, esteira: esteira, estado: estadoAtividade())
+    }
+
+    /// O que a Live Activity mostra agora. Os cronômetros usam o relógio real do iPhone.
+    private func estadoAtividade() -> TreinoAtividadeAtributos.ContentState {
+        let l = leitura()
+        let pausada = sessao.estado == .pausadaManual || sessao.estado == .pausadaAuto
+        var nome = esteira ? "Esteira" : "Corrida livre"
+        var detalhe: String?
+        var fim: Date?
+        var restanteTexto: String?
+        var parado: TimeInterval?
+        var progresso = 0.0
+        var cor = TipoTreino.facil.hex
+        if let execucao, let etapa = execucao.etapaAtual {
+            nome = etapa.nome
+            cor = etapa.tipo.hex
+            if let k = etapa.repeticao, let n = etapa.totalRepeticoes, n > 1 {
+                detalhe = "Repetição \(k) de \(n)"
+            } else if let faixa = etapa.faixa {
+                detalhe = "Alvo " + TextoTreino.faixa(faixa, unidade: unidade)
+            }
+            progresso = execucao.progressoTotal(l)
+            let resta = max(0, execucao.restante(l) ?? 0)
+            switch etapa.medida {
+            case .tempo:
+                if pausada { parado = resta } else { fim = Date.now.addingTimeInterval(resta) }
+            case .distancia:
+                restanteTexto = resta < 1000 ? "\(Int(resta.rounded())) m" : Formatador.distancia(resta, casas: 2)
+            }
+        } else if execucao?.terminou == true {
+            nome = "Treino concluído"
+            progresso = 1
+            cor = TipoTreino.prova.hex
+        }
+        var inicio: Date?
+        if fim == nil, restanteTexto == nil, parado == nil {
+            let movimento = sessao.tempoEmMovimento(em: agora)
+            if pausada { parado = movimento } else { inicio = Date.now.addingTimeInterval(-movimento) }
+        }
+        return TreinoAtividadeAtributos.ContentState(
+            nomeBloco: nome, detalhe: detalhe, fimDoBloco: fim, restanteTexto: restanteTexto,
+            inicioCronometro: inicio, tempoParado: parado,
+            distanciaMetros: esteira ? 0 : sessao.distancia,
+            ritmoSegundosPorKm: esteira ? nil : sessao.ritmoAtual(em: agora),
+            progresso: progresso, pausada: pausada, corHex: cor
+        )
     }
 
     /// Pula a etapa atual do treino (a tela confirma antes, menos nos exercícios do aquecimento).
@@ -241,6 +294,7 @@ final class GravadorCorrida: Identifiable {
     }
 
     func finalizar() {
+        atividade.encerrar()
         agora = relogio.agora
         execucao?.encerrar(leitura())
         contagemVisivel = nil
@@ -253,6 +307,7 @@ final class GravadorCorrida: Identifiable {
 
     /// Fecha sem gravar (antes de começar, ou descartando no resumo).
     func descartar() {
+        atividade.encerrar()
         pararTudo()
         ArmazemSessao.apagar()
     }
@@ -284,6 +339,7 @@ final class GravadorCorrida: Identifiable {
         prepararGPS(reaberta: true)
         atualizarRelogio()
         salvarSessao(forcar: true)
+        iniciarAtividade()
         ultimoAviso = AvisoCorrida(
             texto: sessao.estado == .pausadaManual ? "Corrida recuperada (pausada)" : "Corrida recuperada",
             icone: "arrow.clockwise.circle.fill"
@@ -417,6 +473,9 @@ final class GravadorCorrida: Identifiable {
     private func atualizarRelogio() {
         agora = relogio.agora
         avancarExecucao()
+        if sessao.estado != .pronta, sessao.estado != .finalizada, atividade.ativa {
+            atividade.atualizar(estadoAtividade())
+        }
     }
 
     // MARK: Treino por blocos

@@ -25,18 +25,21 @@ enum Paleta {
 }
 
 extension TipoTreino {
-    /// Cor fixa de cada tipo, do frio (leve) ao quente (intenso), igual no app inteiro.
-    var cor: Color {
+    /// Cor fixa de cada tipo, do frio (leve) ao quente (intenso), igual no app inteiro
+    /// (e na Live Activity, que recebe o hex).
+    var hex: UInt32 {
         switch self {
-        case .caminhada: Color(hex: 0xB7C4D1)
-        case .recuperacao: Color(hex: 0x8FA3B8)
-        case .facil: Color(hex: 0x4DA3FF)
-        case .longao: Color(hex: 0x7B7CFF)
-        case .ritmoProva: Color(hex: 0x2EC4B6)
-        case .limiar: Color(hex: 0xFFC53D)
-        case .intervalado: Color(hex: 0xFF7A3D)
-        case .repeticoes: Color(hex: 0xFF3D6E)
-        case .prova: Paleta.verdeLogo
+        case .caminhada: 0xB7C4D1
+        case .recuperacao: 0x8FA3B8
+        case .facil: 0x4DA3FF
+        case .longao: 0x7B7CFF
+        case .ritmoProva: 0x2EC4B6
+        case .limiar: 0xFFC53D
+        case .intervalado: 0xFF7A3D
+        case .repeticoes: 0xFF3D6E
+        case .prova: 0x8BE105
         }
     }
+
+    var cor: Color { Color(hex: hex) }
 }

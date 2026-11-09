@@ -10,7 +10,9 @@ Fase 4 (motor de treino): zonas de ritmo pelo VDOT, previsão de prova, bibliote
 
 Fase 5 (criar e executar treino): construtor com texto rápido ("10min fácil + 6x(400m forte / 90s trote)"), linha do tempo e editor de blocos, biblioteca com treinos prontos nos seus ritmos, execução por blocos com barra segmentada, medidor de ritmo, contagem regressiva, voz em português (abaixa a música) e vibração, aquecimento guiado antes dos treinos fortes, volta manual, pular etapa, modo esteira, teste de referência que atualiza os ritmos e resumo planejado x feito por bloco. Na prévia do plano, as sugestões do Coach de IA viram correções com antes e depois, aplicadas pelo motor e com desfazer.
 
-Próximas fases: 6 (Live Activity), 7 (Apple Saúde), 8 (planos no calendário, Hoje e adaptação), 9 (Coach de IA completo).
+Fase 6 (Live Activity): na tela de bloqueio e na Dynamic Island, o bloco atual com a cor dele, o que falta (cronômetro que roda sozinho ou distância), distância, ritmo e o progresso do treino; na corrida livre, o tempo em movimento. Atualiza na troca de bloco, na pausa e no máximo a cada 10 s, e some ao finalizar ou descartar.
+
+Próximas fases: 7 (Apple Saúde), 8 (planos no calendário, Hoje e adaptação), 9 (Coach de IA completo).
 
 ## Como é feito
 

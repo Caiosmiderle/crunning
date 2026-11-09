@@ -83,3 +83,14 @@ O que me contar: algum plano que pareça sem sentido para você como corredor (v
 - Se o aviso de ritmo veio no momento certo ou incomodou (dá para desligar em Ajustes > Avisos durante a corrida).
 - Se algum trecho do texto rápido que você tentou não foi entendido.
 
+## Fase 6: Live Activity e Dynamic Island (0.6.0)
+
+1. Confira em Ajustes do iPhone > CRUNNING que "Atividades ao Vivo" está ligado.
+2. Comece um treino (pode ser com a simulação a 10x em casa) e **bloqueie a tela**: o cartão do CRUNNING aparece com o bloco atual na cor dele, o cronômetro do bloco correndo sozinho (ou os metros que faltam), distância, ritmo e a barra do treino.
+3. Desbloqueie e vá para outro app: na **Dynamic Island** aparece o ícone e o que falta; toque e segure para ver a versão expandida.
+4. Pause: o cartão mostra "Pausado" com o tempo parado. Retome e veja voltar a correr.
+5. Finalize ou descarte: o cartão some.
+6. Corrida livre: o cartão mostra o tempo em movimento, a distância e o ritmo.
+
+O que me contar: se o cartão aparece com o app instalado pelo Sideloadly, se atualiza na troca de bloco com a tela bloqueada e se algum texto fica cortado na Dynamic Island.
+
