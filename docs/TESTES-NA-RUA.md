@@ -46,6 +46,7 @@ Fechar o app de propósito pelo seletor de apps também cai nesse caso: o iOS n�
    - "Por que este plano?" explica as fases e as travas;
    - "Travas" mostra "Todas as travas conferidas";
    - em cada semana, nenhum treino de qualidade em dias seguidos ou colado no longão, e a prova no dia do longão da última semana.
-3. Teste combinações estranhas (2 dias por semana, volume 0, maratona em 4 semanas, começar a correr): o plano tem que sair sempre, e as travas sempre conferidas.
+3. Teste combinações estranhas (2 dias por semana, volume 0, maratona em 4 semanas, começar a correr). Se faltar tempo para a prova, a prévia diz o mínimo de semanas e oferece "Usar N semanas"; nos outros casos o plano sai, com as travas conferidas e os avisos em "Atenção".
+4. **Coach de IA (0.4.1):** em Ajustes > Coach de IA, cole a sua chave da Anthropic e salve (fica só no Keychain). Na prévia, toque em "Analisar com o coach de IA". Cada análise custa poucos centavos de dólar na sua conta.
 
 O que me contar: algum plano que pareça sem sentido para você como corredor (volume, longão, ordem dos treinos), mesmo com as travas conferidas.
