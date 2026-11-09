@@ -30,6 +30,7 @@ struct CorrecaoIA: Decodable, Equatable, Hashable {
     let tetoPercentual: Int?
     let dias: [Int]?
     let diaLongao: Int?
+    let diasParado: Int?
 
     var correcao: CorrecaoPlano? {
         switch tipo {
@@ -51,6 +52,12 @@ struct CorrecaoIA: Decodable, Equatable, Hashable {
         case "mudar_dias":
             guard let dias, let diaLongao else { return nil }
             return .mudarDias(Set(dias), longao: diaLongao)
+        case "retomar_apos_pausa":
+            guard let semana, let diasParado else { return nil }
+            return .retomarAposPausa(semana: semana, dias: diasParado)
+        case "reajustar_prova":
+            guard let semana, let semanas else { return nil }
+            return .reajustarProva(aPartirDaSemana: semana, semanasRestantes: semanas)
         default:
             return nil
         }
@@ -150,13 +157,16 @@ enum CoachIA {
         ["anyOf": [tipo, ["type": "null"]]]
     }
 
-    static var esquemaCorrecao: [String: Any] {
+    static var esquemaCorrecao: [String: Any] { anulavel(esquemaCorrecaoObjeto) }
+
+    static var esquemaCorrecaoObjeto: [String: Any] {
         let inteiro: [String: Any] = ["type": "integer"]
-        return anulavel([
+        return [
             "type": "object",
             "properties": [
                 "tipo": ["type": "string", "enum": [
                     "aliviar_semana", "reduzir_semana", "mover_treino", "trocar_treino", "mudar_semanas", "mudar_teto", "mudar_dias",
+                    "retomar_apos_pausa", "reajustar_prova",
                 ]],
                 "semana": anulavel(inteiro),
                 "dia": anulavel(inteiro),
@@ -166,10 +176,11 @@ enum CoachIA {
                 "tetoPercentual": anulavel(inteiro),
                 "dias": anulavel(["type": "array", "items": inteiro]),
                 "diaLongao": anulavel(inteiro),
+                "diasParado": anulavel(inteiro),
             ],
-            "required": ["tipo", "semana", "dia", "paraDia", "fatorPercentual", "semanas", "tetoPercentual", "dias", "diaLongao"],
+            "required": ["tipo", "semana", "dia", "paraDia", "fatorPercentual", "semanas", "tetoPercentual", "dias", "diaLongao", "diasParado"],
             "additionalProperties": false,
-        ])
+        ]
     }
 
     static var esquema: [String: Any] {
@@ -200,7 +211,7 @@ enum CoachIA {
         ]
     }
 
-    static let instrucoes = """
+    static let instrucoesBase = """
     Você é um treinador de corrida experiente revisando um plano de treino gerado por um motor de regras determinístico, para um corredor amador que treina sozinho. O seu parecer ajuda a achar o que não faz sentido para um treinador, mesmo quando as travas de segurança do motor foram respeitadas.
 
     Avalie:
@@ -219,7 +230,9 @@ enum CoachIA {
     - Se o plano estiver bom, diga isso e liste poucos pontos.
     - Não dê conselho médico.
     - Escreva em português do Brasil, de forma direta, como um treinador falando com o atleta.
+    """
 
+    static let instrucoesDasOperacoes = """
     Correções que o app sabe aplicar (campo "correcao" de cada ponto):
     - Quando uma destas operações resolve o problema, preencha "correcao"; quando não resolve, use null e deixe a sugestão só no texto. O corredor vê a correção como proposta, com o antes e o depois, e decide se aplica. O motor confere todas as travas e recusa o que não couber.
     - Semanas começam em 1. Dias: 0 = segunda, 1 = terça, 2 = quarta, 3 = quinta, 4 = sexta, 5 = sábado, 6 = domingo (o campo "indiceDia" de cada sessão).
@@ -230,8 +243,12 @@ enum CoachIA {
     - "mudar_semanas" (semanas, de 1 a 30): refaz o plano com esse número de semanas.
     - "mudar_teto" (tetoPercentual, de 5 a 20): refaz o plano com esse aumento máximo de volume por semana.
     - "mudar_dias" (dias, diaLongao): refaz o plano com esses dias de corrida (pelo menos 2) e o longão num deles.
+    - "retomar_apos_pausa" (semana, diasParado acima de 5): a semana recomeça com uma fração do volume de antes e sobe aos poucos.
+    - "reajustar_prova" (semana, semanas): nova data de prova; a partir da semana, faltam esse número de semanas.
     - Preencha só os campos da operação escolhida; os outros vão como null.
     """
+
+    static let instrucoes = instrucoesBase + "\n\n" + instrucoesDasOperacoes
 
     // MARK: Resposta
 

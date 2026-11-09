@@ -114,3 +114,14 @@ O que me contar: se algum app recusou o arquivo (e qual), e se a energia ficou p
 
 O que me contar: se o treino do dia bate com o calendário, se o check-in faz sentido, e se o PDF abre bem.
 
+## Fase 9: Coach de IA completo e Calendário (0.9.0)
+
+Para testar sem gastar: Ajustes > Modo de desenvolvimento > "Simular o coach". Depois desligue para usar o de verdade (com a sua chave).
+
+1. **Plano com o coach:** aba Plano (sem plano em uso) > "Montar o plano com o coach". Responda com os cartões numerados e toque em "Montar com o coach". Aparecem a explicação e as semanas; "Usar este plano" põe no calendário.
+2. **Chat:** aba Plano > "Conversar com o coach". Escreva "viajo semana que vem" ou "estou com a canela dolorida". Vem a resposta e uma proposta com o antes e o depois: Salvar, Ajustar (escreva mais) ou Recusar. Depois de salvar, "Voltar ao anterior" desfaz.
+3. **Revisão:** "Revisar a semana" (e o cartão no Hoje no domingo à noite e na segunda). As correções vêm com "Ver correção".
+4. **Calendário:** Plano > Opções do plano > "Sincronizar com o Calendário". Na primeira vez o iPhone pede o acesso: escolha **acesso total** (o app só mexe no calendário "CRUNNING"). Abra o app Calendário: os treinos aparecem como eventos de dia inteiro. Mude o plano (mova um treino) e confira que o calendário acompanhou. Encerrar o plano ou parar de sincronizar apaga os eventos.
+
+O que me contar: se as respostas do coach fizeram sentido, quanto custou na sua conta (painel da Anthropic) e se o calendário ficou certo.
+

@@ -6,6 +6,8 @@
 	<string>O CRUNNING usa a localização para medir a distância, o ritmo e o trajeto das suas corridas, inclusive com a tela bloqueada. A rota fica só no seu iPhone.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>O CRUNNING usa a localização para medir a distância, o ritmo e o trajeto das suas corridas, inclusive com a tela bloqueada. A rota fica só no seu iPhone.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>O CRUNNING coloca os treinos do seu plano num calendário próprio ("CRUNNING") e o mantém atualizado quando o plano muda. Ele só mexe nesse calendário.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>UIBackgroundModes</key>

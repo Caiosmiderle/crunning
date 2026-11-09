@@ -10,11 +10,19 @@ final class PlanoAtivo {
 
     init(agenda: AgendaPlano) {
         dados = try? JSONEncoder().encode(agenda)
+        CalendarioSync.sincronizarSeLigado(agenda)
     }
 
+    /// Ler e gravar o plano. Quando o plano (não só um registro) muda, o calendário é refeito.
     var agenda: AgendaPlano? {
         get { dados.flatMap { try? JSONDecoder().decode(AgendaPlano.self, from: $0) } }
-        set { dados = newValue.flatMap { try? JSONEncoder().encode($0) } }
+        set {
+            let antigo = agenda
+            dados = newValue.flatMap { try? JSONEncoder().encode($0) }
+            if let novo = newValue, antigo?.plano != novo.plano || antigo?.inicio != novo.inicio {
+                CalendarioSync.sincronizarSeLigado(novo)
+            }
+        }
     }
 
     /// Marca a sessão de um dia como feita (chamado ao salvar uma corrida pelo plano).

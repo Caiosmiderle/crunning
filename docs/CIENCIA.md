@@ -105,6 +105,13 @@ Regras de quando a execução por blocos avisa e mede. Não há estudo sobre o m
 |---|---|---|---|
 | A IA só propõe correções de uma lista fechada (aliviar ou reduzir uma semana, mover ou trocar um treino, mudar semanas, dias ou teto de progressão). Cada uma roda no motor; se o plano novo quebrar qualquer trava, a correção é recusada com o motivo. O plano só muda quando você aplica, e dá para voltar ao anterior. | Mesmo princípio do resto do app: a IA escolhe dentro do motor, nunca escreve o plano. | — | `Plano/CorrecaoPlano.swift`, `CoachIA` (esquema `correcao`) |
 
+## Coach de IA
+
+| Regra | Fonte | Evidência | Código |
+|---|---|---|---|
+| A IA nunca escreve o plano. No chat (Haiku 5.5), na revisão semanal e no plano montado com o coach (Sonnet 5.5), ela devolve operações e parâmetros de uma lista fechada em JSON com esquema; o app aplica pelo motor e confere todas as travas. Se uma operação for recusada, a IA recebe o motivo e tenta uma vez de novo; se falhar de novo, nada muda (no plano novo, o app monta pelas regras e avisa). Toda mudança aparece com antes e depois e só vale depois de salvar; "Voltar ao anterior" desfaz. | Mesmo princípio do motor: regras com fonte, IA dentro delas. | — | `App/Servicos/CoachConversa.swift`, `CorrecaoPlano`, `AgendaPlano.voltarAoAnterior` |
+| Vai para a IA só o resumo agregado do plano e do que foi feito (sessões feitas e perdidas, esforço, se o ritmo dos treinos de qualidade ficou na faixa) e o que você escrever. Nunca rota, GPS, nome ou dados do Saúde. | Privacidade (pedido do projeto). | — | `ContextoAgendaIA` |
+
 ## Adaptação do plano
 
 São regras explícitas que devolvem uma recomendação. O app pergunta antes de mudar o plano, e a IA (fase 9) nunca improvisa fora delas.

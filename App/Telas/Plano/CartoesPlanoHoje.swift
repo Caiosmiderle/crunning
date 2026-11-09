@@ -13,6 +13,7 @@ struct CartoesPlanoHoje: View {
     @AppStorage(Preferencias.unidade) var unidade: UnidadeDistancia = .quilometros
     @AppStorage("alivioDispensadoEm") var alivioDispensadoEm = 0.0
     @AppStorage("ritmoDispensadoEm") var ritmoDispensadoEm = 0.0
+    @AppStorage("ultimaRevisao") var ultimaRevisao = 0.0
     @State var proposta: PropostaCorrecao?
     @State var mensagem: String?
     @State var diasParado = 7
@@ -31,6 +32,7 @@ struct CartoesPlanoHoje: View {
                 if !pendentes.isEmpty { checkin(agenda, pendentes) }
                 if let alivio = propostaDeAlivio(agenda) { cartaoAlivio(agenda, alivio) }
                 if let ritmo = avisoDeRitmo() { cartaoRitmo(ritmo) }
+                if horaDeRevisar { cartaoRevisao }
                 if let mensagem {
                     Text(mensagem).font(.subheadline).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -214,6 +216,37 @@ struct CartoesPlanoHoje: View {
                 ToolbarItem(placement: .confirmationAction) { Button("OK") { perguntandoSaude = false } }
             }
         }
+    }
+
+    // MARK: Revisão semanal
+
+    /// Domingo a partir das 17 h ou segunda, se não houve revisão nos últimos 3 dias.
+    private var horaDeRevisar: Bool {
+        let agora = Date.now
+        let c = Calendar.current.dateComponents([.weekday, .hour], from: agora)
+        let momento = (c.weekday == 1 && (c.hour ?? 0) >= 17) || c.weekday == 2
+        return momento && agora.timeIntervalSince1970 - ultimaRevisao > 3 * 86_400
+    }
+
+    private var cartaoRevisao: some View {
+        NavigationLink {
+            RevisaoCoachView(ativo: ativo)
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "checklist").font(.title2).foregroundStyle(Paleta.verdeLogo)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Hora de revisar a semana").font(.headline)
+                    Text("O coach compara o planejado com o feito e propõe ajustes.").font(.subheadline).foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+            }
+            .padding(20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .cartaoVidro()
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: Adaptação

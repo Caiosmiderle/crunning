@@ -36,6 +36,10 @@ enum Preferencias {
     static let aquecimentoGuiado = "aquecimentoGuiado"
     /// Peso (kg) só para estimar a energia no TCX e no detalhe; fica no iPhone.
     static let pesoKg = "pesoKg"
+    /// Treinos do plano no app Calendário (fase 9).
+    static let sincronizarCalendario = "sincronizarCalendario"
+    /// Modo de desenvolvimento: o coach responde com textos fixos, sem gastar a API.
+    static let simularCoach = "simularCoach"
 }
 
 enum Tema: String, CaseIterable, Identifiable {

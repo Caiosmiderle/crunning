@@ -102,6 +102,16 @@ struct AgendaPlanoTests {
         #expect(Self.calendario.isDate(AgendaPlano.proximaSegunda(Self.segunda, calendario: Self.calendario), inSameDayAs: Self.segunda))
     }
 
+    @Test func voltarAoAnterior() throws {
+        var agenda = AgendaPlano(plano: Self.plano, inicio: Self.segunda, calendario: Self.calendario)
+        #expect(!agenda.voltarAoAnterior())
+        let novo = try CorrecaoPlano.aliviarSemana(semana: 5).aplicar(Self.plano)
+        agenda.trocarPlano(novo)
+        #expect(agenda.plano == novo && agenda.anterior == Self.plano)
+        #expect(agenda.voltarAoAnterior())
+        #expect(agenda.plano == Self.plano && agenda.anterior == nil)
+    }
+
     @Test func salvaEVoltaIgual() throws {
         var agenda = AgendaPlano(plano: Self.plano, inicio: Self.segunda, calendario: Self.calendario)
         agenda.marcar(semana: 1, dia: 1, .feita, esforco: 5)

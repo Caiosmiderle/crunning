@@ -16,6 +16,8 @@ public struct AgendaPlano: Codable, Sendable, Equatable {
     public var registros: [String: StatusSessao]
     /// Esforço percebido das corridas feitas pelo plano ("semana-dia" -> 1 a 10).
     public var esforcos: [String: Int]
+    /// O plano antes da última mudança (para "Voltar ao anterior").
+    public var anterior: Plano?
 
     public init(plano: Plano, inicio: Date, calendario: Calendar = CalendarioTreino.padrao()) {
         self.plano = plano
@@ -93,12 +95,22 @@ public struct AgendaPlano: Codable, Sendable, Equatable {
 
     /// Troca o plano mantendo os registros das semanas que não mudaram de lugar.
     public mutating func trocarPlano(_ novo: Plano) {
+        anterior = plano
         plano = novo
         registros = registros.filter { chave, _ in
             let partes = chave.split(separator: "-").compactMap { Int($0) }
             guard partes.count == 2 else { return false }
             return partes[0] <= novo.semanas.count && novo.semanas[partes[0] - 1].dias[partes[1]] != nil
         }
+    }
+
+    /// Volta ao plano de antes da última mudança. Devolve false se não houver.
+    @discardableResult
+    public mutating func voltarAoAnterior() -> Bool {
+        guard let anterior else { return false }
+        trocarPlano(anterior)
+        self.anterior = nil
+        return true
     }
 
     /// Segunda-feira que vem (ou hoje, se hoje é segunda).

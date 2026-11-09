@@ -24,6 +24,26 @@ struct PlanoView: View {
                 cartaoExplicacao
                     .entradaCascata(3)
                 NavigationLink {
+                    CriarPlanoCoachView()
+                } label: {
+                    HStack(spacing: 14) {
+                        Image(systemName: "bubble.left.and.text.bubble.right").font(.title2).foregroundStyle(Paleta.verdeLogo)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Montar o plano com o coach").font(.headline)
+                            Text("Responda algumas perguntas; o coach escolhe os parâmetros e o motor monta com as travas.")
+                                .font(.subheadline).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                    }
+                    .padding(20)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .cartaoVidro()
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .entradaCascata(3)
+                NavigationLink {
                     PreviaPlanoView()
                 } label: {
                     cartaoPrevia

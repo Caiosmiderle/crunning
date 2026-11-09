@@ -17,6 +17,7 @@ struct AjustesView: View {
     @AppStorage(Preferencias.avisoParciais) var avisoParciais = 1
     @AppStorage(Preferencias.aquecimentoGuiado) var aquecimentoGuiado = true
     @AppStorage(Preferencias.pesoKg) var pesoKg = 0.0
+    @AppStorage(Preferencias.simularCoach) var simularCoach = false
     @State var importandoGPX = false
     @State var temGPXImportado = Simulacao.temGPXImportado
     @State var mensagemSimulacao: String?
@@ -127,6 +128,7 @@ struct AjustesView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                     if modoDesenvolvimento {
+                        Toggle("Simular o coach (sem gastar a API)", isOn: $simularCoach)
                         Toggle("Simular GPS", isOn: $simularGPS)
                         if simularGPS {
                             Picker("Velocidade", selection: $velocidadeSimulacao) {

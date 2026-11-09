@@ -16,6 +16,7 @@ struct PlanoAtivoView: View {
     @State var semanasRestantes = 8
     @State var confirmandoEncerrar = false
     @State var arquivoPDF: URL?
+    @AppStorage(Preferencias.sincronizarCalendario) var sincronizar = false
 
     static let nomesDias = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]
 
@@ -59,7 +60,39 @@ struct PlanoAtivoView: View {
                 Text(mensagem).font(.subheadline).foregroundStyle(.secondary)
             }
 
+            HStack(spacing: 12) {
+                NavigationLink {
+                    ChatCoachView(ativo: ativo)
+                } label: {
+                    Label("Conversar com o coach", systemImage: "bubble.left.and.text.bubble.right")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity, minHeight: 48)
+                }
+                .buttonStyle(.glass)
+                NavigationLink {
+                    RevisaoCoachView(ativo: ativo)
+                } label: {
+                    Label("Revisar a semana", systemImage: "checklist")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity, minHeight: 48)
+                }
+                .buttonStyle(.glass)
+            }
+
             Menu {
+                if agenda.anterior != nil {
+                    Button("Voltar ao plano anterior", systemImage: "arrow.uturn.backward") {
+                        var nova = agenda
+                        if nova.voltarAoAnterior() {
+                            ativo.agenda = nova
+                            try? contexto.save()
+                            mensagem = "Voltou ao plano de antes da última mudança."
+                        }
+                    }
+                }
+                Button(sincronizar ? "Parar de sincronizar com o Calendário" : "Sincronizar com o Calendário", systemImage: "calendar") {
+                    Task { await alternarCalendario(agenda) }
+                }
                 if let arquivoPDF {
                     ShareLink(item: arquivoPDF) { Label("Compartilhar PDF do plano", systemImage: "doc.richtext") }
                 } else {
@@ -112,11 +145,31 @@ struct PlanoAtivoView: View {
         }
         .confirmationDialog("Encerrar o plano?", isPresented: $confirmandoEncerrar, titleVisibility: .visible) {
             Button("Encerrar plano", role: .destructive) {
+                CalendarioSync.limpar()
                 contexto.delete(ativo)
                 try? contexto.save()
             }
         } message: {
             Text("As corridas continuam no histórico. Para começar outro, use a prévia.")
+        }
+    }
+
+    private func alternarCalendario(_ agenda: AgendaPlano) async {
+        if sincronizar {
+            sincronizar = false
+            CalendarioSync.limpar()
+            mensagem = "Os treinos saíram do calendário CRUNNING."
+            return
+        }
+        guard await CalendarioSync.pedirAcesso() else {
+            mensagem = "Sem acesso ao Calendário. Libere em Ajustes do iPhone > CRUNNING > Calendários > Acesso total."
+            return
+        }
+        sincronizar = true
+        if let n = CalendarioSync.sincronizar(agenda) {
+            mensagem = "\(n) treinos no calendário CRUNNING do app Calendário. Ele se atualiza quando o plano muda."
+        } else {
+            mensagem = "Não deu para criar o calendário CRUNNING."
         }
     }
 

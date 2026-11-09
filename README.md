@@ -16,7 +16,9 @@ Fase 7 (Apple Saúde, plano B sem conta paga): com Apple ID gratuito a Apple nã
 
 Fase 8 (plano no dia a dia): "Usar este plano" na prévia (com triagem de segurança na primeira vez e link para o PAR-Q+ oficial) põe o plano no calendário. A aba Plano mostra semana a semana o que foi feito, com mover e trocar treino, marcar feito ou perdido, nova data de prova e PDF. O Hoje mostra o treino do dia com o botão de começar, pergunta o que houve com os treinos que ficaram para trás e propõe alívio ou um teste novo quando os dados pedem, sempre com antes e depois. Recordes pessoais no Histórico e quilometragem por tênis.
 
-Próximas fases:, 8 (planos no calendário, Hoje e adaptação), 9 (Coach de IA completo).
+Fase 9 (Coach de IA completo): plano montado com o coach a partir de um questionário com cartões numerados (o Sonnet escolhe os parâmetros e o motor monta), chat de ajustes ("viajo semana que vem", "canela dolorida") com proposta, antes e depois, Salvar, Ajustar, Recusar e Voltar ao anterior (Haiku), revisão semanal do planejado x feito (sugerida no domingo à noite), modo simulado para testar sem gastar a API e sincronização do plano com um calendário "CRUNNING" no app Calendário.
+
+Pendente:, 8 (planos no calendário, Hoje e adaptação), 9 (Coach de IA completo).
 
 ## Como é feito
 
