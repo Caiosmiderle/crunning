@@ -140,6 +140,14 @@ public enum CorrecaoPlano: Equatable, Sendable {
         aliviar(semana, dia + 1)
         if dia == 6 { aliviar(semana + 1, 0) }
         if dia == 0 { aliviar(semana - 1, 6) }
+        // Com o longão trocado por uma recuperação, o volume da semana cai: reequilibra as outras
+        // sessões (fração do volume e limites de qualidade), como na redução de carga.
+        var h = GeradorPlano.historicoInicial(plano.entrada)
+        for anterior in plano.semanas.prefix(semana - 1) { h.registrar(anterior) }
+        let picoCorrida = RegrasPlano.picoMaximoCorrida
+            * (h.maiores.suffix(RegrasPlano.janelaPico).max() ?? RegrasPlano.pisoLongaoReferencia)
+        GeradorPlano.equilibrar(&novo.semanas[semana - 1], objetivo: plano.entrada.objetivo, zonas: zonas,
+                                limite: .greatestFiniteMagnitude, picoCorrida: picoCorrida)
         do {
             return try OperacoesPlano.refazer(novo, aPartirDaSemana: semana + 1)
         } catch let ErroOperacao.violaria(erros) {
