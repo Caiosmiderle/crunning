@@ -22,7 +22,11 @@ public enum TCX {
     }
 
     /// Uma volta só com a corrida inteira; os pontos da rota (se houver) vão no `<Track>`.
-    public static func gerar(_ r: Resumo, amostras: [AmostraTrilha]) -> String {
+    /// Com batimentos da pulseira, a volta leva média e máxima e cada ponto da rota leva o
+    /// batimento mais próximo (até 5 s). Sem rota (esteira), só média e máxima. A ordem dos
+    /// elementos segue o esquema TrainingCenterDatabase v2 (Calories, batimentos, Intensity).
+    public static func gerar(_ r: Resumo, amostras: [AmostraTrilha], fc: [AmostraFC] = []) -> String {
+        let resumoFC = FrequenciaCardiaca.resumo(fc)
         var xml = """
         <?xml version="1.0" encoding="UTF-8"?>
         <TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2">
@@ -33,10 +37,14 @@ public enum TCX {
                 <TotalTimeSeconds>\(String(format: "%.1f", max(0, r.duracaoEmMovimento)))</TotalTimeSeconds>
                 <DistanceMeters>\(String(format: "%.1f", max(0, r.distancia)))</DistanceMeters>
                 <Calories>\(min(65_535, max(0, Int(r.calorias.rounded()))))</Calories>
-                <Intensity>Active</Intensity>
-                <TriggerMethod>Manual</TriggerMethod>
 
         """
+        if let resumoFC {
+            xml += "        <AverageHeartRateBpm><Value>\(resumoFC.media)</Value></AverageHeartRateBpm>\n"
+            xml += "        <MaximumHeartRateBpm><Value>\(resumoFC.maxima)</Value></MaximumHeartRateBpm>\n"
+        }
+        xml += "        <Intensity>Active</Intensity>\n"
+        xml += "        <TriggerMethod>Manual</TriggerMethod>\n"
         if !amostras.isEmpty {
             xml += "        <Track>\n"
             for a in amostras {
@@ -44,7 +52,11 @@ public enum TCX {
                 xml += "<Position><LatitudeDegrees>\(String(format: "%.7f", a.lat))</LatitudeDegrees>"
                 xml += "<LongitudeDegrees>\(String(format: "%.7f", a.lon))</LongitudeDegrees></Position>"
                 if let alt = a.alt { xml += "<AltitudeMeters>\(String(format: "%.1f", alt))</AltitudeMeters>" }
-                xml += "<DistanceMeters>\(String(format: "%.1f", a.d))</DistanceMeters></Trackpoint>\n"
+                xml += "<DistanceMeters>\(String(format: "%.1f", a.d))</DistanceMeters>"
+                if let bpm = FrequenciaCardiaca.valor(em: a.t, fc) {
+                    xml += "<HeartRateBpm><Value>\(bpm)</Value></HeartRateBpm>"
+                }
+                xml += "</Trackpoint>\n"
             }
             xml += "        </Track>\n"
         }

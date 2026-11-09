@@ -81,6 +81,23 @@ struct AjustesView: View {
 
                 Section {
                     NavigationLink {
+                        PulseiraView()
+                    } label: {
+                        Label("Frequência cardíaca (Mi Band)", systemImage: "heart")
+                    }
+                    NavigationLink {
+                        StravaView()
+                    } label: {
+                        Label("Strava", systemImage: "arrow.up.circle")
+                    }
+                } header: {
+                    Text("Conexões")
+                } footer: {
+                    Text("O batimento fica no iPhone e só sai no TCX que vai ao Strava ou que você exporta. O CRUNNING só envia ao Strava; não lê nada de lá, e nada disso vai para o Coach de IA.")
+                }
+
+                Section {
+                    NavigationLink {
                         CoachIAView()
                     } label: {
                         Label("Chave da API da Anthropic", systemImage: "key")

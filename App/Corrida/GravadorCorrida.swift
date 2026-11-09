@@ -73,6 +73,12 @@ final class GravadorCorrida: Identifiable {
     private(set) var contagemVisivel: Int?
     /// Sessão do plano que esta corrida cumpre (marcada como feita ao salvar).
     var sessaoPlano: (semana: Int, dia: Int)?
+    /// Batimentos da pulseira (uma leitura por segundo, quando ela transmite).
+    private(set) var frequencias: [AmostraFC] = []
+    /// Batimento de agora (nil sem leitura nos últimos 5 s).
+    private(set) var fcAtual: Int?
+    /// Esta corrida ouve a pulseira (escolhida e ligada em Ajustes).
+    let usaFC: Bool
 
     let simulada: Bool
     let esteira: Bool
@@ -95,6 +101,7 @@ final class GravadorCorrida: Identifiable {
     @ObservationIgnored private var observadores: [any NSObjectProtocol] = []
     @ObservationIgnored private var avisosAtivos: Set<DiagnosticoGPS.Tipo> = []
     private let locutor = Locutor.compartilhado
+    private let monitor = MonitorCardiaco.compartilhado
     private let atividade = AtividadeAoVivo()
     @ObservationIgnored private var contagemEm: Date?
 
@@ -128,6 +135,7 @@ final class GravadorCorrida: Identifiable {
         self.execucao = execucao
         self.esteira = esteira
         self.avisos = AvisosCorrida.atuais()
+        self.usaFC = MonitorCardiaco.compartilhado.usarNaCorrida
         self.agora = relogio.agora
         self.autorizacao = gps.autorizacao
         ligarFontes()
@@ -171,6 +179,8 @@ final class GravadorCorrida: Identifiable {
         if let s = salva.planoSemana, let d = salva.planoDia { self.sessaoPlano = (s, d) }
         self.esteira = esteira
         self.avisos = AvisosCorrida.atuais()
+        self.frequencias = salva.fc ?? []
+        self.usaFC = salva.fc != nil || MonitorCardiaco.compartilhado.usarNaCorrida
         self.agora = relogio.agora
         self.autorizacao = gps.autorizacao
         ligarFontes()
@@ -188,6 +198,7 @@ final class GravadorCorrida: Identifiable {
         guard sessao.estado != .finalizada else { return }
         // A Apple pede para não ligar a localização na abertura se a permissão nunca foi pedida.
         if !(reaberta && gps.autorizacao == .notDetermined) { gps.iniciar() }
+        if usaFC { monitor.ligar() }
         observarApp()
         if sessao.estado != .pronta { ligarGravacao() }
     }
@@ -299,6 +310,7 @@ final class GravadorCorrida: Identifiable {
 
     func finalizar() {
         atividade.encerrar()
+        if usaFC { monitor.desligar() }
         agora = relogio.agora
         execucao?.encerrar(leitura())
         contagemVisivel = nil
@@ -312,6 +324,7 @@ final class GravadorCorrida: Identifiable {
     /// Fecha sem gravar (antes de começar, ou descartando no resumo).
     func descartar() {
         atividade.encerrar()
+        if usaFC { monitor.desligar() }
         pararTudo()
         ArmazemSessao.apagar()
     }
@@ -322,7 +335,8 @@ final class GravadorCorrida: Identifiable {
         if sessao.estado != .finalizada { finalizar() }
         let corrida = Corrida.de(
             sessao: sessao, simulada: simulada, esforco: esforco, agora: relogio.agora,
-            diagnostico: esteira ? nil : diagnostico, execucao: execucao, esteira: esteira, distanciaEsteira: distanciaEsteira
+            diagnostico: esteira ? nil : diagnostico, execucao: execucao, esteira: esteira, distanciaEsteira: distanciaEsteira,
+            fc: frequencias
         )
         corrida.planoSemana = sessaoPlano?.semana
         corrida.planoDia = sessaoPlano?.dia
@@ -371,7 +385,8 @@ final class GravadorCorrida: Identifiable {
             execucao: execucao,
             esteira: esteira,
             planoSemana: sessaoPlano?.semana,
-            planoDia: sessaoPlano?.dia
+            planoDia: sessaoPlano?.dia,
+            fc: usaFC ? frequencias : nil
         ))
     }
 
@@ -504,11 +519,26 @@ final class GravadorCorrida: Identifiable {
 
     private func atualizarRelogio() {
         agora = relogio.agora
+        registrarFC()
         avancarExecucao()
         if sessao.estado != .pronta, sessao.estado != .finalizada, atividade.ativa {
             atividade.atualizar(estadoAtividade())
         }
     }
+
+    /// Uma leitura da pulseira por segundo enquanto a corrida conta (fora da pausa manual).
+    private func registrarFC() {
+        guard usaFC else { return }
+        fcAtual = monitor.atual()
+        guard let bpm = fcAtual, let inicio = sessao.inicio,
+              sessao.estado == .correndo || sessao.estado == .pausadaAuto else { return }
+        let t = agora.timeIntervalSince(inicio)
+        if let ultima = frequencias.last, t - ultima.t < 1 { return }
+        frequencias.append(AmostraFC(t: t, bpm: bpm))
+    }
+
+    /// Média e máxima até agora (nil sem leitura).
+    var resumoFC: FrequenciaCardiaca.Resumo? { FrequenciaCardiaca.resumo(frequencias) }
 
     // MARK: Treino por blocos
 

@@ -138,3 +138,20 @@ O que me contar: se as respostas do coach fizeram sentido, quanto custou na sua 
 2. **Engrenagem na corrida:** com o treino rodando, toque na engrenagem no canto de cima. Desligue a voz ou o bipe e feche: vale na hora, sem pausar, e fica salvo para as próximas corridas.
 3. **Minimizar:** toque na seta para baixo no canto de cima. A corrida vira uma barra acima das abas, com a etapa, o que falta e o botão de pausa. Navegue pelo app (Plano, Histórico, Ajustes) e veja se a voz e a Live Activity seguem normais. Toque na barra para voltar.
 4. **Começar outro treino com um minimizado:** a tela da corrida que já está aberta volta; nada novo começa.
+
+## Frequência cardíaca da Mi Band e Strava (0.9.7)
+
+### Mi Band 6 (em casa, 5 minutos)
+
+1. No app oficial da pulseira, ligue a opção de transmitir a frequência cardíaca para outros aparelhos.
+2. Ajustes > Conexões > Frequência cardíaca. Aceite o Bluetooth, espere a pulseira aparecer em "Por perto" e toque nela.
+3. Se aparecer "sem batimento", comece um treino na própria pulseira e veja se o número aparece. Com o Modo de desenvolvimento ligado, a lista mostra os bytes do anúncio: me mande uma captura se o batimento não bater com o da pulseira.
+4. Na corrida (pode ser simulada), com a tela acesa, o batimento e a FC média aparecem nas métricas; no fim, o resumo mostra média e máxima. Bloqueie a tela por um minuto: o batimento para e volta quando você abre o app (limite do iOS).
+
+### Strava
+
+1. No computador, abra strava.com/settings/api e crie um app: nome CRUNNING, site qualquer endereço, Authorization Callback Domain `localhost`.
+2. No iPhone: Ajustes > Conexões > Strava. Cole o Client ID e o Client Secret, salve e toque em Conectar. Autorize com a sua conta (deixe marcada a permissão de enviar atividades).
+3. Salve uma corrida de verdade (curta serve): ela vai sozinha para o Strava. No detalhe da corrida, o cartão "Strava" mostra "Ver no Strava" ou o erro com "Tentar de novo".
+4. Corridas antigas: abra no Histórico e toque em "Enviar ao Strava". Se ela já estiver lá (enviada antes pelo arquivo), o app liga à atividade existente.
+5. Confira no Strava: distância, tempo, rota e batimentos (se a pulseira estava ligada). Esteira chega como treino indoor.

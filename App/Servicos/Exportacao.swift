@@ -29,7 +29,8 @@ enum Exportacao {
             calorias: calorias(distancia: corrida.distanciaMetros, duracaoEmMovimento: corrida.duracaoEmMovimento) ?? 0
         )
         let urlTCX = pasta.appending(path: TCX.nomeArquivo(inicio: corrida.inicio, extensao: "tcx"))
-        let tcx = (try? TCX.gerar(resumo, amostras: pontos).write(to: urlTCX, atomically: true, encoding: .utf8)) != nil ? urlTCX : nil
+        let xmlTCX = TCX.gerar(resumo, amostras: pontos, fc: corrida.carregarFC())
+        let tcx = (try? xmlTCX.write(to: urlTCX, atomically: true, encoding: .utf8)) != nil ? urlTCX : nil
 
         var gpx: URL?
         if pontos.count >= 2 {
@@ -38,6 +39,16 @@ enum Exportacao {
             if (try? xml.write(to: urlGPX, atomically: true, encoding: .utf8)) != nil { gpx = urlGPX }
         }
         return (tcx, gpx)
+    }
+
+    /// O TCX da corrida em memória (envio ao Strava), com rota e batimentos.
+    static func textoTCX(de corrida: Corrida) -> String {
+        let resumo = TCX.Resumo(
+            nome: corrida.titulo, inicio: corrida.inicio, duracaoEmMovimento: corrida.duracaoEmMovimento,
+            distancia: corrida.distanciaMetros,
+            calorias: calorias(distancia: corrida.distanciaMetros, duracaoEmMovimento: corrida.duracaoEmMovimento) ?? 0
+        )
+        return TCX.gerar(resumo, amostras: corrida.carregarAmostras(), fc: corrida.carregarFC())
     }
 
     /// TCX de várias corridas (exportar o histórico inteiro de uma vez).

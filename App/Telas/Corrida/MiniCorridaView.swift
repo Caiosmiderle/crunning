@@ -105,6 +105,7 @@ struct MiniCorridaView: View {
         if let ritmo = sessao.ritmoAtual(em: agora) {
             partes.append(Formatador.ritmo(segundosPorKm: ritmo, unidade: unidade))
         }
+        if let bpm = gravador.fcAtual { partes.append("♥ \(bpm)") }
         return partes.joined(separator: " · ")
     }
 

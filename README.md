@@ -18,7 +18,7 @@ Fase 8 (plano no dia a dia): "Usar este plano" na prévia (com triagem de segura
 
 Fase 9 (Coach de IA completo): plano montado com o coach a partir de um questionário com cartões numerados (o Sonnet escolhe os parâmetros e o motor monta), chat de ajustes ("viajo semana que vem", "canela dolorida") com proposta, antes e depois, Salvar, Ajustar, Recusar e Voltar ao anterior (Haiku), revisão semanal do planejado x feito (sugerida no domingo à noite), modo simulado para testar sem gastar a API e sincronização do plano com um calendário "CRUNNING" no app Calendário.
 
-Também: ajuste dos ritmos pelo calor (WBGT simplificado e Ely e colegas, 2007), prova secundária dentro do plano e avaliação do coach com 4 casos fixos (Ajustes > Desenvolvimento). Na corrida, a engrenagem muda os avisos (voz, bipe, contagem, ritmo, vibração) sem parar o treino, e a seta para baixo minimiza a corrida numa barra acima das abas para usar o resto do app.
+Também: ajuste dos ritmos pelo calor (WBGT simplificado e Ely e colegas, 2007), prova secundária dentro do plano e avaliação do coach com 4 casos fixos (Ajustes > Desenvolvimento). Na corrida, a engrenagem muda os avisos (voz, bipe, contagem, ritmo, vibração) sem parar o treino, e a seta para baixo minimiza a corrida numa barra acima das abas para usar o resto do app. Frequência cardíaca da Mi Band (anúncio Bluetooth, com o app na tela) na corrida, no resumo e no TCX, e envio das corridas ao Strava pela API oficial com o app criado na sua conta (só envio; nada do Strava vai para o Coach de IA).
 
 ## Como é feito
 

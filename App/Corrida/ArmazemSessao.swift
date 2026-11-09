@@ -17,6 +17,8 @@ struct SessaoSalva: Codable, Sendable {
     /// Sessão do plano em execução.
     var planoSemana: Int? = nil
     var planoDia: Int? = nil
+    /// Batimentos da pulseira até aqui.
+    var fc: [AmostraFC]? = nil
 }
 
 /// Grava e lê a corrida em andamento. Tudo passa por uma fila serial, então um

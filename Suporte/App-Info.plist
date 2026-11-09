@@ -3,9 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>O CRUNNING usa a localização para medir a distância, o ritmo e o trajeto das suas corridas, inclusive com a tela bloqueada. A rota fica só no seu iPhone.</string>
+	<string>O CRUNNING usa a localização para medir a distância, o ritmo e o trajeto das suas corridas, inclusive com a tela bloqueada. A rota fica no seu iPhone, a não ser que você envie a corrida ao Strava.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>O CRUNNING usa a localização para medir a distância, o ritmo e o trajeto das suas corridas, inclusive com a tela bloqueada. A rota fica só no seu iPhone.</string>
+	<string>O CRUNNING usa a localização para medir a distância, o ritmo e o trajeto das suas corridas, inclusive com a tela bloqueada. A rota fica no seu iPhone, a não ser que você envie a corrida ao Strava.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>O CRUNNING escuta os batimentos que a sua pulseira transmite por Bluetooth para mostrar na corrida. Ele não pareia nem se conecta à pulseira.</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>O CRUNNING coloca os treinos do seu plano num calendário próprio ("CRUNNING") e o mantém atualizado quando o plano muda. Ele só mexe nesse calendário.</string>
 	<key>NSSupportsLiveActivities</key>

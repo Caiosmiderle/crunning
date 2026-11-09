@@ -39,6 +39,12 @@ enum Preferencias {
     static let pesoKg = "pesoKg"
     /// Treinos do plano no app Calendário (fase 9).
     static let sincronizarCalendario = "sincronizarCalendario"
+    /// Pulseira que transmite o batimento (identificador do iOS e nome) e se usa na corrida.
+    static let pulseiraFC = "pulseiraFC"
+    static let nomePulseiraFC = "nomePulseiraFC"
+    static let usarFC = "usarFC"
+    /// Enviar cada corrida ao Strava ao salvar (com a conta conectada).
+    static let stravaAutomatico = "stravaAutomatico"
     /// Modo de desenvolvimento: o coach responde com textos fixos, sem gastar a API.
     static let simularCoach = "simularCoach"
 }

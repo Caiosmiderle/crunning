@@ -44,3 +44,41 @@ enum Chaveiro {
 
     static var temChave: Bool { ler() != nil }
 }
+
+/// Um item genérico do Keychain (só neste aparelho, só com ele desbloqueado).
+struct ItemChaveiro: Sendable {
+    let servico: String
+    let conta: String
+
+    private var consultaBase: [String: Any] {
+        [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: servico,
+            kSecAttrAccount as String: conta,
+        ]
+    }
+
+    @discardableResult
+    func salvar(_ dados: Data) -> Bool {
+        apagar()
+        var item = consultaBase
+        item[kSecValueData as String] = dados
+        item[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        return SecItemAdd(item as CFDictionary, nil) == errSecSuccess
+    }
+
+    func ler() -> Data? {
+        var consulta = consultaBase
+        consulta[kSecReturnData as String] = true
+        consulta[kSecMatchLimit as String] = kSecMatchLimitOne
+        var resultado: AnyObject?
+        guard SecItemCopyMatching(consulta as CFDictionary, &resultado) == errSecSuccess else { return nil }
+        return resultado as? Data
+    }
+
+    @discardableResult
+    func apagar() -> Bool {
+        let status = SecItemDelete(consultaBase as CFDictionary)
+        return status == errSecSuccess || status == errSecItemNotFound
+    }
+}

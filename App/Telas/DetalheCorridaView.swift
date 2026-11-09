@@ -16,6 +16,8 @@ struct DadosCorrida {
     var diagnostico: DiagnosticoGPS?
     var resultados: [ResultadoEtapa]
     var esteira: Bool
+    var fcMedia: Int?
+    var fcMaxima: Int?
 
     init(_ corrida: Corrida) {
         titulo = corrida.titulo
@@ -29,6 +31,8 @@ struct DadosCorrida {
         diagnostico = corrida.carregarDiagnostico()
         resultados = corrida.carregarResultados()
         esteira = corrida.esteira
+        fcMedia = corrida.fcMedia
+        fcMaxima = corrida.fcMaxima
     }
 }
 
@@ -46,6 +50,7 @@ struct DetalheCorridaView: View {
     @State var arquivoTCX: URL?
     @State var carregou = false
     @State var confirmandoApagar = false
+    @State var enviandoStrava = false
 
     init(corrida: Corrida) {
         self.corrida = corrida
@@ -71,6 +76,12 @@ struct DetalheCorridaView: View {
                     GridRow {
                         Metrica(titulo: "Subida", valor: "\(Int(dados.subida.rounded())) m")
                         Metrica(titulo: "Esforço", valor: dados.esforco.map { "\($0) de 10" } ?? "—")
+                    }
+                    if let media = dados.fcMedia, let maxima = dados.fcMaxima {
+                        GridRow {
+                            Metrica(titulo: "FC média", valor: "\(media) bpm")
+                            Metrica(titulo: "FC máxima", valor: "\(maxima) bpm")
+                        }
                     }
                     if let energia = Exportacao.calorias(distancia: dados.distancia, duracaoEmMovimento: dados.duracaoEmMovimento) {
                         GridRow {
@@ -113,6 +124,13 @@ struct DetalheCorridaView: View {
                     Text(dados.esteira ? "Corrida na esteira: sem rota." : "Esta corrida não tem rota gravada.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
+                        .padding(20)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .cartaoVidro()
+                }
+
+                if !dados.simulada, Strava.conectado || corrida.stravaAtividade != nil {
+                    cartaoStrava
                         .padding(20)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .cartaoVidro()
@@ -164,6 +182,40 @@ struct DetalheCorridaView: View {
             Text("Não dá para desfazer.")
         }
         .task { carregar() }
+    }
+
+    @ViewBuilder
+    private var cartaoStrava: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Strava")
+                .font(.headline)
+            if let id = corrida.stravaAtividade, let url = URL(string: "https://www.strava.com/activities/\(id)") {
+                Link(destination: url) {
+                    Label("Ver no Strava", systemImage: "arrow.up.right.square")
+                }
+            } else if enviandoStrava {
+                HStack(spacing: 8) {
+                    ProgressView()
+                    Text("Enviando ao Strava…")
+                        .font(.subheadline)
+                }
+            } else {
+                if let erro = corrida.stravaErro {
+                    Text(erro)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Button(corrida.stravaErro == nil ? "Enviar ao Strava" : "Tentar de novo", systemImage: "arrow.up.circle") {
+                    enviandoStrava = true
+                    Task {
+                        await EnvioStrava.enviar(corrida, contexto: contexto)
+                        enviandoStrava = false
+                    }
+                }
+                .buttonStyle(.glass)
+            }
+        }
     }
 
     private var ritmoMedio: String {

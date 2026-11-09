@@ -32,6 +32,13 @@ final class Corrida {
     var planoDia: Int? = nil
     /// Código do tênis usado (Tenis.codigo).
     var tenis: String? = nil
+    /// Batimentos da pulseira ([AmostraFC] em JSON); média e máxima à parte.
+    @Attribute(.externalStorage) var frequencia: Data? = nil
+    var fcMedia: Int? = nil
+    var fcMaxima: Int? = nil
+    /// Atividade criada no Strava, ou o erro do último envio.
+    var stravaAtividade: Int64? = nil
+    var stravaErro: String? = nil
 
     init(
         inicio: Date,
@@ -66,6 +73,11 @@ final class Corrida {
         return (try? JSONDecoder().decode([ResultadoEtapa].self, from: blocos)) ?? []
     }
 
+    func carregarFC() -> [AmostraFC] {
+        guard let frequencia else { return [] }
+        return (try? JSONDecoder().decode([AmostraFC].self, from: frequencia)) ?? []
+    }
+
     func carregarDiagnostico() -> DiagnosticoGPS? {
         guard let diagnostico else { return nil }
         return try? JSONDecoder().decode(DiagnosticoGPS.self, from: diagnostico)
@@ -74,7 +86,8 @@ final class Corrida {
     /// Monta a corrida a partir da gravação terminada.
     static func de(
         sessao: SessaoCorrida, simulada: Bool, esforco: Int?, agora: Date, diagnostico: DiagnosticoGPS? = nil,
-        execucao: ExecucaoTreino? = nil, esteira: Bool = false, distanciaEsteira: Double? = nil
+        execucao: ExecucaoTreino? = nil, esteira: Bool = false, distanciaEsteira: Double? = nil,
+        fc: [AmostraFC] = []
     ) -> Corrida {
         let fim = sessao.fim ?? agora
         let titulo = execucao?.treino.nome ?? (esteira ? "Corrida na esteira" : simulada ? "Corrida simulada" : "Corrida livre")
@@ -92,6 +105,11 @@ final class Corrida {
         corrida.simulada = simulada
         corrida.trilha = try? JSONEncoder().encode(sessao.amostras)
         corrida.diagnostico = diagnostico.flatMap { try? JSONEncoder().encode($0) }
+        if let resumo = FrequenciaCardiaca.resumo(fc) {
+            corrida.frequencia = try? JSONEncoder().encode(fc)
+            corrida.fcMedia = resumo.media
+            corrida.fcMaxima = resumo.maxima
+        }
         return corrida
     }
 

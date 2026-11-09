@@ -58,6 +58,12 @@ struct ResumoCorridaView: View {
                             Metrica(titulo: "Ritmo médio", valor: ritmoMedio(sessao, fim: fim))
                             Metrica(titulo: "Subida", valor: gravador.esteira ? "—" : "\(Int(sessao.subida.rounded())) m")
                         }
+                        if let fc = gravador.resumoFC {
+                            GridRow {
+                                Metrica(titulo: "FC média", valor: "\(fc.media) bpm")
+                                Metrica(titulo: "FC máxima", valor: "\(fc.maxima) bpm")
+                            }
+                        }
                     }
                     .padding(20)
                     .cartaoVidro()
@@ -94,8 +100,11 @@ struct ResumoCorridaView: View {
 
                     Button {
                         UserDefaults.standard.set(tenis, forKey: PreferenciasPlano.ultimoTenis)
-                        gravador.salvar(em: contexto, esforco: esforco, distanciaEsteira: gravador.esteira ? distanciaEsteiraMetros : nil, tenis: tenis)
+                        let corrida = gravador.salvar(em: contexto, esforco: esforco, distanciaEsteira: gravador.esteira ? distanciaEsteiraMetros : nil, tenis: tenis)
                         estadoApp.gravadorAtivo = nil
+                        if Strava.envioAutomatico, !corrida.simulada {
+                            Task { await EnvioStrava.enviar(corrida, contexto: contexto) }
+                        }
                     } label: {
                         Text("Salvar corrida")
                             .font(.headline)

@@ -78,6 +78,12 @@ struct CorridaView: View {
                         Metrica(titulo: "Ritmo médio", valor: ritmo(sessao.ritmoMedio(em: agora)), grande: true)
                         Metrica(titulo: "Tempo total", valor: Formatador.duracao(sessao.tempoTotal(em: agora)), grande: true)
                     }
+                    if gravador.usaFC {
+                        GridRow {
+                            Metrica(titulo: "Batimento (bpm)", valor: fcAgora, grande: true)
+                            Metrica(titulo: "FC média", valor: gravador.resumoFC.map { "\($0.media)" } ?? "--", grande: true)
+                        }
+                    }
                 }
                 .padding(20)
                 .cartaoVidro(raio: 26, opaco: true)
@@ -206,7 +212,19 @@ struct CorridaView: View {
                 Metrica(titulo: "Tempo", valor: Formatador.duracao(sessao.tempoEmMovimento(em: agora)))
                 Metrica(titulo: "Ritmo médio", valor: ritmo(sessao.ritmoMedio(em: agora)))
             }
+            if gravador.usaFC {
+                GridRow {
+                    Metrica(titulo: "Batimento", valor: fcAgora)
+                    Metrica(titulo: "FC média", valor: gravador.resumoFC.map { "\($0.media)" } ?? "--")
+                    Color.clear.frame(height: 1)
+                }
+            }
         }
+    }
+
+    /// Batimento de agora; "--" quando a pulseira não mandou nada nos últimos 5 s.
+    private var fcAgora: String {
+        gravador.fcAtual.map { "\($0)" } ?? "--"
     }
 
     // MARK: Partes
