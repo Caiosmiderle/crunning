@@ -104,11 +104,13 @@ struct AgendaPlanoTests {
 
     @Test func voltarAoAnterior() throws {
         var agenda = AgendaPlano(plano: Self.plano, inicio: Self.segunda, calendario: Self.calendario)
-        #expect(!agenda.voltarAoAnterior())
+        let semAnterior = agenda.voltarAoAnterior()
+        #expect(!semAnterior)
         let novo = try CorrecaoPlano.aliviarSemana(semana: 5).aplicar(Self.plano)
         agenda.trocarPlano(novo)
         #expect(agenda.plano == novo && agenda.anterior == Self.plano)
-        #expect(agenda.voltarAoAnterior())
+        let voltou = agenda.voltarAoAnterior()
+        #expect(voltou)
         #expect(agenda.plano == Self.plano && agenda.anterior == nil)
     }
 
