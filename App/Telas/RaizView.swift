@@ -11,6 +11,8 @@ enum Aba: Hashable {
 struct RaizView: View {
     @State var aba: Aba = .hoje
     @State var estado = EstadoApp.compartilhado
+    @Environment(\.modelContext) var contexto
+    @Environment(\.scenePhase) var fase
 
     var body: some View {
         ZStack {
@@ -48,6 +50,14 @@ struct RaizView: View {
         .animation(.smooth(duration: 0.35), value: estado.gravadorAtivo?.id)
         .animation(.smooth(duration: 0.35), value: estado.corridaMinimizada)
         .environment(estado)
-        .task { estado.restaurarCorridaPendente() }
+        .task {
+            estado.restaurarCorridaPendente()
+            EnvioStrava.configurar(contexto)
+            await EnvioStrava.processarFila()
+        }
+        .onChange(of: fase) { _, nova in
+            // A fila do Strava anda sempre que o app volta para a tela.
+            if nova == .active { Task { await EnvioStrava.processarFila() } }
+        }
     }
 }

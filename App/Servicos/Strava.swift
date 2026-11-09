@@ -1,5 +1,6 @@
 import AuthenticationServices
 import Foundation
+import Network
 import SwiftData
 import SwiftUI
 
@@ -250,11 +251,56 @@ enum Strava {
     }
 }
 
-/// Envia uma corrida salva e grava na corrida o id da atividade (ou o erro).
+/// Fila de envio ao Strava. A corrida salva entra na fila (`stravaPendente`) e sai dela quando o
+/// Strava cria a atividade. A fila é processada ao salvar, quando o app volta para a tela e quando
+/// a internet volta; ao sair do app logo depois de salvar, o iOS dá alguns segundos para terminar.
+/// Só para de tentar sozinho quando o Strava recusa o arquivo (aí fica o botão no detalhe).
 @MainActor
 enum EnvioStrava {
-    static func enviar(_ corrida: Corrida, contexto: ModelContext) async {
-        guard Strava.conectado, corrida.stravaAtividade == nil, !corrida.simulada, !corrida.exemplo else { return }
+    private static var contexto: ModelContext?
+    private static var processando = false
+    private static var vigia: NWPathMonitor?
+
+    /// Chamado uma vez, com o contexto principal do app.
+    static func configurar(_ contexto: ModelContext) {
+        self.contexto = contexto
+        guard vigia == nil else { return }
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { caminho in
+            guard caminho.status == .satisfied else { return }
+            Task { @MainActor in await EnvioStrava.processarFila() }
+        }
+        monitor.start(queue: DispatchQueue(label: "io.github.caiosmiderle.crunning.rede", qos: .utility))
+        vigia = monitor
+    }
+
+    /// Põe a corrida na fila e tenta enviar.
+    static func enfileirar(_ corrida: Corrida) async {
+        guard !corrida.simulada, !corrida.exemplo, corrida.stravaAtividade == nil else { return }
+        corrida.stravaPendente = true
+        corrida.stravaErro = nil
+        try? contexto?.save()
+        await processarFila()
+    }
+
+    /// Envia, uma por vez, as corridas da fila.
+    static func processarFila() async {
+        guard !processando, Strava.conectado, let contexto else { return }
+        processando = true
+        defer { processando = false }
+        let descricao = FetchDescriptor<Corrida>(
+            predicate: #Predicate { $0.stravaPendente && $0.stravaAtividade == nil },
+            sortBy: [SortDescriptor(\.inicio)]
+        )
+        guard let fila = try? contexto.fetch(descricao), !fila.isEmpty else { return }
+        let tarefa = TarefaSegundoPlano(nome: "Envio ao Strava")
+        defer { tarefa.encerrar() }
+        for corrida in fila {
+            await enviar(corrida, contexto: contexto)
+        }
+    }
+
+    private static func enviar(_ corrida: Corrida, contexto: ModelContext) async {
         let tcx = Data(Exportacao.textoTCX(de: corrida).utf8)
         let nome = corrida.titulo
         let esteira = corrida.esteira
@@ -269,10 +315,32 @@ enum EnvioStrava {
         switch resultado {
         case let .success(id):
             corrida.stravaAtividade = id
+            corrida.stravaPendente = false
             corrida.stravaErro = nil
         case let .failure(erro):
             corrida.stravaErro = erro.localizedDescription
+            // Arquivo recusado não melhora tentando de novo; sem internet, desconectado etc. continua na fila.
+            if let e = erro as? Strava.Erro, case .processamento = e { corrida.stravaPendente = false }
         }
         try? contexto.save()
+    }
+}
+
+/// Pede ao iOS alguns segundos para terminar um trabalho se o app for para o segundo plano.
+@MainActor
+final class TarefaSegundoPlano {
+    private var id: UIBackgroundTaskIdentifier = .invalid
+
+    init(nome: String) {
+        id = UIApplication.shared.beginBackgroundTask(withName: nome) { [weak self] in
+            // O iOS chama isto na fila principal quando o tempo acaba.
+            MainActor.assumeIsolated { self?.encerrar() }
+        }
+    }
+
+    func encerrar() {
+        guard id != .invalid else { return }
+        UIApplication.shared.endBackgroundTask(id)
+        id = .invalid
     }
 }

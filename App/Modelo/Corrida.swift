@@ -39,6 +39,8 @@ final class Corrida {
     /// Atividade criada no Strava, ou o erro do último envio.
     var stravaAtividade: Int64? = nil
     var stravaErro: String? = nil
+    /// Na fila de envio ao Strava (sai quando a atividade é criada ou o Strava recusa o arquivo).
+    var stravaPendente: Bool = false
 
     init(
         inicio: Date,

@@ -105,6 +105,7 @@ struct StravaView: View {
         Task {
             do {
                 try await Strava.conectar(com: sessaoWeb)
+                await EnvioStrava.processarFila()
                 mensagem = "Pronto. As próximas corridas vão para o Strava ao salvar; as antigas têm o botão Enviar ao Strava no detalhe."
             } catch let erro as ASWebAuthenticationSessionError where erro.code == .canceledLogin {
                 mensagem = nil

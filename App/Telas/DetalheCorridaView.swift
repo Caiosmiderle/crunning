@@ -193,15 +193,15 @@ struct DetalheCorridaView: View {
                 Link(destination: url) {
                     Label("Ver no Strava", systemImage: "arrow.up.right.square")
                 }
-            } else if enviandoStrava {
+            } else if enviandoStrava || (corrida.stravaPendente && corrida.stravaErro == nil) {
                 HStack(spacing: 8) {
                     ProgressView()
-                    Text("Enviando ao Strava…")
+                    Text(enviandoStrava ? "Enviando ao Strava…" : "Na fila: vai sozinha quando houver internet.")
                         .font(.subheadline)
                 }
             } else {
                 if let erro = corrida.stravaErro {
-                    Text(erro)
+                    Text(corrida.stravaPendente ? erro + " Vai tentar de novo sozinho." : erro)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -209,7 +209,7 @@ struct DetalheCorridaView: View {
                 Button(corrida.stravaErro == nil ? "Enviar ao Strava" : "Tentar de novo", systemImage: "arrow.up.circle") {
                     enviandoStrava = true
                     Task {
-                        await EnvioStrava.enviar(corrida, contexto: contexto)
+                        await EnvioStrava.enfileirar(corrida)
                         enviandoStrava = false
                     }
                 }

@@ -103,7 +103,7 @@ struct ResumoCorridaView: View {
                         let corrida = gravador.salvar(em: contexto, esforco: esforco, distanciaEsteira: gravador.esteira ? distanciaEsteiraMetros : nil, tenis: tenis)
                         estadoApp.gravadorAtivo = nil
                         if Strava.envioAutomatico, !corrida.simulada {
-                            Task { await EnvioStrava.enviar(corrida, contexto: contexto) }
+                            Task { await EnvioStrava.enfileirar(corrida) }
                         }
                     } label: {
                         Text("Salvar corrida")
