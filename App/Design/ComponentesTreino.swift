@@ -29,14 +29,14 @@ enum TextoTreino {
         if let zonas {
             let distanciaProva: Double?
             if case let .distancia(d) = passo.medida { distanciaProva = d } else { distanciaProva = nil }
-            return faixa(zonas.faixa(passo.intensidade, distanciaProva: distanciaProva), unidade: unidade)
+            return pace(zonas.faixa(passo.intensidade, distanciaProva: distanciaProva), unidade: unidade)
         }
         let e = passo.intensidade.esforco
         return "\(passo.intensidade.nome) · esforço \(e.lowerBound) a \(e.upperBound)"
     }
 
-    /// A outra medida estimada (tempo de um trecho por distância, distância de um por tempo) e a
-    /// zona de batimento: "≈ 1,6 km · Z2 · 123–151 bpm".
+    /// A outra medida estimada (tempo de um trecho por distância, distância de um por tempo) e,
+    /// onde o batimento chega a se firmar, a zona: "≈ 1,6 km · tente ficar na Z2".
     static func complemento(_ passo: Passo, zonas: Zonas?, unidade: UnidadeDistancia) -> String? {
         var partes: [String] = []
         let z = zonas ?? Zonas.estimativaSemReferencia(.intermediario)
@@ -51,12 +51,14 @@ enum TextoTreino {
                 partes.append("≈ " + (est.duracao < 600 ? Formatador.duracao((est.duracao / 5).rounded() * 5) : LinhaDoTempoTreino.tempoCurto(est.duracao)))
             }
         }
-        if let zona = ZonasDoUsuario.zonaFC(passo.intensidade) { partes.append(zona.texto) }
+        if FrequenciaCardiaca.usaZona(passo, duracaoEstimada: est.duracao), let zona = ZonasDoUsuario.zonaFC(passo.intensidade) {
+            partes.append("tente ficar na " + zona.rotulo)
+        }
         return partes.isEmpty ? nil : partes.joined(separator: " · ")
     }
 
     /// Um trecho por linha, para as notas do Calendário e o PDF:
-    /// "Aquecimento: 10 min · 6:10–6:50 /km · ≈ 1,6 km · Z2 · 123–151 bpm".
+    /// "Aquecimento: 10 min · pace entre 6:10 e 6:50 /km · ≈ 1,6 km · tente ficar na Z2".
     static func trechos(_ treino: Treino, zonas: Zonas?, unidade: UnidadeDistancia) -> String {
         func linha(_ p: Passo, recuo: String) -> String {
             var partes = [medida(p.medida, unidade: unidade), alvo(p, zonas: zonas, unidade: unidade)]
@@ -74,6 +76,12 @@ enum TextoTreino {
             }
         }
         return linhas.joined(separator: "\n")
+    }
+
+    /// "pace entre 3:55 e 4:05 /km".
+    static func pace(_ f: FaixaRitmo, unidade: UnidadeDistancia) -> String {
+        "pace entre " + Formatador.ritmo(segundosPorKm: f.rapido, unidade: unidade) + " e "
+            + Formatador.ritmo(segundosPorKm: f.lento, unidade: unidade) + " " + unidade.siglaRitmo
     }
 
     static func faixa(_ f: FaixaRitmo, unidade: UnidadeDistancia) -> String {

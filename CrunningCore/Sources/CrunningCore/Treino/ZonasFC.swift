@@ -40,6 +40,17 @@ extension FrequenciaCardiaca {
         }
     }
 
+    /// Onde a zona ajuda: trechos contínuos de 3 minutos ou mais, fora da recuperação entre tiros.
+    /// O batimento leva alguns minutos para se firmar num esforço novo, então num tiro curto ele
+    /// ainda está subindo quando o trecho acaba, e na recuperação ainda está caindo; nesses vale
+    /// o pace. Corte de 3 minutos é escolha do app (docs/CIENCIA.md).
+    public static let duracaoMinimaParaZona: TimeInterval = 180
+
+    public static func usaZona(_ passo: Passo, duracaoEstimada: TimeInterval) -> Bool {
+        guard fracoes(passo.intensidade) != nil, passo.funcao != .recuperacao else { return false }
+        return duracaoEstimada >= duracaoMinimaParaZona
+    }
+
     /// Zona da intensidade para a FC máxima dada (nil sem faixa ou FC máxima fora do razoável).
     public static func zona(_ intensidade: Intensidade, fcMaxima: Double) -> ZonaFC? {
         guard (120...230).contains(fcMaxima), let f = fracoes(intensidade) else { return nil }

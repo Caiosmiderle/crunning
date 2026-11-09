@@ -84,11 +84,12 @@ struct CartaoEtapaAtual: View {
                 .font(.headline)
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
-            if let zona = etapa.passo.flatMap({ ZonasDoUsuario.zonaFC($0.intensidade) }) {
+            if let passo = etapa.passo, FrequenciaCardiaca.usaZona(passo, duracaoEstimada: etapa.duracaoEstimada),
+               let zona = ZonasDoUsuario.zonaFC(passo.intensidade) {
                 HStack(spacing: 6) {
                     Image(systemName: "heart.fill")
                         .foregroundStyle(corBatimento(zona))
-                    Text("Zona " + zona.texto + (bpm.map { " · agora \($0)" } ?? ""))
+                    Text("Tente ficar na \(zona.rotulo) (\(zona.minimo.map { "\($0)–" } ?? "até ")\(zona.maximo) bpm)" + (bpm.map { " · agora \($0)" } ?? ""))
                         .font(.subheadline.weight(.semibold))
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
@@ -131,7 +132,7 @@ struct CartaoEtapaAtual: View {
         if case let .distancia(d) = etapa.planejado, case .tempo = etapa.medida {
             texto = "≈ " + TextoTreino.medida(.distancia(d), unidade: unidade) + " na esteira · "
         }
-        if let faixa = etapa.faixa { return texto + "Alvo " + TextoTreino.faixa(faixa, unidade: unidade) }
+        if let faixa = etapa.faixa { return texto + TextoTreino.pace(faixa, unidade: unidade).capitalizandoPrimeira }
         return texto + p.intensidade.testeDaFala
     }
 }

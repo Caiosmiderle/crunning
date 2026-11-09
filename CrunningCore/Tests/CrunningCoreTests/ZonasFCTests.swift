@@ -38,4 +38,14 @@ struct ZonasFCTests {
         let z = try #require(FrequenciaCardiaca.zona(.facil, fcMaxima: fc))
         #expect(z.minimo == 121 && z.maximo == 148)
     }
+
+    @Test func zonaSoOndeOBatimentoFirma() {
+        // Tiro de 400 m (~1,5 min) e repetições vão pelo pace; limiar de 20 min e o trote longo, pela zona.
+        #expect(!FrequenciaCardiaca.usaZona(Passo(.trabalho, .distancia(400), .intervalado), duracaoEstimada: 90))
+        #expect(FrequenciaCardiaca.usaZona(Passo(.trabalho, .tempo(1200), .limiar), duracaoEstimada: 1200))
+        #expect(FrequenciaCardiaca.usaZona(Passo(.aquecimento, .tempo(600), .facil), duracaoEstimada: 600))
+        #expect(!FrequenciaCardiaca.usaZona(Passo(.recuperacao, .tempo(240), .facil), duracaoEstimada: 240))
+        #expect(!FrequenciaCardiaca.usaZona(Passo(.trabalho, .distancia(200), .repeticoes), duracaoEstimada: 600))
+        #expect(FrequenciaCardiaca.usaZona(Passo(.trabalho, .distancia(1000), .intervalado), duracaoEstimada: 230))
+    }
 }

@@ -237,7 +237,7 @@ final class GravadorCorrida: Identifiable {
             if let k = etapa.repeticao, let n = etapa.totalRepeticoes, n > 1 {
                 detalhe = "Repetição \(k) de \(n)"
             } else if let faixa = etapa.faixa {
-                detalhe = "Alvo " + TextoTreino.faixa(faixa, unidade: unidade)
+                detalhe = "Pace " + TextoTreino.faixa(faixa, unidade: unidade)
             }
             progresso = execucao.progressoTotal(l)
             let resta = max(0, execucao.restante(l) ?? 0)

@@ -170,8 +170,8 @@ O que me contar: se as respostas do coach fizeram sentido, quanto custou na sua 
 ## Detalhe dos treinos e zonas de batimento (0.10.1)
 
 1. **Zonas:** Ajustes > Meus ritmos > Frequência cardíaca. Informe a idade (e a FC máxima, se souber). Aparecem as zonas Z1 a Z5 em bpm.
-2. **Detalhe no plano:** na aba Plano, toque num dia com treino. Abre o detalhe com cada trecho: a medida (tempo ou distância), o ritmo-alvo e, embaixo, a outra medida estimada e a zona ("≈ 1,6 km · Z2 · 123–151 bpm"). O botão Começar conta para aquela sessão do plano. O toque longo continua abrindo o menu do dia.
+2. **Detalhe no plano:** na aba Plano, toque num dia com treino. Abre o detalhe com cada trecho: a medida (tempo ou distância), "pace entre X e Y" e, embaixo, a outra medida estimada e, nos trechos contínuos de 3 min ou mais, a zona ("≈ 1,6 km · tente ficar na Z2"). Tiros curtos e recuperação vão só pelo pace. O botão Começar conta para aquela sessão do plano. O toque longo continua abrindo o menu do dia.
 3. **Hoje:** no cartão do treino de hoje, "Ver os trechos" abre o mesmo detalhe.
-4. **Na corrida:** abaixo do ritmo-alvo aparece "Zona Z2 · 123–151 bpm"; com a Mi Band transmitindo, mostra o batimento de agora e o coração fica verde dentro da zona e vermelho acima.
+4. **Na corrida:** aparece "Pace entre X e Y" e, nos trechos longos, "Tente ficar na Z2 (123–151 bpm)"; com a Mi Band transmitindo, mostra o batimento de agora e o coração fica verde dentro da zona e vermelho acima.
 5. **Calendário:** as notas de cada evento listam os trechos com tempo, distância, ritmo e zona (os eventos são refeitos sozinhos na abertura).
 
