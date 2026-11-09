@@ -1,0 +1,57 @@
+# Extrai os textos do app para tradução (XLIFF), pelo próprio Xcode, e publica como Release.
+# Roda só quando você pede (aba Actions > Textos > Run workflow).
+name: Textos
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write   # necessário para criar a Release
+
+concurrency:
+  group: textos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  exportar:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v6
+
+      - name: Escolher o Xcode estável mais novo
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_[0-9]*.app | grep -viE 'beta|rc|release_candidate' | sort -V | tail -1)
+          echo "Usando $XCODE"
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+
+      - name: Instalar o XcodeGen
+        run: brew install xcodegen
+
+      - name: Gerar o projeto do Xcode
+        run: xcodegen generate
+
+      - name: Exportar os textos (inglês)
+        run: |
+          set -o pipefail
+          xcodebuild -exportLocalizations \
+            -project CRUNNING.xcodeproj \
+            -localizationPath "$RUNNER_TEMP/textos" \
+            -exportLanguage en \
+            -sdk iphoneos \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            > "$RUNNER_TEMP/export.log" 2>&1 || (tail -80 "$RUNNER_TEMP/export.log"; exit 1)
+          find "$RUNNER_TEMP/textos" -name "*.xliff" -print
+          (cd "$RUNNER_TEMP" && zip -qry "$GITHUB_WORKSPACE/textos.zip" textos)
+          ls -lh textos.zip
+
+      - name: Publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "textos-${{ github.run_number }}" textos.zip \
+            --target "$GITHUB_SHA" --prerelease \
+            --title "Textos ${{ github.run_number }}" \
+            --notes "Textos do app extraídos pelo Xcode (XLIFF em inglês) para tradução."
