@@ -26,8 +26,14 @@ struct HojeView: View {
                     }
                 }
                 .entradaCascata(2)
-                cartaoSemana
-                    .entradaCascata(3)
+                NavigationLink {
+                    VolumeSemanalView()
+                } label: {
+                    cartaoSemana
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("Abre o volume por semana")
+                .entradaCascata(3)
                 Button {
                     estadoApp.abrirCorridaLivre()
                 } label: {
@@ -88,9 +94,18 @@ struct HojeView: View {
         let distancia = semana.reduce(0.0) { $0 + $1.distanciaMetros }
         let tempo = semana.reduce(0.0) { $0 + $1.duracaoEmMovimento }
         return VStack(alignment: .leading, spacing: 14) {
-            Text("Esta semana")
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.secondary)
+            HStack {
+                Text("Esta semana")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Label("Volume por semana", systemImage: "chart.bar")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Image(systemName: "chevron.right")
+                    .font(.footnote)
+                    .foregroundStyle(.tertiary)
+            }
             HStack(alignment: .firstTextBaseline) {
                 numero(Formatador.numero(Formatador.distanciaNaUnidade(distancia, unidade: unidade), casas: 1), legenda: unidade.sigla)
                 Spacer()

@@ -167,6 +167,11 @@ O que me contar: se as respostas do coach fizeram sentido, quanto custou na sua 
 7. **Revisão semanal:** no domingo à noite ou na segunda, com a semana cumprida, o Hoje mostra só "Semana dentro do plano". Com treino perdido, corrida fora do plano, esforço alto nas fáceis ou ritmo fora da faixa, aparece "Vale revisar a semana" com os motivos.
 8. **Lista de treinos:** cartões mais baixos, barras em cápsulas com legenda de tempo por tipo, tempos sem segundos ("≈ 7,1 km · 49 min") e o título "Prontos" não passa mais por cima do relógio.
 
+## Volume por semana (0.10.4)
+
+1. No Hoje, toque no cartão "Esta semana". Abre o gráfico das últimas 12 semanas: barra verde = feito, cinza larga atrás = planejado pelo plano (e as próximas semanas do plano, só em cinza). Em cima: esta semana, semana passada (com a variação sobre a anterior) e a média de 4 semanas.
+2. Toque numa barra: aparece o balão com a semana e os km. Embaixo, a mesma informação em lista.
+
 ## Planilha do treino (0.10.3)
 
 1. Abra um treino (aba Treinos ou um dia do Plano). Os trechos aparecem como planilha: AQUECIMENTO, PARTE PRINCIPAL e DESAQUECIMENTO, com minutos em aspas (10', 1'30") e os tiros numa linha só: "6 × 400 m forte", embaixo o pace, o tempo estimado e "com 1'30" de trote entre eles". No fim, o total.
