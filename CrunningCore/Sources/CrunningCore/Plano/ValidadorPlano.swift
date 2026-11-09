@@ -87,7 +87,7 @@ public enum ValidadorPlano {
             for (dia, sessao) in semana.dias.enumerated() {
                 guard let s = sessao, !s.ehProva else { continue }
                 if !cabe(s.distancia, em: pico) { erros.append(.corridaAcimaDoPico(semana: n, dia: dia)) }
-                if !cabe(s.distancia, em: fracao * volume) { erros.append(.corridaAcimaDaFracao(semana: n, dia: dia)) }
+                if semana.corridas > 1, !cabe(s.distancia, em: fracao * volume) { erros.append(.corridaAcimaDaFracao(semana: n, dia: dia)) }
                 if !cabe(s.distancia, em: distanciaMaxima) { erros.append(.corridaLongaDemais(semana: n, dia: dia)) }
                 if s.trabalho.contains(where: { !cabe($0.value, em: RegrasPlano.limiteTrabalho($0.key, volumeSemana: volume)) }) {
                     erros.append(.trabalhoAcimaDoLimite(semana: n, dia: dia))
@@ -114,7 +114,7 @@ public enum ValidadorPlano {
         let finais = plano.semanas.suffix(esperadas)
         let antes = plano.semanas.dropLast(esperadas)
         let referencia = max(plano.entrada.volumeAtual, RegrasPlano.pisoVolumeReferencia)
-        let pico = antes.map(\.volumeTreino).max() ?? referencia
+        let pico = max(referencia, antes.map(\.volumeTreino).max() ?? 0)
         let polimentoOk = finais.allSatisfy { $0.fase == .polimento && cabe($0.volumeTreino, em: pico * 0.85) }
             && cabe(ultima.volumeTreino, em: pico * 0.60)
         if !polimentoOk { erros.append(.semPolimento) }

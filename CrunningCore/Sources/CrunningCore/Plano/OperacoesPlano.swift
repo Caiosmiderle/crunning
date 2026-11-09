@@ -143,7 +143,7 @@ public enum OperacoesPlano {
     static func recuarIniciante(_ plano: Plano, semana: Int, passos: Int) throws -> Plano {
         let i = try indice(plano, semana)
         let progressao = RegrasPlano.progressaoCaminhadaCorrida
-        let atual = min(i, progressao.count - 1)
+        let atual = indiceProgressao(plano.semanas[i], padrao: min(i, progressao.count - 1))
         let inicio = max(0, atual - passos)
         var novo = plano
         let dias = plano.semanas[i].dias.indices.filter { plano.semanas[i].dias[$0] != nil }
@@ -160,5 +160,15 @@ public enum OperacoesPlano {
             novo.semanas[j].dias = semanaDias
         }
         return try conferido(novo)
+    }
+
+    /// Em que passo da progressão de caminhada e corrida a semana está (pelo treino, não pelo número).
+    static func indiceProgressao(_ semana: SemanaPlano, padrao: Int) -> Int {
+        guard let treino = semana.sessoes.first?.treino else { return padrao }
+        let progressao = RegrasPlano.progressaoCaminhadaCorrida
+        return progressao.indices.last { i in
+            let p = progressao[i]
+            return Modelos.caminhadaCorrida(correrSegundos: p.correr, caminharSegundos: p.caminhar, ciclos: p.ciclos).blocos == treino.blocos
+        } ?? padrao
     }
 }

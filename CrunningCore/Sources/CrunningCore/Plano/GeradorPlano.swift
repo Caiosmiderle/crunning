@@ -252,50 +252,49 @@ public enum GeradorPlano {
 
     // MARK: Equilíbrio final (garante as travas depois do arredondamento)
 
+    /// A primeira trava da semana que ainda não fecha: o dia a encolher e até quanto.
+    static func primeiroProblema(_ semana: SemanaPlano, limite: Double, picoCorrida: Double, distanciaMaxima: Double) -> (dia: Int, alvo: Double)? {
+        let volume = semana.volumeTreino
+        if volume > limite + 1, let dia = maiorContinua(semana) ?? maiorSessao(semana) {
+            return (dia, semana.dias[dia]!.distancia - (volume - limite))
+        }
+        let fracao = RegrasPlano.fracaoMaximaCorrida(corridas: semana.corridas, volume: volume)
+        let tetoFracao = semana.corridas <= 1 ? Double.infinity : fracao * volume
+        let teto = min(tetoFracao, picoCorrida, distanciaMaxima)
+        for dia in 0..<7 {
+            guard let s = semana.dias[dia], !s.ehProva else { continue }
+            if s.distancia > teto + 1 {
+                // Encolher uma corrida também baixa o volume (e o teto pela fração): desconta isso.
+                let alvo = teto == tetoFracao ? s.distancia - (s.distancia - teto) / max(0.2, 1 - fracao) : teto
+                return (dia, min(alvo, teto))
+            }
+            if s.trabalho.contains(where: { $0.value > RegrasPlano.limiteTrabalho($0.key, volumeSemana: volume) + 1 }) {
+                return (dia, s.distancia * 0.85)
+            }
+        }
+        let qualidade = semana.sessoes.reduce(0) { $0 + $1.trabalhoDeQualidade }
+        if qualidade > RegrasPlano.fracaoMaximaQualidade * volume + 1,
+           let dia = semana.dias.indices.filter({ (semana.dias[$0]?.trabalhoDeQualidade ?? 0) > 0 })
+            .max(by: { semana.dias[$0]!.trabalhoDeQualidade < semana.dias[$1]!.trabalhoDeQualidade }) {
+            return (dia, semana.dias[dia]!.distancia * 0.85)
+        }
+        return nil
+    }
+
     static func equilibrar(_ semana: inout SemanaPlano, zonas: Zonas, limite: Double, picoCorrida: Double) {
         let distanciaMaxima = distanciaParaDuracao(RegrasPlano.duracaoMaximaCorrida, zonas: zonas)
-        for _ in 0..<60 {
-            let volume = semana.volumeTreino
-            let fracao = RegrasPlano.fracaoMaximaCorrida(corridas: semana.corridas, volume: volume)
-            let tetoCorrida = min(fracao * volume, picoCorrida, distanciaMaxima)
-            var mudou = false
-
-            if volume > limite {
-                let excesso = volume - limite
-                if let dia = maiorContinua(semana) {
-                    reduzir(&semana, dia: dia, para: semana.dias[dia]!.distancia - excesso, zonas: zonas)
-                } else if let dia = semana.dias.indices.filter({ semana.dias[$0].map { !$0.ehProva } ?? false })
-                    .max(by: { semana.dias[$0]!.distancia < semana.dias[$1]!.distancia }) {
-                    reduzir(&semana, dia: dia, para: semana.dias[dia]!.distancia * 0.85, zonas: zonas)
-                }
-                continue
+        for _ in 0..<300 {
+            guard let problema = primeiroProblema(semana, limite: limite, picoCorrida: picoCorrida, distanciaMaxima: distanciaMaxima) else {
+                return
             }
-
-            for dia in semana.dias.indices {
-                guard let s = semana.dias[dia], !s.ehProva else { continue }
-                if s.distancia > tetoCorrida + 1 {
-                    let nova = ehContinua(s) ? s.distancia - (s.distancia - tetoCorrida) / max(0.2, 1 - fracao) : s.distancia * 0.85
-                    reduzir(&semana, dia: dia, para: min(nova, tetoCorrida), zonas: zonas)
-                    mudou = true
-                    break
-                }
-                for (intensidade, metros) in s.trabalho where metros > RegrasPlano.limiteTrabalho(intensidade, volumeSemana: volume) + 1 {
-                    reduzir(&semana, dia: dia, para: s.distancia * 0.85, zonas: zonas)
-                    mudou = true
-                    break
-                }
-                if mudou { break }
-            }
-            if mudou { continue }
-
-            let qualidade = semana.sessoes.reduce(0) { $0 + $1.trabalhoDeQualidade }
-            if qualidade > RegrasPlano.fracaoMaximaQualidade * volume + 1,
-               let dia = semana.dias.indices.filter({ (semana.dias[$0]?.trabalhoDeQualidade ?? 0) > 0 })
-                .max(by: { semana.dias[$0]!.trabalhoDeQualidade < semana.dias[$1]!.trabalhoDeQualidade }) {
-                reduzir(&semana, dia: dia, para: semana.dias[dia]!.distancia * 0.85, zonas: zonas)
-                continue
-            }
-            break
+            let antes = semana.dias[problema.dia]
+            reduzir(&semana, dia: problema.dia, para: problema.alvo, zonas: zonas)
+            // Sem progresso (sessão que não encolhe mais): vira descanso.
+            if semana.dias[problema.dia] == antes { semana.dias[problema.dia] = nil }
+        }
+        // Rede de segurança: tira sessões até todas as travas fecharem.
+        while let problema = primeiroProblema(semana, limite: limite, picoCorrida: picoCorrida, distanciaMaxima: distanciaMaxima) {
+            semana.dias[problema.dia] = nil
         }
     }
 
@@ -310,6 +309,12 @@ public enum GeradorPlano {
             .max { semana.dias[$0]!.distancia < semana.dias[$1]!.distancia }
     }
 
+    static func maiorSessao(_ semana: SemanaPlano) -> Int? {
+        semana.dias.indices
+            .filter { semana.dias[$0].map { !$0.ehProva } ?? false }
+            .max { semana.dias[$0]!.distancia < semana.dias[$1]!.distancia }
+    }
+
     /// Reduz uma sessão para (no máximo) a distância pedida; se não couber o mínimo, vira descanso.
     static func reduzir(_ semana: inout SemanaPlano, dia: Int, para distancia: Double, zonas: Zonas) {
         guard let s = semana.dias[dia], let id = s.treino.modeloID, let modelo = Modelos.modelo(id: id),
@@ -317,8 +322,14 @@ public enum GeradorPlano {
             semana.dias[dia] = nil
             return
         }
+        if modelo.id == Modelos.aceleracoes.id {
+            // A distância desta sessão é a dose mais as acelerações: primeiro saem as acelerações.
+            let nova = abaixo100(min(dose, distancia))
+            semana.dias[dia] = nova >= RegrasPlano.corridaMinima ? sessao(Modelos.facil, dose: nova, zonas: zonas) : nil
+            return
+        }
         if modelo.tipoDose == .distanciaTotal {
-            let nova = abaixo100(min(distancia, s.distancia - 100))
+            let nova = abaixo100(min(distancia, dose - 100))
             semana.dias[dia] = nova >= RegrasPlano.corridaMinima ? sessao(modelo, dose: nova, zonas: zonas) : nil
             return
         }
