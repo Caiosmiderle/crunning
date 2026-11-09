@@ -242,6 +242,7 @@ struct CorridaView: View {
             .background(Color.primary.opacity(0.08), in: Circle())
             .contentShape(Circle())
             .buttonStyle(.plain)
+    }
 
     @ViewBuilder
     private var avisoAtual: some View {
