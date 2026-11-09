@@ -695,12 +695,15 @@ public enum GeradorPlano {
         let necessarias = max(minimo, porLongao)
         let nome = e.objetivo.nome.lowercased()
         if necessarias > 30 {
-            return .naoRecomendado(motivo: "Para a \(nome) a partir de um longão de \(km(atual)), seriam mais de 30 semanas. Comece por uma prova mais curta ou pelo condicionamento.")
+            return .naoRecomendado(motivo: L("Para a \(nome) a partir de um longão de \(km(atual)), seriam mais de 30 semanas. Comece por uma prova mais curta ou pelo condicionamento.",
+                                             "For the \(nome), starting from a long run of \(km(atual)), it would take more than 30 weeks. Start with a shorter race or with general fitness."))
         }
         guard e.semanas < necessarias else { return .viavel }
         let motivo = porLongao > minimo
-            ? "Com o seu longão atual de \(km(atual)), a \(nome) pede pelo menos \(necessarias) semanas: o longão precisa chegar a cerca de \(km(recomendado)), subindo até 10% por semana, com alívio e polimento."
-            : "A \(nome) pede pelo menos \(necessarias) semanas de preparação."
+            ? L("Com o seu longão atual de \(km(atual)), a \(nome) pede pelo menos \(necessarias) semanas: o longão precisa chegar a cerca de \(km(recomendado)), subindo até 10% por semana, com alívio e polimento.",
+                "With your current long run of \(km(atual)), the \(nome) needs at least \(necessarias) weeks: the long run has to reach about \(km(recomendado)), increasing up to 10% per week, with recovery weeks and a taper.")
+            : L("A \(nome) pede pelo menos \(necessarias) semanas de preparação.",
+                "The \(nome) needs at least \(necessarias) weeks of preparation.")
         return .curto(semanasMinimas: necessarias, motivo: motivo)
     }
 
@@ -710,19 +713,21 @@ public enum GeradorPlano {
         func km(_ m: Double) -> String { Formatador.numero(m / 1000, casas: 1) + " km" }
         var lista: [String] = []
         switch viabilidade(e) {
-        case let .curto(_, motivo): lista.append(motivo + " Este plano tem \(e.semanas).")
+        case let .curto(_, motivo): lista.append(motivo + L(" Este plano tem \(e.semanas).", " This plan has \(e.semanas)."))
         case let .naoRecomendado(motivo): lista.append(motivo)
         case .viavel: break
         }
         guard e.objetivo != .comecarACorrer, let primeira = plano.semanas.first else { return lista }
         if e.volumeAtual > 0, primeira.volumeTreino < 0.8 * e.volumeAtual {
             let maior = max(e.longaoAtual, RegrasPlano.pisoLongaoReferencia)
-            lista.append("A primeira semana (\(km(primeira.volumeTreino))) fica abaixo do que você corre hoje (\(km(e.volumeAtual))): nenhuma corrida passa 10% da sua maior corrida recente (\(km(maior))) e as outras ficam menores que o longão. O volume sobe junto com o longão. Se você já corre mais longe, informe a maior corrida das últimas 4 semanas.")
+            lista.append(L("A primeira semana (\(km(primeira.volumeTreino))) fica abaixo do que você corre hoje (\(km(e.volumeAtual))): nenhuma corrida passa 10% da sua maior corrida recente (\(km(maior))) e as outras ficam menores que o longão. O volume sobe junto com o longão. Se você já corre mais longe, informe a maior corrida das últimas 4 semanas.",
+                           "The first week (\(km(primeira.volumeTreino))) is below what you run today (\(km(e.volumeAtual))): no run goes more than 10% beyond your longest recent run (\(km(maior))) and the others stay shorter than the long run. Volume grows along with the long run. If you already run longer, enter your longest run of the last 4 weeks."))
         }
         if let recomendado = longaoRecomendado(e, zonas: plano.zonas) {
             let maior = plano.semanas.map(\.maiorCorrida).max() ?? 0
             if maior < 0.9 * recomendado {
-                lista.append("O maior longão do plano (\(km(maior))) fica abaixo do recomendado para a prova (cerca de \(km(recomendado))). Mais semanas, mais dias de corrida ou mais volume ajudam.")
+                lista.append(L("O maior longão do plano (\(km(maior))) fica abaixo do recomendado para a prova (cerca de \(km(recomendado))). Mais semanas, mais dias de corrida ou mais volume ajudam.",
+                               "The plan's longest long run (\(km(maior))) is below what is recommended for the race (about \(km(recomendado))). More weeks, more running days or more volume help."))
             }
         }
         return lista
@@ -734,38 +739,58 @@ public enum GeradorPlano {
         func km(_ m: Double) -> String { Formatador.numero(m / 1000, casas: 0) + " km" }
         var linhas: [String] = []
         let corridas = semanas.map(\.corridas).max() ?? 0
-        linhas.append("\(e.objetivo.nome), \(semanas.count) semanas, nível \(e.nivel.nome.lowercased()), até \(corridas) corridas por semana.")
+        linhas.append(L("\(e.objetivo.nome), \(semanas.count) semanas, nível \(e.nivel.nome.lowercased()), até \(corridas) corridas por semana.",
+                        "\(e.objetivo.nome), \(semanas.count) weeks, \(e.nivel.nome.lowercased()) level, up to \(corridas) runs per week."))
 
         if e.objetivo == .comecarACorrer {
-            linhas.append("Caminhada e corrida alternadas por tempo, com um dia livre entre as sessões. A corrida sobe aos poucos até 30 minutos contínuos.")
-            linhas.append("Se uma semana ficar pesada, repita a semana antes de avançar.")
+            linhas.append(L("Caminhada e corrida alternadas por tempo, com um dia livre entre as sessões. A corrida sobe aos poucos até 30 minutos contínuos.",
+                            "Walking and running alternated by time, with a free day between sessions. Running time builds up gradually to 30 continuous minutes."))
+            linhas.append(L("Se uma semana ficar pesada, repita a semana antes de avançar.",
+                            "If a week feels hard, repeat it before moving on."))
             return linhas
         }
 
         var trechos: [String] = []
         var inicio = 1
         for (i, s) in semanas.enumerated() where i == semanas.count - 1 || semanas[i + 1].fase != s.fase {
-            trechos.append("\(s.fase.nome.lowercased()) (\(inicio == s.numero ? "semana \(s.numero)" : "semanas \(inicio) a \(s.numero)"))")
+            let periodo = inicio == s.numero
+                ? L("semana \(s.numero)", "week \(s.numero)")
+                : L("semanas \(inicio) a \(s.numero)", "weeks \(inicio) to \(s.numero)")
+            trechos.append("\(s.fase.nome.lowercased()) (\(periodo))")
             inicio = s.numero + 1
         }
-        linhas.append("Fases: " + trechos.joined(separator: ", ") + ".")
+        linhas.append(L("Fases: ", "Phases: ") + trechos.joined(separator: ", ") + ".")
         let referencia = max(e.volumeAtual, RegrasPlano.pisoVolumeReferencia)
         let pico = volumePico(e, referencia: referencia)
         let subida = pico > referencia + 500
-            ? "sobe aos poucos até no máximo \(km(pico)), o pico do objetivo para o seu nível, perto de 3/4 das semanas antes do polimento"
-            : "fica nesse nível, que já é o pico do objetivo para o seu nível"
-        linhas.append("O volume parte de \(km(referencia)) por semana e \(subida). Nunca sobe mais de \(Int((e.tetoProgressao * 100).rounded()))% sobre as 3 semanas anteriores, nem mais de 25% de uma semana para a outra.")
-        linhas.append("Semana de alívio a cada \(RegrasPlano.aliviaACada(e.nivel)) semanas, com 20% menos volume.")
-        linhas.append("Nenhuma corrida passa 10% da maior das 4 semanas anteriores. O longão é a maior corrida da semana (as fáceis ficam em até 80% dele) e tem limite de fração do volume e de tempo (\(Int(RegrasPlano.duracaoMaximaCorrida(e.objetivo) / 60)) minutos).")
-        linhas.append("No máximo \(RegrasPlano.maximoQualidade(e.nivel)) treinos de qualidade por semana, nunca em dias seguidos nem colados no longão, e até 20% do volume em qualidade.")
+            ? L("sobe aos poucos até no máximo \(km(pico)), o pico do objetivo para o seu nível, perto de 3/4 das semanas antes do polimento",
+                "builds up gradually to at most \(km(pico)), the goal's peak for your level, at about 3/4 of the weeks before the taper")
+            : L("fica nesse nível, que já é o pico do objetivo para o seu nível",
+                "stays at that level, which is already the goal's peak for your level")
+        let teto = Int((e.tetoProgressao * 100).rounded())
+        linhas.append(L("O volume parte de \(km(referencia)) por semana e \(subida). Nunca sobe mais de \(teto)% sobre as 3 semanas anteriores, nem mais de 25% de uma semana para a outra.",
+                        "Volume starts at \(km(referencia)) per week and \(subida). It never goes up more than \(teto)% over the previous 3 weeks, nor more than 25% from one week to the next."))
+        let aCada = RegrasPlano.aliviaACada(e.nivel)
+        linhas.append(L("Semana de alívio a cada \(aCada) semanas, com 20% menos volume.",
+                        "Recovery week every \(aCada) weeks, with 20% less volume."))
+        let minutos = Int(RegrasPlano.duracaoMaximaCorrida(e.objetivo) / 60)
+        linhas.append(L("Nenhuma corrida passa 10% da maior das 4 semanas anteriores. O longão é a maior corrida da semana (as fáceis ficam em até 80% dele) e tem limite de fração do volume e de tempo (\(minutos) minutos).",
+                        "No run goes more than 10% beyond the longest of the previous 4 weeks. The long run is the longest run of the week (easy runs stay at up to 80% of it) and is capped as a share of volume and in time (\(minutos) minutes)."))
+        let maximoQualidade = RegrasPlano.maximoQualidade(e.nivel)
+        linhas.append(L("No máximo \(maximoQualidade) treinos de qualidade por semana, nunca em dias seguidos nem colados no longão, e até 20% do volume em qualidade.",
+                        "At most \(maximoQualidade) quality workouts per week, never on consecutive days or right next to the long run, and up to 20% of volume as quality work."))
         if let d = e.objetivo.distanciaProva {
             let n = RegrasPlano.semanasPolimento(d, totalSemanas: semanas.count)
-            linhas.append("Polimento de \(n) semana\(n == 1 ? "" : "s"): o volume cai até cerca de metade do pico, com a mesma intensidade e o mesmo número de corridas.")
+            linhas.append(L("Polimento de \(n) semana\(n == 1 ? "" : "s"): o volume cai até cerca de metade do pico, com a mesma intensidade e o mesmo número de corridas.",
+                            "\(n)-week taper: volume drops to about half of the peak, with the same intensity and the same number of runs."))
         }
         if let v = e.vdot {
-            linhas.append("Ritmos pelo VDOT \(Formatador.numero(v, casas: 1)), da sua prova de referência.")
+            let vdot = Formatador.numero(v, casas: 1)
+            linhas.append(L("Ritmos pelo VDOT \(vdot), da sua prova de referência.",
+                            "Paces based on VDOT \(vdot), from your reference race."))
         } else {
-            linhas.append("Sem prova de referência: siga pelo esforço percebido e pelo teste da fala até registrar uma prova ou um teste.")
+            linhas.append(L("Sem prova de referência: siga pelo esforço percebido e pelo teste da fala até registrar uma prova ou um teste.",
+                            "No reference race: go by perceived effort and the talk test until you log a race or a test."))
         }
         return linhas
     }

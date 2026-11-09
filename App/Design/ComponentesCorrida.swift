@@ -32,12 +32,12 @@ struct Metrica: View {
 extension QualidadeGPS {
     var texto: String {
         switch self {
-        case .procurando: "Procurando GPS"
-        case .fraco: "GPS fraco"
-        case .bom: "GPS bom"
-        case .otimo: "GPS ótimo"
-        case .simulado: "GPS simulado"
-        case .esteira: "Esteira"
+        case .procurando: L("Procurando GPS", "Searching for GPS")
+        case .fraco: L("GPS fraco", "Weak GPS")
+        case .bom: L("GPS bom", "Good GPS")
+        case .otimo: L("GPS ótimo", "Great GPS")
+        case .simulado: L("GPS simulado", "Simulated GPS")
+        case .esteira: L("Esteira", "Treadmill")
         }
     }
 
@@ -279,13 +279,13 @@ struct SeletorEsforco: View {
     }
 
     private var descricao: String {
-        guard let valor else { return "Toque num número. 1 é muito leve, 10 é o máximo que você aguenta." }
+        guard let valor else { return L("Toque num número. 1 é muito leve, 10 é o máximo que você aguenta.", "Tap a number. 1 is very easy, 10 is the hardest you can handle.") }
         switch valor {
-        case ...2: return "Muito leve"
-        case 3...4: return "Leve: dá para conversar fácil"
-        case 5...6: return "Moderado: conversa em frases curtas"
-        case 7...8: return "Pesado: poucas palavras"
-        default: return "Máximo ou quase"
+        case ...2: return L("Muito leve", "Very easy")
+        case 3...4: return L("Leve: dá para conversar fácil", "Easy: you can chat comfortably")
+        case 5...6: return L("Moderado: conversa em frases curtas", "Moderate: you can talk in short sentences")
+        case 7...8: return L("Pesado: poucas palavras", "Hard: just a few words")
+        default: return L("Máximo ou quase", "Max or close to it")
         }
     }
 }

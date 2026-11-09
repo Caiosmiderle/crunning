@@ -12,9 +12,9 @@ struct HistoricoView: View {
     var body: some View {
         NavigationStack {
             Tela(
-                selo: corridas.count == 1 ? "1 corrida" : "\(corridas.count) corridas",
+                selo: corridas.count == 1 ? L("1 corrida", "1 run") : L("\(corridas.count) corridas", "\(corridas.count) runs"),
                 iconeSelo: "clock.arrow.circlepath",
-                titulo: "Histórico"
+                titulo: L("Histórico", "History")
             ) {
                 if corridas.isEmpty {
                     cartaoVazio
@@ -98,7 +98,7 @@ struct LinhaCorrida: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(corrida.titulo)
                     .font(.headline)
-                Text(corrida.inicio.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated).hour().minute().locale(.ptBR)))
+                Text(corrida.inicio.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated).hour().minute()))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

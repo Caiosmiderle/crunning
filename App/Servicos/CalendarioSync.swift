@@ -70,7 +70,7 @@ enum CalendarioSync {
                 evento.startDate = inicio
                 evento.endDate = inicio
                 evento.title = "\(sessao.treino.nome) · " + Formatador.distancia(sessao.distancia, casas: 1)
-                var notas = "Semana \(semana.numero) (\(semana.fase.nome)).\n\n"
+                var notas = L("Semana \(semana.numero) (\(semana.fase.nome)).\n\n", "Week \(semana.numero) (\(semana.fase.nome)).\n\n")
                     + Planilha.texto(sessao.treino, zonas: ZonasDoUsuario.atuais(), unidade: unidade)
                 if let porque = sessao.treino.modeloID.flatMap({ Modelos.modelo(id: $0)?.porque }) { notas += "\n\n" + porque }
                 evento.notes = notas

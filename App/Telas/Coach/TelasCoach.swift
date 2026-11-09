@@ -129,7 +129,7 @@ struct ChatCoachView: View {
                 Spacer()
                 Button("Recusar", role: .destructive) {
                     proposta = nil
-                    falas.append(Fala(doCoach: true, texto: "Ok, nada mudou."))
+                    falas.append(Fala(doCoach: true, texto: L("Ok, nada mudou.", "OK, nothing changed.")))
                 }
             }
         }
@@ -171,7 +171,7 @@ struct ChatCoachView: View {
                         historico.append(ClienteClaude.Mensagem(papel: "user", texto: motivo + " Proponha outra mudança que caiba nas travas, ou explique que não dá."))
                         continue
                     }
-                    falas.append(Fala(doCoach: true, texto: resposta.mensagem + "\n\n" + motivo + " Nada mudou."))
+                    falas.append(Fala(doCoach: true, texto: resposta.mensagem + "\n\n" + L("O motor recusou \"\(falha.0.descricao)\": ", "The engine refused \"\(falha.0.descricao)\": ") + PreviaPlanoView.explicar(falha.1) + L(" Nada mudou.", " Nothing changed.")))
                     return
                 }
                 falas.append(Fala(doCoach: true, texto: resposta.mensagem))
@@ -190,7 +190,7 @@ struct ChatCoachView: View {
         ativo.agenda = agenda
         try? contexto.save()
         proposta = nil
-        falas.append(Fala(doCoach: true, texto: "Salvo. Se mudar de ideia, \"Voltar ao anterior\" desfaz."))
+        falas.append(Fala(doCoach: true, texto: L("Salvo. Se mudar de ideia, \"Voltar ao anterior\" desfaz.", "Saved. If you change your mind, \"Go back to the previous one\" undoes it.")))
         historico.append(ClienteClaude.Mensagem(papel: "user", texto: "Salvei a proposta."))
         historico.append(ClienteClaude.Mensagem(papel: "assistant", texto: "Combinado."))
     }
@@ -199,7 +199,7 @@ struct ChatCoachView: View {
         guard var agenda = ativo.agenda, agenda.voltarAoAnterior() else { return }
         ativo.agenda = agenda
         try? contexto.save()
-        falas.append(Fala(doCoach: true, texto: "Voltei ao plano anterior."))
+        falas.append(Fala(doCoach: true, texto: L("Voltei ao plano anterior.", "Back to the previous plan.")))
     }
 }
 
@@ -221,7 +221,7 @@ struct RevisaoCoachView: View {
         Form {
             Section {
                 AvisoPrivacidadeCoach()
-                Button(analise == nil ? "Revisar meu plano agora" : "Revisar de novo") { Task { await revisar() } }
+                Button(analise == nil ? L("Revisar meu plano agora", "Review my plan now") : L("Revisar de novo", "Review again")) { Task { await revisar() } }
                     .disabled(carregando || (!Chaveiro.temChave && !ClienteClaude.simulado))
                 if carregando { HStack { ProgressView(); Text("O coach está olhando a sua semana...") } }
                 if let erro { Text(erro).foregroundStyle(Paleta.foraForte) }
@@ -239,7 +239,7 @@ struct RevisaoCoachView: View {
                                 if aplicadas.contains(ponto.problema) {
                                     Label("Aplicada", systemImage: "checkmark.circle.fill").foregroundStyle(Paleta.verdeLogo)
                                 } else {
-                                    Button("Ver correção: " + correcao.descricao) { propor(correcao, ponto.problema) }
+                                    Button(L("Ver correção: ", "See fix: ") + correcao.descricao) { propor(correcao, ponto.problema) }
                                         .buttonStyle(.borderless)
                                 }
                             }
@@ -275,7 +275,7 @@ struct RevisaoCoachView: View {
             let novo = try correcao.aplicar(agenda.plano)
             proposta = PropostaCorrecao(correcao: correcao, novo: novo, comparacao: ComparacaoPlano(antes: agenda.plano, depois: novo), motivo: chave, chave: chave)
         } catch {
-            erro = "O motor recusou: " + PreviaPlanoView.explicar(error)
+            erro = L("O motor recusou: ", "The engine refused: ") + PreviaPlanoView.explicar(error)
         }
     }
 
@@ -336,27 +336,27 @@ struct CriarPlanoCoachView: View {
     @State var resultado: (plano: Plano, explicacao: String)?
     @State var usando = false
 
-    static let nomesDias = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]
+    nonisolated static var nomesDias: [String] { [L("Seg", "Mon"), L("Ter", "Tue"), L("Qua", "Wed"), L("Qui", "Thu"), L("Sex", "Fri"), L("Sáb", "Sat"), L("Dom", "Sun")] }
     let colunas = [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
                 AvisoPrivacidadeCoach()
-                pergunta("Qual o objetivo?")
+                pergunta(L("Qual o objetivo?", "What is your goal?"))
                 LazyVGrid(columns: colunas, spacing: 10) {
                     ForEach(Array(CriadorPlanoCoach.objetivos.enumerated()), id: \.offset) { i, o in
-                        CartaoNumerado(numero: i + 1, titulo: o, escolhido: objetivo == o) { objetivo = o }
+                        CartaoNumerado(numero: i + 1, titulo: Self.rotuloObjetivo(o), escolhido: objetivo == o) { objetivo = o }
                     }
                 }
                 Stepper("\(semanas) semanas até a prova (ou de plano)", value: $semanas, in: 1...30)
-                pergunta("Nível")
+                pergunta(L("Nível", "Level"))
                 LazyVGrid(columns: colunas, spacing: 10) {
                     ForEach(Array(Nivel.allCases.enumerated()), id: \.offset) { i, n in
                         CartaoNumerado(numero: i + 1, titulo: n.nome, escolhido: nivel == n.nome) { nivel = n.nome }
                     }
                 }
-                pergunta("Em que dias você pode correr?")
+                pergunta(L("Em que dias você pode correr?", "Which days can you run?"))
                 LazyVGrid(columns: colunas, spacing: 10) {
                     ForEach(0..<7, id: \.self) { d in
                         CartaoNumerado(numero: d + 1, titulo: Self.nomesDias[d], escolhido: dias.contains(d)) {
@@ -370,24 +370,24 @@ struct CriarPlanoCoachView: View {
                 }
                 Stepper("Volume atual: \(volume) km por semana", value: $volume, in: 0...160)
                 Stepper("Maior corrida recente: \(maior) km", value: $maior, in: 0...45)
-                pergunta("Terreno")
+                pergunta(L("Terreno", "Terrain"))
                 LazyVGrid(columns: colunas, spacing: 10) {
                     ForEach(Array(["Plano", "Misto", "Com subidas"].enumerated()), id: \.offset) { i, t in
-                        CartaoNumerado(numero: i + 1, titulo: t, escolhido: terreno == t) { terreno = t }
+                        CartaoNumerado(numero: i + 1, titulo: Self.rotuloTerreno(t), escolhido: terreno == t) { terreno = t }
                     }
                 }
-                pergunta("Lesões ou limitações (opcional)")
+                pergunta(L("Lesões ou limitações (opcional)", "Injuries or limitations (optional)"))
                 TextField("Ex.: canelite há 2 meses, já curada", text: $lesoes, axis: .vertical)
                     .lineLimit(2...4)
                     .padding(12)
                     .background(Color.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                Text(tempoReferencia > 0 ? "Os ritmos saem da sua prova em Meus ritmos." : "Sem prova em Meus ritmos: os treinos vão por esforço até você fazer um teste.")
+                Text(tempoReferencia > 0 ? L("Os ritmos saem da sua prova em Meus ritmos.", "Paces come from your race in My paces.") : L("Sem prova em Meus ritmos: os treinos vão por esforço até você fazer um teste.", "No race in My paces: workouts go by effort until you do a test."))
                     .font(.footnote).foregroundStyle(.secondary)
 
                 Button {
                     Task { await montar() }
                 } label: {
-                    Label(montando ? "Montando..." : "Montar com o coach", systemImage: "wand.and.stars")
+                    Label(montando ? L("Montando...", "Building...") : L("Montar com o coach", "Build with the coach"), systemImage: "wand.and.stars")
                         .font(.headline)
                         .foregroundStyle(Color.black)
                         .frame(maxWidth: .infinity, minHeight: 56)
@@ -405,7 +405,7 @@ struct CriarPlanoCoachView: View {
                         Text(resultado.explicacao).font(.subheadline)
                         ForEach(resultado.plano.semanas, id: \.numero) { s in
                             HStack {
-                                Text("Semana \(s.numero) · \(s.fase.nome)" + (s.alivio ? " · alívio" : "")).font(.caption)
+                                Text(L("Semana \(s.numero) · \(s.fase.nome)", "Week \(s.numero) · \(s.fase.nome)") + (s.alivio ? L(" · alívio", " · recovery week") : "")).font(.caption)
                                 Spacer()
                                 Text(Formatador.distancia(s.volumeTreino, unidade: unidade, casas: 0)).font(.caption.monospacedDigit())
                             }
@@ -429,6 +429,27 @@ struct CriarPlanoCoachView: View {
 
     private func pergunta(_ texto: String) -> some View {
         Text(texto).font(.headline)
+    }
+
+    /// Nome do objetivo na tela. O valor guardado (comparado no motor e mandado à IA) continua em português.
+    static func rotuloObjetivo(_ objetivo: String) -> String {
+        switch objetivo {
+        case "Meia maratona": L("Meia maratona", "Half marathon")
+        case "Maratona": L("Maratona", "Marathon")
+        case "Condicionamento": L("Condicionamento", "General fitness")
+        case "Começar a correr": L("Começar a correr", "Start running")
+        default: objetivo
+        }
+    }
+
+    /// Nome do terreno na tela. O valor guardado (mandado à IA) continua em português.
+    static func rotuloTerreno(_ terreno: String) -> String {
+        switch terreno {
+        case "Plano": L("Plano", "Flat")
+        case "Misto": L("Misto", "Mixed")
+        case "Com subidas": L("Com subidas", "Hilly")
+        default: terreno
+        }
     }
 
     private func montar() async {
@@ -461,10 +482,18 @@ struct AvaliacaoCoachView: View {
     }
 
     static let casos = [
-        Caso(id: 0, nome: "5 km para iniciante", esperado: "Plano de 5 km nível iniciante, 3 dias, volume baixo, aumento de no máximo 10% por semana (ou menos)."),
-        Caso(id: 1, nome: "Meia maratona em 16 semanas", esperado: "16 semanas, 4 dias, longão no domingo, teto de 10%; explicação curta."),
-        Caso(id: 2, nome: "Volta de lesão", esperado: "Proposta de \"retomar_apos_pausa\" com 21 dias parado, sem treino por cima de dor; orientação de procurar profissional se doer."),
-        Caso(id: 3, nome: "Semana de viagem", esperado: "Alívio ou redução da semana que vem; nada nas semanas passadas."),
+        Caso(id: 0, nome: L("5 km para iniciante", "5 km for a beginner"),
+             esperado: L("Plano de 5 km nível iniciante, 3 dias, volume baixo, aumento de no máximo 10% por semana (ou menos).",
+                         "Beginner 5 km plan, 3 days, low volume, increase of at most 10% per week (or less).")),
+        Caso(id: 1, nome: L("Meia maratona em 16 semanas", "Half marathon in 16 weeks"),
+             esperado: L("16 semanas, 4 dias, longão no domingo, teto de 10%; explicação curta.",
+                         "16 weeks, 4 days, long run on Sunday, 10% cap; short explanation.")),
+        Caso(id: 2, nome: L("Volta de lesão", "Coming back from injury"),
+             esperado: L("Proposta de \"retomar_apos_pausa\" com 21 dias parado, sem treino por cima de dor; orientação de procurar profissional se doer.",
+                         "A \"retomar_apos_pausa\" proposal with 21 days off, no training through pain; advice to see a professional if it hurts.")),
+        Caso(id: 3, nome: L("Semana de viagem", "Travel week"),
+             esperado: L("Alívio ou redução da semana que vem; nada nas semanas passadas.",
+                         "Recovery week or reduction for next week; nothing in past weeks.")),
     ]
 
     @State var resultados: [Int: String] = [:]
@@ -476,12 +505,12 @@ struct AvaliacaoCoachView: View {
             Section {
                 Text("Usa a sua chave: 2 chamadas ao Sonnet e 2 ao Haiku, alguns centavos de dólar. Com \"Simular o coach\" ligado, roda sem gastar.")
                     .font(.footnote)
-                Button(rodando ? "Rodando..." : "Rodar os 4 casos") { confirmando = true }
+                Button(rodando ? L("Rodando...", "Running...") : L("Rodar os 4 casos", "Run the 4 cases")) { confirmando = true }
                     .disabled(rodando || (!Chaveiro.temChave && !ClienteClaude.simulado))
             }
             ForEach(Self.casos) { caso in
                 Section(caso.nome) {
-                    Text("Esperado: " + caso.esperado).font(.footnote).foregroundStyle(.secondary)
+                    Text(L("Esperado: ", "Expected: ") + caso.esperado).font(.footnote).foregroundStyle(.secondary)
                     Text(resultados[caso.id] ?? "—").font(.subheadline)
                 }
             }
@@ -510,9 +539,9 @@ struct AvaliacaoCoachView: View {
                 let r = try await CriadorPlanoCoach.montar(q, vdot: 45)
                 let semanas = r.plano.semanas.count
                 let pico = r.plano.semanas.map(\.volumeTreino).max() ?? 0
-                resultados[i] = r.explicacao + "\n\n\(semanas) semanas, \(r.plano.entrada.nivel.nome), teto \(Int((r.plano.entrada.tetoProgressao * 100).rounded()))%, pico " + Formatador.distancia(pico, casas: 0) + "."
+                resultados[i] = r.explicacao + L("\n\n\(semanas) semanas, \(r.plano.entrada.nivel.nome), teto \(Int((r.plano.entrada.tetoProgressao * 100).rounded()))%, pico ", "\n\n\(semanas) weeks, \(r.plano.entrada.nivel.nome), cap \(Int((r.plano.entrada.tetoProgressao * 100).rounded()))%, peak ") + Formatador.distancia(pico, casas: 0) + "."
             } catch {
-                resultados[i] = "Erro: " + ((error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
+                resultados[i] = L("Erro: ", "Error: ") + ((error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
             }
         }
         let plano = GeradorPlano.gerar(EntradaPlano(objetivo: .dezK, semanas: 12, nivel: .intermediario, diasDisponiveis: [1, 3, 5, 6],
@@ -528,13 +557,13 @@ struct AvaliacaoCoachView: View {
                 let r = try await CoachChat.responder([ClienteClaude.Mensagem(papel: "user", texto: pedido)], contexto: contexto)
                 let acoes = r.acoes.compactMap(\.correcao)
                 var plano2 = plano
-                var situacao = acoes.isEmpty ? "sem ações" : "aceitas pelo motor"
+                var situacao = acoes.isEmpty ? L("sem ações", "no actions") : L("aceitas pelo motor", "accepted by the engine")
                 for a in acoes {
-                    do { plano2 = try a.aplicar(plano2) } catch { situacao = "recusada: " + PreviaPlanoView.explicar(error); break }
+                    do { plano2 = try a.aplicar(plano2) } catch { situacao = L("recusada: ", "refused: ") + PreviaPlanoView.explicar(error); break }
                 }
-                resultados[2 + k] = r.mensagem + "\n\nAções: " + (acoes.isEmpty ? "nenhuma" : acoes.map(\.descricao).joined(separator: "; ")) + " (\(situacao))."
+                resultados[2 + k] = r.mensagem + L("\n\nAções: ", "\n\nActions: ") + (acoes.isEmpty ? L("nenhuma", "none") : acoes.map(\.descricao).joined(separator: "; ")) + " (\(situacao))."
             } catch {
-                resultados[2 + k] = "Erro: " + ((error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
+                resultados[2 + k] = L("Erro: ", "Error: ") + ((error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
             }
         }
     }

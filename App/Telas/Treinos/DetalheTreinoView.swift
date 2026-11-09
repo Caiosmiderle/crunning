@@ -97,7 +97,7 @@ struct DetalheTreinoView: View {
                         Stepper("Temperatura: \(temperatura) °C", value: $temperatura, in: 0...45)
                         Stepper("Umidade: \(umidade)%", value: $umidade, in: 10...100, step: 5)
                         let wbgt = Calor.wbgtSimplificado(temperatura: Double(temperatura), umidade: Double(umidade))
-                        Text("WBGT aproximado: \(Formatador.numero(wbgt, casas: 1)) °C (sem sol e sem vento). " + Calor.texto(Calor.avaliar(wbgt: wbgt)))
+                        Text(L("WBGT aproximado: \(Formatador.numero(wbgt, casas: 1)) °C (sem sol e sem vento). ", "Approximate WBGT: \(Formatador.numero(wbgt, casas: 1)) °C (no sun, no wind). ") + Calor.texto(Calor.avaliar(wbgt: wbgt)))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -136,10 +136,10 @@ struct DetalheTreinoView: View {
                     if let salvo {
                         Button("Editar", systemImage: "pencil") { editando = true }
                         Button("Duplicar", systemImage: "plus.square.on.square") { duplicar() }
-                        Button(salvo.ehModelo ? "Tirar dos modelos" : "Salvar como modelo", systemImage: "square.stack.3d.up") {
+                        Button(salvo.ehModelo ? L("Tirar dos modelos", "Remove from templates") : L("Salvar como modelo", "Save as template"), systemImage: "square.stack.3d.up") {
                             salvo.ehModelo.toggle()
                             try? contexto.save()
-                            mensagem = salvo.ehModelo ? "Agora está em Meus modelos." : "Saiu de Meus modelos."
+                            mensagem = salvo.ehModelo ? L("Agora está em Meus modelos.", "Now in My templates.") : L("Saiu de Meus modelos.", "Removed from My templates.")
                         }
                         Button("Apagar", systemImage: "trash", role: .destructive) { confirmandoApagar = true }
                     } else {
@@ -173,15 +173,15 @@ struct DetalheTreinoView: View {
 
     private func duplicar() {
         var copia = atual
-        copia.nome = atual.nome + " (cópia)"
+        copia.nome = atual.nome + L(" (cópia)", " (copy)")
         contexto.insert(TreinoSalvo(treino: copia, ehModelo: salvo?.ehModelo ?? false))
         try? contexto.save()
-        mensagem = "Cópia criada em Meus treinos."
+        mensagem = L("Cópia criada em Meus treinos.", "Copy created in My workouts.")
     }
 
     private func salvarCopia(modelo: Bool) {
         contexto.insert(TreinoSalvo(treino: atual, ehModelo: modelo))
         try? contexto.save()
-        mensagem = modelo ? "Salvo em Meus modelos." : "Salvo em Meus treinos."
+        mensagem = modelo ? L("Salvo em Meus modelos.", "Saved to My templates.") : L("Salvo em Meus treinos.", "Saved to My workouts.")
     }
 }

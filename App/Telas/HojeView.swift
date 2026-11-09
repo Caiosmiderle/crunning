@@ -109,9 +109,9 @@ struct HojeView: View {
             HStack(alignment: .firstTextBaseline) {
                 numero(Formatador.numero(Formatador.distanciaNaUnidade(distancia, unidade: unidade), casas: 1), legenda: unidade.sigla)
                 Spacer()
-                numero("\(semana.count)", legenda: semana.count == 1 ? "corrida" : "corridas")
+                numero("\(semana.count)", legenda: semana.count == 1 ? L("corrida", "run") : L("corridas", "runs"))
                 Spacer()
-                numero(Formatador.duracao(tempo), legenda: "em movimento")
+                numero(Formatador.duracao(tempo), legenda: L("em movimento", "moving"))
             }
         }
         .padding(20)
@@ -136,15 +136,15 @@ struct HojeView: View {
     }
 
     static func dataDeHoje() -> String {
-        let texto = Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide).locale(.ptBR))
+        let texto = Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide))
         return texto.prefix(1).uppercased() + texto.dropFirst()
     }
 
     static func saudacao() -> String {
         switch Calendar.current.component(.hour, from: .now) {
-        case 5..<12: "Bom dia"
-        case 12..<18: "Boa tarde"
-        default: "Boa noite"
+        case 5..<12: L("Bom dia", "Good morning")
+        case 12..<18: L("Boa tarde", "Good afternoon")
+        default: L("Boa noite", "Good evening")
         }
     }
 }

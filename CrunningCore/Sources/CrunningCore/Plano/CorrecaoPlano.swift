@@ -34,36 +34,52 @@ public enum CorrecaoPlano: Equatable, Sendable {
     /// semanas seguintes refeitas a partir do volume que sobrou.
     case provaSecundaria(semana: Int, dia: Int, distancia: Double)
 
-    static let nomesDias = ["segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"]
+    static var nomesDias: [String] {
+        [L("segunda", "Monday"), L("terça", "Tuesday"), L("quarta", "Wednesday"), L("quinta", "Thursday"),
+         L("sexta", "Friday"), L("sábado", "Saturday"), L("domingo", "Sunday")]
+    }
 
     static func nomeDia(_ d: Int) -> String {
-        (0...6).contains(d) ? nomesDias[d] : "dia \(d)"
+        (0...6).contains(d) ? nomesDias[d] : L("dia \(d)", "day \(d)")
     }
 
     /// Frase curta do que a correção faz.
     public var descricao: String {
         switch self {
         case let .reduzirSemana(semana, fator):
-            return "Reduzir a semana \(semana) para \(Int((fator * 100).rounded()))% do volume"
+            let pct = Int((fator * 100).rounded())
+            return L("Reduzir a semana \(semana) para \(pct)% do volume",
+                     "Reduce week \(semana) to \(pct)% of its volume")
         case let .aliviarSemana(semana):
-            return "Fazer da semana \(semana) uma semana de alívio"
+            return L("Fazer da semana \(semana) uma semana de alívio",
+                     "Make week \(semana) a recovery week")
         case let .moverTreino(semana, de, para):
-            return "Semana \(semana): trocar \(Self.nomeDia(de)) com \(Self.nomeDia(para))"
+            return L("Semana \(semana): trocar \(Self.nomeDia(de)) com \(Self.nomeDia(para))",
+                     "Week \(semana): swap \(Self.nomeDia(de)) with \(Self.nomeDia(para))")
         case let .trocarTreino(semana, dia):
-            return "Semana \(semana): trocar o treino de \(Self.nomeDia(dia)) por um equivalente"
+            return L("Semana \(semana): trocar o treino de \(Self.nomeDia(dia)) por um equivalente",
+                     "Week \(semana): replace \(Self.nomeDia(dia))'s workout with an equivalent one")
         case let .mudarSemanas(n):
-            return "Refazer o plano com \(n) semanas"
+            return L("Refazer o plano com \(n) semanas",
+                     "Rebuild the plan with \(n) weeks")
         case let .mudarTeto(t):
-            return "Refazer o plano com aumento de até \(Int((t * 100).rounded()))% por semana"
+            let pct = Int((t * 100).rounded())
+            return L("Refazer o plano com aumento de até \(pct)% por semana",
+                     "Rebuild the plan with an increase of up to \(pct)% per week")
         case let .mudarDias(dias, longao):
             let lista = dias.sorted().map(Self.nomeDia).joined(separator: ", ")
-            return "Refazer o plano correndo \(lista), longão no \(Self.nomeDia(longao))"
+            return L("Refazer o plano correndo \(lista), longão no \(Self.nomeDia(longao))",
+                     "Rebuild the plan running \(lista), long run on \(Self.nomeDia(longao))")
         case let .retomarAposPausa(semana, dias):
-            return "Voltar aos poucos a partir da semana \(semana), depois de \(dias) dias parado"
+            return L("Voltar aos poucos a partir da semana \(semana), depois de \(dias) dias parado",
+                     "Ease back in from week \(semana), after \(dias) days off")
         case let .reajustarProva(semana, restantes):
-            return "Refazer a partir da semana \(semana) com \(restantes) semanas até a prova"
+            return L("Refazer a partir da semana \(semana) com \(restantes) semanas até a prova",
+                     "Rebuild from week \(semana) with \(restantes) weeks to the race")
         case let .provaSecundaria(semana, dia, distancia):
-            return "Prova secundária de \(Formatador.numero(distancia / 1000, casas: distancia.truncatingRemainder(dividingBy: 1000) == 0 ? 0 : 1)) km na semana \(semana), \(Self.nomeDia(dia))"
+            let km = Formatador.numero(distancia / 1000, casas: distancia.truncatingRemainder(dividingBy: 1000) == 0 ? 0 : 1)
+            return L("Prova secundária de \(km) km na semana \(semana), \(Self.nomeDia(dia))",
+                     "Secondary race of \(km) km in week \(semana), \(Self.nomeDia(dia))")
         }
     }
 
@@ -72,7 +88,7 @@ public enum CorrecaoPlano: Equatable, Sendable {
         do {
             switch self {
             case let .reduzirSemana(semana, fator):
-                guard (0.5...0.95).contains(fator) else { throw ErroCorrecao.foraDosLimites("A redução vai de 50% a 95% do volume.") }
+                guard (0.5...0.95).contains(fator) else { throw ErroCorrecao.foraDosLimites(L("A redução vai de 50% a 95% do volume.", "The reduction ranges from 50% to 95% of the volume.")) }
                 return try OperacoesPlano.reduzirCarga(plano, semana: semana, fator: fator)
             case let .aliviarSemana(semana):
                 return try OperacoesPlano.inserirAlivio(plano, semana: semana)
@@ -81,27 +97,27 @@ public enum CorrecaoPlano: Equatable, Sendable {
             case let .trocarTreino(semana, dia):
                 return try OperacoesPlano.trocarPorEquivalente(plano, semana: semana, dia: dia)
             case let .mudarSemanas(n):
-                guard (1...30).contains(n) else { throw ErroCorrecao.foraDosLimites("O plano vai de 1 a 30 semanas.") }
+                guard (1...30).contains(n) else { throw ErroCorrecao.foraDosLimites(L("O plano vai de 1 a 30 semanas.", "The plan must be 1 to 30 weeks long.")) }
                 var entrada = plano.entrada
                 entrada.semanas = n
                 return try refazer(entrada)
             case let .mudarTeto(t):
                 guard (RegrasPlano.tetoProgressaoMinimo...RegrasPlano.tetoProgressaoMaximo).contains(t) else {
-                    throw ErroCorrecao.foraDosLimites("O aumento por semana vai de 5% a 20%.")
+                    throw ErroCorrecao.foraDosLimites(L("O aumento por semana vai de 5% a 20%.", "The weekly increase ranges from 5% to 20%."))
                 }
                 var entrada = plano.entrada
                 entrada.tetoProgressao = t
                 return try refazer(entrada)
             case let .mudarDias(dias, longao):
                 guard dias.count >= 2, dias.allSatisfy({ (0...6).contains($0) }), dias.contains(longao) else {
-                    throw ErroCorrecao.foraDosLimites("Escolha pelo menos 2 dias, com o longão num deles.")
+                    throw ErroCorrecao.foraDosLimites(L("Escolha pelo menos 2 dias, com o longão num deles.", "Choose at least 2 days, with the long run on one of them."))
                 }
                 var entrada = plano.entrada
                 entrada.diasDisponiveis = dias
                 entrada.diaLongao = longao
                 return try refazer(entrada)
             case let .retomarAposPausa(semana, dias):
-                guard dias > 5 else { throw ErroCorrecao.foraDosLimites("Até 5 dias parado, o plano segue igual.") }
+                guard dias > 5 else { throw ErroCorrecao.foraDosLimites(L("Até 5 dias parado, o plano segue igual.", "Up to 5 days off, the plan stays the same.")) }
                 return try OperacoesPlano.retomarAposPausa(plano, aPartirDaSemana: semana, diasParado: dias)
             case let .reajustarProva(semana, restantes):
                 return try OperacoesPlano.reajustar(plano, aPartirDaSemana: semana, semanasRestantes: restantes)
@@ -115,21 +131,26 @@ public enum CorrecaoPlano: Equatable, Sendable {
 
     static func inserirProvaSecundaria(_ plano: Plano, semana: Int, dia: Int, distancia: Double) throws -> Plano {
         guard (1...plano.semanas.count).contains(semana), (0...6).contains(dia) else {
-            throw ErroCorrecao.foraDosLimites("Escolha uma semana e um dia do plano.")
+            throw ErroCorrecao.foraDosLimites(L("Escolha uma semana e um dia do plano.", "Choose a week and a day in the plan."))
         }
-        guard plano.entrada.objetivo != .comecarACorrer else { throw ErroCorrecao.inviavel("No começar a correr, a prova fica para depois do plano.") }
+        guard plano.entrada.objetivo != .comecarACorrer else {
+            throw ErroCorrecao.inviavel(L("No começar a correr, a prova fica para depois do plano.",
+                                          "In the start running plan, races come after the plan."))
+        }
         guard plano.semanas[semana - 1].fase != .polimento else {
-            throw ErroCorrecao.inviavel("Nas semanas de polimento a prioridade é chegar descansado à prova principal. Escolha uma semana antes.")
+            throw ErroCorrecao.inviavel(L("Nas semanas de polimento a prioridade é chegar descansado à prova principal. Escolha uma semana antes.",
+                                          "In taper weeks the priority is to arrive rested for the main race. Choose an earlier week."))
         }
         let principal = plano.entrada.objetivo.distanciaProva ?? 42_195
         guard distancia >= 1000, distancia <= principal else {
-            throw ErroCorrecao.foraDosLimites("A prova secundária tem que ter de 1 km até a distância da principal.")
+            throw ErroCorrecao.foraDosLimites(L("A prova secundária tem que ter de 1 km até a distância da principal.",
+                                                "The secondary race must be between 1 km and the main race distance."))
         }
-        guard !plano.semanas[semana - 1].temProva else { throw ErroCorrecao.inviavel("Esta semana já tem uma prova.") }
+        guard !plano.semanas[semana - 1].temProva else { throw ErroCorrecao.inviavel(L("Esta semana já tem uma prova.", "This week already has a race.")) }
         let zonas = plano.zonas
         var novo = plano
         var treino = Modelos.prova.treino(dose: distancia)
-        treino.nome = "Prova secundária"
+        treino.nome = L("Prova secundária", "Secondary race")
         novo.semanas[semana - 1].dias[dia] = SessaoPlanejada(treino: treino, zonas: zonas)
         // Véspera e dia seguinte sem treino forte (escolha do app): viram recuperação curta.
         func aliviar(_ s: Int, _ d: Int) {
@@ -151,7 +172,9 @@ public enum CorrecaoPlano: Equatable, Sendable {
         do {
             return try OperacoesPlano.refazer(novo, aPartirDaSemana: semana + 1)
         } catch let ErroOperacao.violaria(erros) {
-            throw ErroCorrecao.inviavel("A prova não cabe nesta semana sem quebrar as travas (\(erros.prefix(2).map(\.description).joined(separator: "; "))). Tente outro dia ou semana.")
+            let detalhe = erros.prefix(2).map(\.description).joined(separator: "; ")
+            throw ErroCorrecao.inviavel(L("A prova não cabe nesta semana sem quebrar as travas (\(detalhe)). Tente outro dia ou semana.",
+                                          "The race doesn't fit this week without breaking the safety limits (\(detalhe)). Try another day or week."))
         }
     }
 

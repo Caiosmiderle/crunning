@@ -1,4 +1,5 @@
 import AuthenticationServices
+import CrunningCore
 import SwiftUI
 
 /// Liga o CRUNNING ao Strava com o app que você cria na sua conta. Client ID e Client Secret
@@ -106,7 +107,7 @@ struct StravaView: View {
             do {
                 try await Strava.conectar(com: sessaoWeb)
                 await EnvioStrava.processarFila()
-                mensagem = "Pronto. As próximas corridas vão para o Strava ao salvar; as antigas têm o botão Enviar ao Strava no detalhe."
+                mensagem = L("Pronto. As próximas corridas vão para o Strava ao salvar; as antigas têm o botão Enviar ao Strava no detalhe.", "Done. Your next runs go to Strava when you save them; older ones have the Send to Strava button in their detail.")
             } catch let erro as ASWebAuthenticationSessionError where erro.code == .canceledLogin {
                 mensagem = nil
             } catch {

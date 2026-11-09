@@ -16,7 +16,7 @@ public struct ZonaFC: Equatable, Sendable {
     /// "Z2 · 124–150 bpm" ou "Z1 · até 124 bpm".
     public var texto: String {
         if let minimo { return "\(rotulo) · \(minimo)–\(maximo) bpm" }
-        return "\(rotulo) · até \(maximo) bpm"
+        return L("\(rotulo) · até \(maximo) bpm", "\(rotulo) · up to \(maximo) bpm")
     }
 
     public func contem(_ bpm: Int) -> Bool {

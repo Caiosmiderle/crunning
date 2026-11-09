@@ -1,4 +1,5 @@
 import AuthenticationServices
+import CrunningCore
 import Foundation
 import Network
 import SwiftData
@@ -34,13 +35,13 @@ enum Strava {
 
         var errorDescription: String? {
             switch self {
-            case .semCredenciais: "Falta o Client ID e o Client Secret do seu app do Strava (Ajustes > Strava)."
-            case .desconectado: "O Strava não está conectado (ou a autorização foi revogada). Conecte de novo em Ajustes > Strava."
-            case .semPermissaoDeEnvio: "Para enviar corridas, deixe marcada a permissão de enviar atividades ao autorizar."
+            case .semCredenciais: L("Falta o Client ID e o Client Secret do seu app do Strava (Ajustes > Strava).", "The Client ID and Client Secret of your Strava app are missing (Settings > Strava).")
+            case .desconectado: L("O Strava não está conectado (ou a autorização foi revogada). Conecte de novo em Ajustes > Strava.", "Strava is not connected (or the authorization was revoked). Connect again in Settings > Strava.")
+            case .semPermissaoDeEnvio: L("Para enviar corridas, deixe marcada a permissão de enviar atividades ao autorizar.", "To upload runs, keep the permission to upload activities checked when authorizing.")
             case let .recusado(motivo): motivo
-            case let .http(codigo): "O Strava respondeu com erro (\(codigo)). Tente de novo mais tarde."
-            case .demorou: "O Strava ainda está processando a corrida. Ela deve aparecer lá em instantes; se não aparecer, tente de novo."
-            case let .processamento(motivo): "O Strava não aceitou o arquivo: \(motivo)"
+            case let .http(codigo): L("O Strava respondeu com erro (\(codigo)). Tente de novo mais tarde.", "Strava returned an error (\(codigo)). Try again later.")
+            case .demorou: L("O Strava ainda está processando a corrida. Ela deve aparecer lá em instantes; se não aparecer, tente de novo.", "Strava is still processing the run. It should show up there shortly; if it does not, try again.")
+            case let .processamento(motivo): L("O Strava não aceitou o arquivo: \(motivo)", "Strava did not accept the file: \(motivo)")
             }
         }
     }
@@ -101,9 +102,9 @@ enum Strava {
         let itens = URLComponents(url: retorno, resolvingAgainstBaseURL: false)?.queryItems ?? []
         func valor(_ nome: String) -> String? { itens.first { $0.name == nome }?.value }
         if let erro = valor("error") {
-            throw Erro.recusado(erro == "access_denied" ? "Você não autorizou o CRUNNING no Strava." : "O Strava recusou: \(erro)")
+            throw Erro.recusado(erro == "access_denied" ? L("Você não autorizou o CRUNNING no Strava.", "You did not authorize CRUNNING on Strava.") : L("O Strava recusou: \(erro)", "Strava refused: \(erro)"))
         }
-        guard let codigo = valor("code") else { throw Erro.recusado("O Strava não devolveu o código de autorização.") }
+        guard let codigo = valor("code") else { throw Erro.recusado(L("O Strava não devolveu o código de autorização.", "Strava did not return the authorization code.")) }
         guard (valor("scope") ?? "").contains("activity:write") else { throw Erro.semPermissaoDeEnvio }
         let novos = try await pedirTokens([
             "client_id": c.clientID, "client_secret": c.clientSecret, "code": codigo, "grant_type": "authorization_code",
@@ -142,7 +143,7 @@ enum Strava {
         let codigo = (resposta as? HTTPURLResponse)?.statusCode ?? 0
         guard codigo == 200 else {
             if codigo == 400 || codigo == 401 {
-                throw Erro.recusado("O Strava recusou as credenciais. Confira o Client ID e o Client Secret do seu app.")
+                throw Erro.recusado(L("O Strava recusou as credenciais. Confira o Client ID e o Client Secret do seu app.", "Strava rejected the credentials. Check the Client ID and Client Secret of your app."))
             }
             throw Erro.http(codigo)
         }

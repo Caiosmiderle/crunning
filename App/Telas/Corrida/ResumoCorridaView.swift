@@ -26,7 +26,7 @@ struct ResumoCorridaView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     Selo(texto: selo, icone: "checkmark.circle.fill")
-                    Text(execucao.map { $0.treino.nome } ?? "Corrida concluída")
+                    Text(execucao.map { $0.treino.nome } ?? L("Corrida concluída", "Run complete"))
                         .font(.system(.largeTitle, design: .default, weight: .light))
                         .tracking(-0.8)
 
@@ -52,17 +52,17 @@ struct ResumoCorridaView: View {
 
                     Grid(horizontalSpacing: 16, verticalSpacing: 14) {
                         GridRow {
-                            Metrica(titulo: "Distância", valor: Formatador.distancia(distanciaFinal(sessao), unidade: unidade))
-                            Metrica(titulo: "Tempo em movimento", valor: Formatador.duracao(sessao.tempoEmMovimento(em: fim)))
+                            Metrica(titulo: L("Distância", "Distance"), valor: Formatador.distancia(distanciaFinal(sessao), unidade: unidade))
+                            Metrica(titulo: L("Tempo em movimento", "Moving time"), valor: Formatador.duracao(sessao.tempoEmMovimento(em: fim)))
                         }
                         GridRow {
-                            Metrica(titulo: "Ritmo médio", valor: ritmoMedio(sessao, fim: fim))
-                            Metrica(titulo: "Subida", valor: gravador.esteira ? "—" : "\(Int(sessao.subida.rounded())) m")
+                            Metrica(titulo: L("Ritmo médio", "Avg pace"), valor: ritmoMedio(sessao, fim: fim))
+                            Metrica(titulo: L("Subida", "Elevation gain"), valor: gravador.esteira ? "—" : "\(Int(sessao.subida.rounded())) m")
                         }
                         if let fc = gravador.resumoFC {
                             GridRow {
-                                Metrica(titulo: "FC média", valor: "\(fc.media) bpm")
-                                Metrica(titulo: "FC máxima", valor: "\(fc.maxima) bpm")
+                                Metrica(titulo: L("FC média", "Avg HR"), valor: "\(fc.media) bpm")
+                                Metrica(titulo: L("FC máxima", "Max HR"), valor: "\(fc.maxima) bpm")
                             }
                         }
                     }
@@ -138,9 +138,9 @@ struct ResumoCorridaView: View {
     }
 
     private var selo: String {
-        if gravador.execucao != nil { return "Treino concluído" }
-        if gravador.esteira { return "Esteira" }
-        return gravador.simulada ? "Simulação" : "Corrida livre"
+        if gravador.execucao != nil { return L("Treino concluído", "Workout complete") }
+        if gravador.esteira { return L("Esteira", "Treadmill") }
+        return gravador.simulada ? L("Simulação", "Simulation") : L("Corrida livre", "Free run")
     }
 
     /// Distância digitada (na unidade escolhida), em metros.

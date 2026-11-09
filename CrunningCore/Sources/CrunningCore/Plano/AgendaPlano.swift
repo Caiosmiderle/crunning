@@ -153,7 +153,8 @@ extension Adaptacao {
 /// Melhores tempos dentro das corridas (qualquer trecho contínuo, pelo tempo em movimento).
 public enum Recordes {
     public static let distancias: [(nome: String, metros: Double)] = [
-        ("1 km", 1000), ("5 km", 5000), ("10 km", 10_000), ("Meia maratona", 21_097.5), ("Maratona", 42_195),
+        ("1 km", 1000), ("5 km", 5000), ("10 km", 10_000),
+        (L("Meia maratona", "Half marathon"), 21_097.5), (L("Maratona", "Marathon"), 42_195),
     ]
 
     /// Menor tempo em movimento para cobrir `distancia` metros em qualquer trecho da corrida,

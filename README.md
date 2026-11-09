@@ -22,6 +22,8 @@ Também: ajuste dos ritmos pelo calor (WBGT simplificado e Ely e colegas, 2007),
 
 Fase 10 (ajustes do uso): calendário com o treino num dia só e nos dias escolhidos, opções de plano sempre à vista, fila de envio ao Strava com reenvio automático, tênis principal fixo, aquecimento como sugestão antes de começar (fora do relógio), revisão semanal só quando a semana sai do plano e lista de treinos com barras em cápsulas.
 
+Idioma: o app segue o idioma do iPhone, português ou inglês. Os textos fixos das telas ficam em `App/Recursos/Localizable.xcstrings` (extraídos pelo Xcode no workflow Textos); os montados em código e os do motor usam `L(português, inglês)` (`CrunningCore/Idioma.swift`). A voz e o Coach de IA também seguem o idioma.
+
 ## Como é feito
 
 - SwiftUI, Swift 6, SwiftData, iOS 26 (Liquid Glass nativo), sem dependências de terceiros.

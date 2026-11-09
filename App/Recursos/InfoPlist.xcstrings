@@ -1,0 +1,74 @@
+{
+  "sourceLanguage": "pt-BR",
+  "strings": {
+    "NSBluetoothAlwaysUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CRUNNING listens to the heart rate your band broadcasts over Bluetooth to show it during your run. It doesn't pair or connect to the band."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O CRUNNING escuta os batimentos que a sua pulseira transmite por Bluetooth para mostrar na corrida. Ele não pareia nem se conecta à pulseira."
+          }
+        }
+      }
+    },
+    "NSCalendarsFullAccessUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CRUNNING puts your plan's workouts in its own calendar (\"CRUNNING\") and keeps it up to date when the plan changes. It only touches that calendar."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O CRUNNING coloca os treinos do seu plano num calendário próprio (\"CRUNNING\") e o mantém atualizado quando o plano muda. Ele só mexe nesse calendário."
+          }
+        }
+      }
+    },
+    "NSLocationAlwaysAndWhenInUseUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CRUNNING uses your location to measure the distance, pace and route of your runs, even with the screen locked. The route stays on your iPhone unless you send the run to Strava."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O CRUNNING usa a localização para medir a distância, o ritmo e o trajeto das suas corridas, inclusive com a tela bloqueada. A rota fica no seu iPhone, a não ser que você envie a corrida ao Strava."
+          }
+        }
+      }
+    },
+    "NSLocationWhenInUseUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CRUNNING uses your location to measure the distance, pace and route of your runs, even with the screen locked. The route stays on your iPhone unless you send the run to Strava."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O CRUNNING usa a localização para medir a distância, o ritmo e o trajeto das suas corridas, inclusive com a tela bloqueada. A rota fica no seu iPhone, a não ser que você envie a corrida ao Strava."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

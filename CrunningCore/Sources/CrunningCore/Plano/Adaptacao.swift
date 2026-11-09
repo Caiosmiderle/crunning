@@ -47,43 +47,56 @@ public enum Adaptacao {
     public static func avaliar(_ situacao: Situacao) -> Recomendacao {
         switch situacao {
         case .perdeuTreino:
-            return .seguir("Siga o plano. Não junte o treino perdido com outro.")
+            return .seguir(L("Siga o plano. Não junte o treino perdido com outro.",
+                             "Follow the plan. Don't combine the missed workout with another one."))
 
         case let .ausencia(dias):
-            guard dias > 5 else { return .seguir("Até 5 dias parado: siga o plano normalmente.") }
+            guard dias > 5 else { return .seguir(L("Até 5 dias parado: siga o plano normalmente.",
+                                                   "Up to 5 days off: follow the plan as usual.")) }
             let fator = fatorRetomada(diasParado: dias)
             let porEsforco = dias >= 28
             let pct = Int((fator * 100).rounded())
-            let ritmos = porEsforco ? " Até fazer um novo teste, corra pelo esforço, não pelo ritmo." : ""
+            let ritmos = porEsforco ? L(" Até fazer um novo teste, corra pelo esforço, não pelo ritmo.",
+                                        " Until you do a new test, run by effort, not by pace.") : ""
             return .retomar(fatorInicial: fator, ritmosPorEsforco: porEsforco,
-                            mensagem: "Volte com \(pct)% do volume de antes e suba aos poucos, até 25% por semana.\(ritmos)")
+                            mensagem: L("Volte com \(pct)% do volume de antes e suba aos poucos, até 25% por semana.\(ritmos)",
+                                        "Come back with \(pct)% of your previous volume and build up gradually, up to 25% per week.\(ritmos)"))
 
         case let .doenca(febre, abaixo):
             if febre || abaixo {
-                let medico = febre ? " Com febre, procure um médico." : ""
-                return .parar(procurarMedico: febre, mensagem: "Com sintomas abaixo do pescoço ou febre, não corra até melhorar.\(medico)")
+                let medico = febre ? L(" Com febre, procure um médico.", " With a fever, see a doctor.") : ""
+                return .parar(procurarMedico: febre, mensagem: L("Com sintomas abaixo do pescoço ou febre, não corra até melhorar.\(medico)",
+                                                                 "With symptoms below the neck or a fever, don't run until you feel better.\(medico)"))
             }
-            return .opcionalLeve("Só nariz e garganta: se quiser, corrida leve e curta. Pare se piorar.")
+            return .opcionalLeve(L("Só nariz e garganta: se quiser, corrida leve e curta. Pare se piorar.",
+                                   "Only nose and throat: if you want, a short, easy run. Stop if it gets worse."))
 
         case let .provaMudou(semanas):
             return .reajustarPlano(semanasAteProva: semanas,
-                                   mensagem: "O plano é refeito para a nova data, mantendo o polimento e todas as travas.")
+                                   mensagem: L("O plano é refeito para a nova data, mantendo o polimento e todas as travas.",
+                                               "The plan is rebuilt for the new date, keeping the taper and all the safety limits."))
 
         case let .foraDoRitmo(seguidos, maisRapido):
-            guard seguidos >= 3 else { return .seguir("Um treino fora do ritmo é normal. Siga o plano.") }
-            let lado = maisRapido ? "mais rápidos" : "mais lentos"
+            guard seguidos >= 3 else { return .seguir(L("Um treino fora do ritmo é normal. Siga o plano.",
+                                                        "One workout off pace is normal. Follow the plan.")) }
+            let lado = maisRapido ? L("mais rápidos", "faster") : L("mais lentos", "slower")
             return .perguntarAjusteDeRitmos(maisRapido: maisRapido,
-                                            mensagem: "Seus últimos \(seguidos) treinos de qualidade saíram \(lado) que a faixa. Quer ajustar os ritmos?")
+                                            mensagem: L("Seus últimos \(seguidos) treinos de qualidade saíram \(lado) que a faixa. Quer ajustar os ritmos?",
+                                                        "Your last \(seguidos) quality workouts were \(lado) than the target range. Want to adjust your paces?"))
 
         case let .esforcoAltoEmFaceis(seguidas, esforco):
-            guard seguidas >= 2, esforco >= 6 else { return .seguir("Esforço dentro do esperado. Siga o plano.") }
-            return .proporAlivio("As últimas corridas fáceis pareceram pesadas. Que tal uma semana de alívio?")
+            guard seguidas >= 2, esforco >= 6 else { return .seguir(L("Esforço dentro do esperado. Siga o plano.",
+                                                                      "Effort as expected. Follow the plan.")) }
+            return .proporAlivio(L("As últimas corridas fáceis pareceram pesadas. Que tal uma semana de alívio?",
+                                   "Your last easy runs felt hard. How about a recovery week?"))
 
         case let .dor(mudaAPassada, persiste):
             if mudaAPassada || persiste {
-                return .pararPorDor("Pare de correr, reduza a carga e procure um profissional. A volta é por caminhada e corrida, sem treino por cima da dor.")
+                return .pararPorDor(L("Pare de correr, reduza a carga e procure um profissional. A volta é por caminhada e corrida, sem treino por cima da dor.",
+                                      "Stop running, reduce the load and see a professional. Come back with walk-run sessions, never training through the pain."))
             }
-            return .seguir("Dor leve que some no aquecimento: siga com atenção. Se mudar a passada ou persistir, pare.")
+            return .seguir(L("Dor leve que some no aquecimento: siga com atenção. Se mudar a passada ou persistir, pare.",
+                             "Mild pain that goes away during the warm-up: keep going carefully. If it changes your stride or persists, stop."))
         }
     }
 }

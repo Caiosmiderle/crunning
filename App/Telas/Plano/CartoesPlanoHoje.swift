@@ -60,7 +60,7 @@ struct CartoesPlanoHoje: View {
                         Circle().fill(sessao.tipo.cor).frame(width: 12, height: 12)
                         Text(sessao.treino.nome).font(.title2.weight(.semibold))
                     }
-                    Text("≈ " + Formatador.distancia(sessao.distancia, unidade: unidade, casas: 1) + " · " + LinhaDoTempoTreino.tempoCurto(sessao.duracao) + " · semana \(p.semana)")
+                    Text("≈ " + Formatador.distancia(sessao.distancia, unidade: unidade, casas: 1) + " · " + LinhaDoTempoTreino.tempoCurto(sessao.duracao) + L(" · semana \(p.semana)", " · week \(p.semana)"))
                         .font(.subheadline.monospacedDigit())
                         .foregroundStyle(.secondary)
                     LinhaDoTempoTreino(blocos: sessao.treino.blocos, zonas: ZonasDoUsuario.atuais(), legenda: false)
@@ -70,7 +70,7 @@ struct CartoesPlanoHoje: View {
                             porque: sessao.treino.modeloID.flatMap { Modelos.modelo(id: $0)?.porque },
                             salvo: nil,
                             plano: (p.semana, p.dia),
-                            subtitulo: "Treino de hoje · semana \(p.semana)"
+                            subtitulo: L("Treino de hoje · semana \(p.semana)", "Today's workout · week \(p.semana)")
                         )
                     } label: {
                         Label("Ver os trechos: tempo, distância, ritmo e zona", systemImage: "list.bullet.rectangle")
@@ -98,7 +98,7 @@ struct CartoesPlanoHoje: View {
                     Text(proximo(agenda, depois: p)).font(.subheadline).foregroundStyle(.secondary)
                 }
             } else if hoje < agenda.inicio {
-                Text("O plano começa em " + agenda.inicio.formatted(.dateTime.weekday(.wide).day().month(.wide).locale(.ptBR)) + ".")
+                Text(L("O plano começa em ", "The plan starts on ") + agenda.inicio.formatted(.dateTime.weekday(.wide).day().month(.wide)) + ".")
                     .font(.title3.weight(.semibold))
             } else {
                 Text("O plano terminou.").font(.title3.weight(.semibold))
@@ -116,8 +116,8 @@ struct CartoesPlanoHoje: View {
             dia += 1
             if dia > 6 { dia = 0; semana += 1 }
             if let s = agenda.sessao(semana: semana, dia: dia) {
-                let quando = agenda.data(semana: semana, dia: dia).formatted(.dateTime.weekday(.wide).locale(.ptBR))
-                return "Próximo: \(s.treino.nome), \(quando)."
+                let quando = agenda.data(semana: semana, dia: dia).formatted(.dateTime.weekday(.wide))
+                return L("Próximo: \(s.treino.nome), \(quando).", "Next: \(s.treino.nome), \(quando).")
             }
         }
         return ""
@@ -131,22 +131,22 @@ struct CartoesPlanoHoje: View {
                 .font(.headline)
             ForEach(Array(pendentes.enumerated()), id: \.offset) { _, p in
                 if let s = agenda.sessao(semana: p.semana, dia: p.dia) {
-                    Text(agenda.data(semana: p.semana, dia: p.dia).formatted(.dateTime.weekday(.wide).locale(.ptBR)) + ": " + s.treino.nome)
+                    Text(agenda.data(semana: p.semana, dia: p.dia).formatted(.dateTime.weekday(.wide)) + ": " + s.treino.nome)
                         .font(.subheadline)
                 }
             }
             Text("O que houve?").font(.subheadline).foregroundStyle(.secondary)
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-                botao("Fiz sem o app") { marcarTodos(pendentes, .feita) }
-                botao("Perdi, sigo o plano") {
+                botao(L("Fiz sem o app", "Did it without the app")) { marcarTodos(pendentes, .feita) }
+                botao(L("Perdi, sigo o plano", "Missed it, keep the plan")) {
                     marcarTodos(pendentes, .perdida)
                     mensagem = Adaptacao.avaliar(.perdeuTreino).mensagem
                 }
-                botao("Fiquei parado") {
+                botao(L("Fiquei parado", "I was off")) {
                     diasParado = max(6, pendentes.count * 2)
                     perguntandoPausa = true
                 }
-                botao("Doente ou com dor") { perguntandoSaude = true }
+                botao(L("Doente ou com dor", "Sick or in pain")) { perguntandoSaude = true }
             }
         }
         .padding(20)
@@ -185,7 +185,7 @@ struct CartoesPlanoHoje: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { perguntandoPausa = false } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(diasParado > 5 ? "Ver proposta" : "OK") {
+                    Button(diasParado > 5 ? L("Ver proposta", "See proposal") : "OK") {
                         perguntandoPausa = false
                         let pendentes = agenda.pendentes(hoje: .now)
                         guard diasParado > 5, let p = agenda.posicao(de: .now) else {
@@ -265,7 +265,7 @@ struct CartoesPlanoHoje: View {
                         Image(systemName: "checklist").font(.title2).foregroundStyle(Paleta.verdeLogo)
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Vale revisar a semana").font(.headline)
-                            Text(desvio.motivos.joined(separator: " · ").capitalizandoPrimeira + ". O coach compara o planejado com o feito e propõe ajustes.")
+                            Text(desvio.motivos.joined(separator: " · ").capitalizandoPrimeira + L(". O coach compara o planejado com o feito e propõe ajustes.", ". The coach compares what was planned with what was done and suggests adjustments."))
                                 .font(.subheadline).foregroundStyle(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
@@ -369,7 +369,7 @@ struct CartoesPlanoHoje: View {
             proposta = PropostaCorrecao(correcao: correcao, novo: novo, comparacao: ComparacaoPlano(antes: agenda.plano, depois: novo),
                                         motivo: motivo, chave: nil)
         } catch {
-            mensagem = "O motor recusou: " + PreviaPlanoView.explicar(error)
+            mensagem = L("O motor recusou: ", "The engine refused: ") + PreviaPlanoView.explicar(error)
         }
     }
 
@@ -381,7 +381,7 @@ struct CartoesPlanoHoje: View {
         }
         ativo.agenda = agenda
         try? contexto.save()
-        mensagem = "Aplicado: " + p.correcao.descricao + "."
+        mensagem = L("Aplicado: ", "Applied: ") + p.correcao.descricao + "."
         proposta = nil
     }
 }

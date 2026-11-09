@@ -1,0 +1,4472 @@
+{
+  "sourceLanguage": "pt-BR",
+  "strings": {
+    "%@ em %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ in %2$@"
+          }
+        }
+      }
+    },
+    "%@, cerca de %lld min, fora do tempo do treino. É sugestão: faça antes de deslizar para começar. Toque num exercício para ver como fazer.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@, about %2$lld min, outside the workout time. It's a suggestion: do it before you swipe to start. Tap an exercise to see how to do it."
+          }
+        }
+      }
+    },
+    "%@, ritmo %@ por %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@, pace %2$@ per %3$@"
+          }
+        }
+      }
+    },
+    "%lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        }
+      }
+    },
+    "%lld %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld %2$@"
+          }
+        }
+      }
+    },
+    "%lld bpm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld bpm"
+          }
+        }
+      }
+    },
+    "%lld de %lld exercícios": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld of %2$lld exercises"
+          }
+        }
+      }
+    },
+    "%lld dias sem correr": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld days without running"
+          }
+        }
+      }
+    },
+    "%lld semanas": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld weeks"
+          }
+        }
+      }
+    },
+    "%lld semanas até a prova": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld weeks to race day"
+          }
+        }
+      }
+    },
+    "%lld semanas até a prova (ou de plano)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld weeks to race day (or of plan)"
+          }
+        }
+      }
+    },
+    "%lld vezes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld times"
+          }
+        }
+      }
+    },
+    "1. No computador ou no Safari, abra strava.com/settings/api e crie um app (nome: CRUNNING; site: qualquer endereço; Authorization Callback Domain: localhost).": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. On a computer or in Safari, open strava.com/settings/api and create an app (name: CRUNNING; website: any address; Authorization Callback Domain: localhost)."
+          }
+        }
+      }
+    },
+    "10 km": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10 km"
+          }
+        }
+      }
+    },
+    "10min fácil + 6x(400m forte / 90s trote) + 10min fácil": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10min easy + 6x(400m hard / 90s jog) + 10min easy"
+          }
+        }
+      }
+    },
+    "10x": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "10x"
+          }
+        }
+      }
+    },
+    "15 km": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 km"
+          }
+        }
+      }
+    },
+    "2. Copie o Client ID e o Client Secret do app e cole aqui.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2. Copy the app's Client ID and Client Secret and paste them here."
+          }
+        }
+      }
+    },
+    "20x": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "20x"
+          }
+        }
+      }
+    },
+    "3. Toque em Conectar e autorize com a sua conta.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3. Tap Connect and authorize with your account."
+          }
+        }
+      }
+    },
+    "5 km": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 km"
+          }
+        }
+      }
+    },
+    "5x": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5x"
+          }
+        }
+      }
+    },
+    "A API do Strava exige assinatura para criar o app. Um app novo só autentica a sua própria conta, que é o que o CRUNNING precisa.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Strava API requires a subscription to create the app. A new app only authenticates your own account, which is all CRUNNING needs."
+          }
+        }
+      }
+    },
+    "A cada 2 km": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every 2 km"
+          }
+        }
+      }
+    },
+    "A cada 5 km": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every 5 km"
+          }
+        }
+      }
+    },
+    "A cada km": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every km"
+          }
+        }
+      }
+    },
+    "A chave fica só no Keychain do iPhone. O Coach recebe apenas dados agregados do plano, nunca rota, GPS ou dados do Saúde.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key stays only in the iPhone Keychain. The Coach only receives aggregated plan data, never route, GPS or Health data."
+          }
+        }
+      }
+    },
+    "A dor continua depois do aquecimento ou no dia seguinte": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The pain continues after the warm-up or the next day"
+          }
+        }
+      }
+    },
+    "A dor muda a minha passada": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The pain changes my stride"
+          }
+        }
+      }
+    },
+    "A pausa automática para o tempo quando você para (semáforo, por exemplo) e volta sozinha quando você anda. Com a tela acesa a bateria dura menos; com ela apagada, a gravação continua igual.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-pause stops the clock when you stop (at a traffic light, for example) and resumes on its own when you move. With the screen on the battery lasts less; with it off, recording works the same."
+          }
+        }
+      }
+    },
+    "A semana 1 começa na segunda da semana escolhida.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Week 1 starts on the Monday of the chosen week."
+          }
+        }
+      }
+    },
+    "A voz abaixa a música enquanto fala e funciona com a tela bloqueada. O aviso de ritmo espera 15 segundos fora da faixa e repete no máximo uma vez por minuto; no fácil, só avisa quando está rápido demais. Durante a corrida, a engrenagem no topo da tela muda estes avisos sem parar o treino.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The voice lowers the music while it speaks and works with the screen locked. The pace alert waits 15 seconds outside the range and repeats at most once a minute; on easy runs it only warns when you're too fast. During the run, the gear at the top of the screen changes these alerts without stopping the workout."
+          }
+        }
+      }
+    },
+    "A véspera e o dia seguinte ficam leves e as semanas seguintes são refeitas a partir do volume que sobrar. Nas semanas de polimento não entra; se não couber nas travas, o motor diz por quê.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The day before and the day after become easy, and the following weeks are rebuilt from the remaining volume. It can't go in taper weeks; if it doesn't fit the safety limits, the engine says why."
+          }
+        }
+      }
+    },
+    "Abre a tela da corrida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the run screen"
+          }
+        }
+      }
+    },
+    "Abre a tela de corrida livre com GPS": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the free run screen with GPS"
+          }
+        }
+      }
+    },
+    "Abre o volume por semana": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens weekly volume"
+          }
+        }
+      }
+    },
+    "Abrir Ajustes do iPhone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open iPhone Settings"
+          }
+        }
+      }
+    },
+    "Abrir strava.com/settings/api": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open strava.com/settings/api"
+          }
+        }
+      }
+    },
+    "Adicionar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add"
+          }
+        }
+      }
+    },
+    "Adicionar prova secundária": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a tune-up race"
+          }
+        }
+      }
+    },
+    "Adicionar trecho": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add step"
+          }
+        }
+      }
+    },
+    "Agora não": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not now"
+          }
+        }
+      }
+    },
+    "Ajustar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust"
+          }
+        }
+      }
+    },
+    "Ajustar ritmos pelo calor": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust paces for heat"
+          }
+        }
+      }
+    },
+    "Ajustes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
+      }
+    },
+    "Aliviar semana": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make it a recovery week"
+          }
+        }
+      }
+    },
+    "Altitude": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elevation"
+          }
+        }
+      }
+    },
+    "Analisar com o coach de IA": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyze with the AI coach"
+          }
+        }
+      }
+    },
+    "Analisar de novo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyze again"
+          }
+        }
+      }
+    },
+    "Antes de começar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Before you start"
+          }
+        }
+      }
+    },
+    "Antes e depois": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Before and after"
+          }
+        }
+      }
+    },
+    "Apagar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        }
+      }
+    },
+    "Apagar a chave": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete the key"
+          }
+        }
+      }
+    },
+    "Apagar a prova de referência": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete the reference race"
+          }
+        }
+      }
+    },
+    "Apagar corrida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete run"
+          }
+        }
+      }
+    },
+    "Apagar esta corrida?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this run?"
+          }
+        }
+      }
+    },
+    "Apagar este treino?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this workout?"
+          }
+        }
+      }
+    },
+    "Apagar treino": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete workout"
+          }
+        }
+      }
+    },
+    "Aparecem quando houver corridas com GPS de pelo menos 1 km.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They show up once you have GPS runs of at least 1 km."
+          }
+        }
+      }
+    },
+    "Aparência": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance"
+          }
+        }
+      }
+    },
+    "Aplicada": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applied"
+          }
+        }
+      }
+    },
+    "Aplicar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply"
+          }
+        }
+      }
+    },
+    "Aposentado": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retired"
+          }
+        }
+      }
+    },
+    "Apple Saúde": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Health"
+          }
+        }
+      }
+    },
+    "Aquecimento guiado": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guided warm-up"
+          }
+        }
+      }
+    },
+    "As acelerações rendem mais com o corpo já quente: se preferir, faça-as no fim do trote do treino.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strides work better when you're already warm: if you prefer, do them at the end of the workout's jog."
+          }
+        }
+      }
+    },
+    "As corridas continuam no histórico. Para começar outro, use a prévia.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your runs stay in History. To start another plan, use the preview."
+          }
+        }
+      }
+    },
+    "As corridas já feitas com ele continuam no histórico.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The runs done with them stay in History."
+          }
+        }
+      }
+    },
+    "Atenção": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heads up"
+          }
+        }
+      }
+    },
+    "Aumento máximo por semana: %lld%%": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Max increase per week: %lld%%"
+          }
+        }
+      }
+    },
+    "Avaliar o coach": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evaluate the coach"
+          }
+        }
+      }
+    },
+    "Avaliar o coach (4 casos)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evaluate the coach (4 cases)"
+          }
+        }
+      }
+    },
+    "Avisar com %lld km": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alert at %lld km"
+          }
+        }
+      }
+    },
+    "Avisar ritmo fora da faixa": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alert when pace is off range"
+          }
+        }
+      }
+    },
+    "Avisos da corrida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run alerts"
+          }
+        }
+      }
+    },
+    "Avisos durante a corrida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alerts during the run"
+          }
+        }
+      }
+    },
+    "Base": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Base"
+          }
+        }
+      }
+    },
+    "Bipe na troca de etapa": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beep on step change"
+          }
+        }
+      }
+    },
+    "Blocos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blocks"
+          }
+        }
+      }
+    },
+    "CRUNNING": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CRUNNING"
+          }
+        }
+      }
+    },
+    "Cada análise usa o Claude Sonnet 5.5 e custa poucos centavos de dólar na sua conta da Anthropic.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each analysis uses Claude Sonnet 5.5 and costs a few cents on your Anthropic account."
+          }
+        }
+      }
+    },
+    "Cancelar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
+    "Chave da API da Anthropic": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anthropic API key"
+          }
+        }
+      }
+    },
+    "Chave salva neste iPhone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key saved on this iPhone"
+          }
+        }
+      }
+    },
+    "Client ID (só números)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client ID (numbers only)"
+          }
+        }
+      }
+    },
+    "Client Secret": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client Secret"
+          }
+        }
+      }
+    },
+    "Coach": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coach"
+          }
+        }
+      }
+    },
+    "Coach de IA": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI Coach"
+          }
+        }
+      }
+    },
+    "Com a idade, a FC máxima é estimada por 208 − 0,7 × idade (Tanaka e colegas, 2001), com erro de cerca de 10 bpm; se você souber a sua, de um teste ou de uma prova forte, informe e ela vale no lugar. Zonas de Daniels em % da FC máxima: fácil 65–79%, maratona 80–90%, limiar 88–92%, intervalado 98–100%. Tiros curtos e repetições vão pelo ritmo: o batimento demora a subir. Fica só no iPhone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With your age, max heart rate is estimated as 208 − 0.7 × age (Tanaka et al., 2001), with an error of about 10 bpm; if you know yours, from a test or a hard race, enter it and it's used instead. Daniels zones as % of max heart rate: easy 65–79%, marathon 80–90%, threshold 88–92%, intervals 98–100%. Short reps and repetitions go by pace: heart rate takes time to rise. It stays only on your iPhone."
+          }
+        }
+      }
+    },
+    "Com aquecimento guiado: %lld exercícios depois do trote": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With guided warm-up: %lld exercises after the jog"
+          }
+        }
+      }
+    },
+    "Começa em": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starts on"
+          }
+        }
+      }
+    },
+    "Começar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        }
+      }
+    },
+    "Começar treino": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start workout"
+          }
+        }
+      }
+    },
+    "Como ligar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to set it up"
+          }
+        }
+      }
+    },
+    "Compara o planejado com o feito (aderência, esforço, ritmo) e propõe ajustes para as próximas semanas. Usa o Sonnet; cada revisão custa centavos.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compares what was planned with what was done (adherence, effort, pace) and proposes adjustments for the coming weeks. Uses Sonnet; each review costs cents."
+          }
+        }
+      }
+    },
+    "Compartilhar PDF do plano": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share plan PDF"
+          }
+        }
+      }
+    },
+    "Conectado ao Strava": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected to Strava"
+          }
+        }
+      }
+    },
+    "Conectar ao Strava": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect to Strava"
+          }
+        }
+      }
+    },
+    "Conexões": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connections"
+          }
+        }
+      }
+    },
+    "Conta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account"
+          }
+        }
+      }
+    },
+    "Contagem regressiva (3, 2, 1)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Countdown (3, 2, 1)"
+          }
+        }
+      }
+    },
+    "Contando a partir desta semana. O motor refaz o resto com polimento e todas as travas; as semanas já feitas ficam.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Counting from this week. The engine rebuilds the rest with a taper and every safety limit; the weeks already done stay."
+          }
+        }
+      }
+    },
+    "Conte o que mudou: \"viajo semana que vem\", \"estou com a canela dolorida\", \"troca o longão para sábado\", \"a prova mudou para daqui a 10 semanas\".": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tell it what changed: \"I'm traveling next week\", \"my shin hurts\", \"move the long run to Saturday\", \"the race moved to 10 weeks from now\"."
+          }
+        }
+      }
+    },
+    "Conversar com o coach": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Talk to the coach"
+          }
+        }
+      }
+    },
+    "Converse com um médico antes de começar um plano de corrida. O CRUNNING não é aconselhamento médico.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Talk to a doctor before starting a running plan. CRUNNING is not medical advice."
+          }
+        }
+      }
+    },
+    "Cores dos treinos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout colors"
+          }
+        }
+      }
+    },
+    "Correr agora": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run now"
+          }
+        }
+      }
+    },
+    "Correr este treino": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run this workout"
+          }
+        }
+      }
+    },
+    "Correção aplicada": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change applied"
+          }
+        }
+      }
+    },
+    "Correção proposta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proposed change"
+          }
+        }
+      }
+    },
+    "Correções": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changes"
+          }
+        }
+      }
+    },
+    "Corrida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run"
+          }
+        }
+      }
+    },
+    "Corrida na esteira: sem rota.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Treadmill run: no route."
+          }
+        }
+      }
+    },
+    "Corrida sem GPS; a distância você digita no fim": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run without GPS; you type the distance at the end"
+          }
+        }
+      }
+    },
+    "Corridas fáceis pesadas": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Easy runs feel heavy"
+          }
+        }
+      }
+    },
+    "Credenciais do seu app": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your app's credentials"
+          }
+        }
+      }
+    },
+    "Criar outro plano": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create another plan"
+          }
+        }
+      }
+    },
+    "Crie a chave em console.anthropic.com, de preferência com um limite de gasto. Ela fica só no Keychain deste iPhone: não vai para o GitHub, para o .ipa nem para registros do app.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create the key at console.anthropic.com, preferably with a spending limit. It stays only in this iPhone's Keychain: it doesn't go to GitHub, the .ipa or app logs."
+          }
+        }
+      }
+    },
+    "Custa alguns centavos na sua conta da Anthropic.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Costs a few cents on your Anthropic account."
+          }
+        }
+      }
+    },
+    "Descanso": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rest"
+          }
+        }
+      }
+    },
+    "Descartar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discard"
+          }
+        }
+      }
+    },
+    "Descartar corrida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discard run"
+          }
+        }
+      }
+    },
+    "Descartar esta corrida?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discard this run?"
+          }
+        }
+      }
+    },
+    "Desconectar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect"
+          }
+        }
+      }
+    },
+    "Desenvolvimento": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Developer"
+          }
+        }
+      }
+    },
+    "Desligada": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        }
+      }
+    },
+    "Deslize para a direita, ou toque duas vezes, para confirmar.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swipe right, or double-tap, to confirm."
+          }
+        }
+      }
+    },
+    "Dia": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Day"
+          }
+        }
+      }
+    },
+    "Dia do longão": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long run day"
+          }
+        }
+      }
+    },
+    "Dias disponíveis": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Available days"
+          }
+        }
+      }
+    },
+    "Distância": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distance"
+          }
+        }
+      }
+    },
+    "Distância das corridas gravadas, de segunda a domingo (sem simulações). O planejado é o volume de treino do plano, sem a prova. Aumentos grandes de uma semana para outra pedem atenção: o plano limita a 10% por padrão.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distance of recorded runs, Monday to Sunday (no simulations). Planned is the plan's training volume, without the race. Big jumps from one week to the next deserve attention: the plan caps it at 10% by default."
+          }
+        }
+      }
+    },
+    "Distância na esteira": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Treadmill distance"
+          }
+        }
+      }
+    },
+    "Doente ou com dor": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sick or in pain"
+          }
+        }
+      }
+    },
+    "Doença": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Illness"
+          }
+        }
+      }
+    },
+    "Dor": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pain"
+          }
+        }
+      }
+    },
+    "Duplicar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duplicate"
+          }
+        }
+      }
+    },
+    "Editar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit"
+          }
+        }
+      }
+    },
+    "Editar treino": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit workout"
+          }
+        }
+      }
+    },
+    "Ela fica marcada como pulada no resumo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It's marked as skipped in the summary."
+          }
+        }
+      }
+    },
+    "Ela não vai para o histórico e não dá para desfazer.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It won't go to History and can't be undone."
+          }
+        }
+      }
+    },
+    "Encerrar este plano": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End this plan"
+          }
+        }
+      }
+    },
+    "Encerrar o plano?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End the plan?"
+          }
+        }
+      }
+    },
+    "Encerrar plano": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End plan"
+          }
+        }
+      }
+    },
+    "Entendi e quero seguir assim mesmo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I understand and want to continue anyway"
+          }
+        }
+      }
+    },
+    "Enviando ao Strava…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending to Strava…"
+          }
+        }
+      }
+    },
+    "Enviar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send"
+          }
+        }
+      }
+    },
+    "Enviar ao Strava": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send to Strava"
+          }
+        }
+      }
+    },
+    "Enviar cada corrida ao salvar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send each run when saved"
+          }
+        }
+      }
+    },
+    "Escreva para o coach": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write to the coach"
+          }
+        }
+      }
+    },
+    "Esforço %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effort %lld"
+          }
+        }
+      }
+    },
+    "Esforço percebido de 0 a 10 e teste da fala. Quando tiver uma prova ou um teste, informe acima.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perceived effort from 0 to 10 and the talk test. When you have a race or a test, enter it above."
+          }
+        }
+      }
+    },
+    "Espere o GPS firmar para medir melhor o começo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wait for the GPS to lock to measure the start better."
+          }
+        }
+      }
+    },
+    "Esquecer esta pulseira": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forget this band"
+          }
+        }
+      }
+    },
+    "Esse tempo está fora da faixa em que o cálculo funciona. Confira a distância e o tempo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That time is outside the range where the calculation works. Check the distance and the time."
+          }
+        }
+      }
+    },
+    "Esse tempo ficou fora da faixa em que o cálculo dos ritmos funciona.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That time was outside the range where the pace calculation works."
+          }
+        }
+      }
+    },
+    "Esta corrida não tem rota gravada.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This run has no recorded route."
+          }
+        }
+      }
+    },
+    "Esta semana": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This week"
+          }
+        }
+      }
+    },
+    "Estrutura do treino": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout structure"
+          }
+        }
+      }
+    },
+    "Etapa %lld de %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Step %1$lld of %2$lld"
+          }
+        }
+      }
+    },
+    "Ex.: 5,2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E.g.: 5.2"
+          }
+        }
+      }
+    },
+    "Ex.: canelite há 2 meses, já curada": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E.g.: shin splints 2 months ago, healed"
+          }
+        }
+      }
+    },
+    "Exportar %lld arquivos TCX": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export %lld TCX files"
+          }
+        }
+      }
+    },
+    "Exportar GPX": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export GPX"
+          }
+        }
+      }
+    },
+    "Exportar TCX (para o Saúde)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export TCX (for Health)"
+          }
+        }
+      }
+    },
+    "FC máxima medida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Measured max heart rate"
+          }
+        }
+      }
+    },
+    "FC máxima usada": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Max heart rate used"
+          }
+        }
+      }
+    },
+    "Falta %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ left"
+          }
+        }
+      }
+    },
+    "Fazer um teste": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a test"
+          }
+        }
+      }
+    },
+    "Febre": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fever"
+          }
+        }
+      }
+    },
+    "Feito": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
+    "Ficam só no Keychain deste iPhone: não vão para o GitHub, para o .ipa nem para registros do app.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "They stay only in this iPhone's Keychain: they don't go to GitHub, the .ipa or app logs."
+          }
+        }
+      }
+    },
+    "Ficou para trás": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Left behind"
+          }
+        }
+      }
+    },
+    "Frequência cardíaca": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heart rate"
+          }
+        }
+      }
+    },
+    "Frequência cardíaca (Mi Band)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heart rate (Mi Band)"
+          }
+        }
+      }
+    },
+    "Gerar PDF do plano": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generate plan PDF"
+          }
+        }
+      }
+    },
+    "Gerar corrida de exemplo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generate sample run"
+          }
+        }
+      }
+    },
+    "Gerar prévia": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generate preview"
+          }
+        }
+      }
+    },
+    "Gráfico da altitude ao longo da corrida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elevation chart along the run"
+          }
+        }
+      }
+    },
+    "Gráfico do ritmo ao longo da corrida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace chart along the run"
+          }
+        }
+      }
+    },
+    "Guardar em Meus modelos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save to My templates"
+          }
+        }
+      }
+    },
+    "Histórico": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "History"
+          }
+        }
+      }
+    },
+    "Hoje": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        }
+      }
+    },
+    "Idade": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Age"
+          }
+        }
+      }
+    },
+    "Importar um GPX para simular": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import a GPX to simulate"
+          }
+        }
+      }
+    },
+    "Informe uma prova recente para calcular seus ritmos de treino e os tempos previstos.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a recent race to calculate your training paces and predicted times."
+          }
+        }
+      }
+    },
+    "Intensidade": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intensity"
+          }
+        }
+      }
+    },
+    "Isto substitui o plano em uso. As corridas continuam no histórico.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This replaces the plan in use. Your runs stay in History."
+          }
+        }
+      }
+    },
+    "Linha do tempo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timeline"
+          }
+        }
+      }
+    },
+    "Maior corrida recente: %lld km": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Longest recent run: %lld km"
+          }
+        }
+      }
+    },
+    "Mais opções": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More options"
+          }
+        }
+      }
+    },
+    "Manter a tela acesa": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep the screen on"
+          }
+        }
+      }
+    },
+    "Mapa da rota, colorido pelo ritmo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Route map, colored by pace"
+          }
+        }
+      }
+    },
+    "Marcar como feito": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark as done"
+          }
+        }
+      }
+    },
+    "Marcar como perdido": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark as missed"
+          }
+        }
+      }
+    },
+    "Medida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Measure"
+          }
+        }
+      }
+    },
+    "Meia maratona": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Half marathon"
+          }
+        }
+      }
+    },
+    "Meus ritmos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My paces"
+          }
+        }
+      }
+    },
+    "Meus ritmos atualizados": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "My paces updated"
+          }
+        }
+      }
+    },
+    "Modelos são bases para montar treinos parecidos (duplique e ajuste).": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Templates are bases to build similar workouts (duplicate and adjust)."
+          }
+        }
+      }
+    },
+    "Modo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode"
+          }
+        }
+      }
+    },
+    "Modo de desenvolvimento": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Developer mode"
+          }
+        }
+      }
+    },
+    "Montando...": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Building..."
+          }
+        }
+      }
+    },
+    "Montar com o coach": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build with the coach"
+          }
+        }
+      }
+    },
+    "Monte o próximo na aba Plano > Prévia.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build the next one in the Plan tab > Preview."
+          }
+        }
+      }
+    },
+    "Monte um plano na prévia abaixo, confira (e peça a análise do coach, se quiser) e toque em \"Usar este plano\". Ele vira o calendário desta aba e o treino do dia na aba Hoje.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build a plan in the preview below, check it (and ask for the coach's analysis if you want) and tap \"Use this plan\". It becomes this tab's calendar and the workout of the day on Today."
+          }
+        }
+      }
+    },
+    "Mostra ferramentas de teste: gerar corridas de exemplo no Histórico e simular o GPS.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows testing tools: generate sample runs in History and simulate the GPS."
+          }
+        }
+      }
+    },
+    "Mostrando os 30 últimos avisos.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Showing the last 30 alerts."
+          }
+        }
+      }
+    },
+    "Mover para": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to"
+          }
+        }
+      }
+    },
+    "Mudar a data da prova": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change the race date"
+          }
+        }
+      }
+    },
+    "Na esteira": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On the treadmill"
+          }
+        }
+      }
+    },
+    "Na fila: vai sozinha quando houver internet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Queued: it goes on its own when there's internet."
+          }
+        }
+      }
+    },
+    "Nada planejado": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing planned"
+          }
+        }
+      }
+    },
+    "Nenhum": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        }
+      }
+    },
+    "Nenhuma corrida ainda": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No runs yet"
+          }
+        }
+      }
+    },
+    "No app oficial da pulseira, ligue a opção de transmitir a frequência cardíaca para outros aparelhos. Depois toque em Procurar e escolha a sua pulseira aqui.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In the band's official app, turn on heart rate broadcast to other devices. Then tap Search and pick your band here."
+          }
+        }
+      }
+    },
+    "No fácil, comece pelo lado mais lento da faixa. Faixas de Daniels; fontes em CIENCIA.md.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On easy runs, start at the slower end of the range. Daniels ranges; sources in CIENCIA.md."
+          }
+        }
+      }
+    },
+    "Nome": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        }
+      }
+    },
+    "Nome do tênis novo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New shoe name"
+          }
+        }
+      }
+    },
+    "Nova data da prova": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New race date"
+          }
+        }
+      }
+    },
+    "Novo treino": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New workout"
+          }
+        }
+      }
+    },
+    "Não deu para ler o plano salvo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't read the saved plan."
+          }
+        }
+      }
+    },
+    "Não deu para salvar no Keychain. Tente de novo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't save to the Keychain. Try again."
+          }
+        }
+      }
+    },
+    "Não dá para desfazer.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This can't be undone."
+          }
+        }
+      }
+    },
+    "Nível": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Level"
+          }
+        }
+      }
+    },
+    "O CRUNNING não é aconselhamento médico. Em caso de dor, doença ou dúvida sobre a sua saúde, procure um profissional.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CRUNNING is not medical advice. If you have pain, illness or doubts about your health, see a professional."
+          }
+        }
+      }
+    },
+    "O CRUNNING só envia (TCX com rota, tempo, distância e batimentos; esteira marcada como treino indoor). Ele não lê nada do Strava, e nada do Strava vai para o Coach de IA. A visibilidade da atividade segue o padrão de privacidade da sua conta no Strava. Corridas simuladas não são enviadas.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CRUNNING only sends (TCX with route, time, distance and heart rate; treadmill marked as an indoor workout). It doesn't read anything from Strava, and nothing from Strava goes to the AI Coach. The activity's visibility follows your Strava account's privacy default. Simulated runs aren't sent."
+          }
+        }
+      }
+    },
+    "O batimento fica no iPhone e só sai no TCX que vai ao Strava ou que você exporta. O CRUNNING só envia ao Strava; não lê nada de lá, e nada disso vai para o Coach de IA.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heart rate stays on the iPhone and only leaves in the TCX sent to Strava or that you export. CRUNNING only sends to Strava; it doesn't read anything from there, and none of this goes to the AI Coach."
+          }
+        }
+      }
+    },
+    "O coach está lendo o plano...": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The coach is reading the plan..."
+          }
+        }
+      }
+    },
+    "O coach está olhando a sua semana...": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The coach is looking at your week..."
+          }
+        }
+      }
+    },
+    "O iPhone só recebe esse sinal com o CRUNNING na tela. Na corrida, com a tela acesa (Ajustes > Corrida), o batimento aparece; com a tela bloqueada, ele para e volta quando você abre o app.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The iPhone only receives that signal with CRUNNING on screen. During a run with the screen on (Settings > Run), heart rate shows up; with the screen locked, it stops and comes back when you open the app."
+          }
+        }
+      }
+    },
+    "O jeito mais confiável é um teste novo (Treinos > Prontos > Teste de 3 km) ou uma prova recente em Ajustes > Meus ritmos.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The most reliable way is a new test (Workouts > Ready-made > 3 km test) or a recent race in Settings > My paces."
+          }
+        }
+      }
+    },
+    "O plano mudou depois da análise. Peça uma nova análise para o coach conferir a versão nova.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The plan changed after the analysis. Ask for a new analysis so the coach checks the new version."
+          }
+        }
+      }
+    },
+    "O plano novo passou em todas as travas do motor. Depois de aplicar, dá para voltar ao anterior.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The new plan passed every engine safety limit. After applying, you can go back to the previous one."
+          }
+        }
+      }
+    },
+    "O plano terminou.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The plan is over."
+          }
+        }
+      }
+    },
+    "O que houve?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What happened?"
+          }
+        }
+      }
+    },
+    "O que o painel da esteira mostrou. Sem GPS, o app mede só o tempo.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What the treadmill display showed. Without GPS, the app only measures time."
+          }
+        }
+      }
+    },
+    "O que é enviado": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What is sent"
+          }
+        }
+      }
+    },
+    "OK": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    },
+    "Objetivo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goal"
+          }
+        }
+      }
+    },
+    "Opções do plano": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plan options"
+          }
+        }
+      }
+    },
+    "Opções do treino": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout options"
+          }
+        }
+      }
+    },
+    "Os bytes são os dados de fabricante do anúncio; o batimento é o 6º byte.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The bytes are the advertisement's manufacturer data; heart rate is the 6th byte."
+          }
+        }
+      }
+    },
+    "Os ritmos saem da sua prova em Meus ritmos.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paces come from your race in My paces."
+          }
+        }
+      }
+    },
+    "Para levar uma corrida ao Saúde: no Histórico, abra a corrida > menu … > Exportar TCX, e abra o arquivo num app que importa TCX e grava no Saúde (o HealthFit, por exemplo, que é pago). No Histórico também dá para exportar todas de uma vez. O peso fica só no iPhone e serve para estimar a energia.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To bring a run to Health: in History, open the run > … menu > Export TCX, and open the file in an app that imports TCX and writes to Health (HealthFit, for example, which is paid). In History you can also export all of them at once. Your weight stays on the iPhone and is used to estimate energy."
+          }
+        }
+      }
+    },
+    "Para pedir a análise, salve a sua chave em Ajustes > Coach de IA.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To ask for the analysis, save your key in Settings > AI Coach."
+          }
+        }
+      }
+    },
+    "Para ver a zona de batimento de cada trecho, informe sua idade em Ajustes > Meus ritmos.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To see the heart rate zone of each step, enter your age in Settings > My paces."
+          }
+        }
+      }
+    },
+    "Parar de sincronizar com o Calendário": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop syncing with Calendar"
+          }
+        }
+      }
+    },
+    "Parciais": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Splits"
+          }
+        }
+      }
+    },
+    "Parcial falada": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoken split"
+          }
+        }
+      }
+    },
+    "Parecer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review"
+          }
+        }
+      }
+    },
+    "Parecer de um treinador virtual (Claude) sobre o plano. Vai só o resumo do plano. As correções que ele propõe passam pelo motor e pelas travas, e só entram no plano se você aplicar.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A virtual coach's (Claude) review of the plan. Only the plan summary is sent. The changes it proposes go through the engine and the safety limits, and only enter the plan if you apply them."
+          }
+        }
+      }
+    },
+    "Parte": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Part"
+          }
+        }
+      }
+    },
+    "Parte do treino": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout part"
+          }
+        }
+      }
+    },
+    "Passou do limite que você definiu": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Past the limit you set"
+          }
+        }
+      }
+    },
+    "Pausa automática": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-pause"
+          }
+        }
+      }
+    },
+    "Pelo tempo em movimento, em qualquer trecho de qualquer corrida (corridas de exemplo e simuladas ficam de fora).": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By moving time, in any segment of any run (sample and simulated runs are left out)."
+          }
+        }
+      }
+    },
+    "Perguntas de segurança do app. O PAR-Q+ oficial está no site acima.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app's safety questions. The official PAR-Q+ is on the site above."
+          }
+        }
+      }
+    },
+    "Peso (kg)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weight (kg)"
+          }
+        }
+      }
+    },
+    "Planejado": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planned"
+          }
+        }
+      }
+    },
+    "Plano": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plan"
+          }
+        }
+      }
+    },
+    "Plano com o coach": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plan with the coach"
+          }
+        }
+      }
+    },
+    "Por bloco: planejado x feito": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By block: planned vs done"
+          }
+        }
+      }
+    },
+    "Por perto": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nearby"
+          }
+        }
+      }
+    },
+    "Por que este plano?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Why this plan?"
+          }
+        }
+      }
+    },
+    "Por quê": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Why"
+          }
+        }
+      }
+    },
+    "Preparar exportação de todas (TCX)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prepare export of all (TCX)"
+          }
+        }
+      }
+    },
+    "Previsão pelo VDOT. A de Riegel aparece só para comparar: em corredores recreativos ela costuma ser otimista na maratona.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prediction from VDOT. Riegel's appears only for comparison: for recreational runners it tends to be optimistic for the marathon."
+          }
+        }
+      }
+    },
+    "Procurando pulseiras Xiaomi por perto…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Looking for Xiaomi bands nearby…"
+          }
+        }
+      }
+    },
+    "Procurando… (o Bluetooth precisa estar ligado)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Searching… (Bluetooth must be on)"
+          }
+        }
+      }
+    },
+    "Progresso do treino": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout progress"
+          }
+        }
+      }
+    },
+    "Proposta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proposal"
+          }
+        }
+      }
+    },
+    "Prova recente": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent race"
+          }
+        }
+      }
+    },
+    "Prova secundária": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tune-up race"
+          }
+        }
+      }
+    },
+    "Prévia do motor": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Engine preview"
+          }
+        }
+      }
+    },
+    "Próximo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        }
+      }
+    },
+    "Pular esta etapa?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip this step?"
+          }
+        }
+      }
+    },
+    "Pular etapa": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip step"
+          }
+        }
+      }
+    },
+    "Pulseira escolhida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chosen band"
+          }
+        }
+      }
+    },
+    "Quando voltar, use \"Fiquei parado\" com os dias sem correr: o plano recomeça aos poucos. O CRUNNING não é aconselhamento médico.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When you're back, use \"I was off\" with the days without running: the plan restarts gradually. CRUNNING is not medical advice."
+          }
+        }
+      }
+    },
+    "Quanto": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How much"
+          }
+        }
+      }
+    },
+    "Quanto tempo parado?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How long off?"
+          }
+        }
+      }
+    },
+    "Quão pesado foi? (1 a 10)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How hard was it? (1 to 10)"
+          }
+        }
+      }
+    },
+    "Recordes pessoais": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personal records"
+          }
+        }
+      }
+    },
+    "Recusar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decline"
+          }
+        }
+      }
+    },
+    "Reduzir 10%": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reduce 10%"
+          }
+        }
+      }
+    },
+    "Repetição": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repetition"
+          }
+        }
+      }
+    },
+    "Repetição %lld de %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repetition %1$lld of %2$lld"
+          }
+        }
+      }
+    },
+    "Resultado do teste": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test result"
+          }
+        }
+      }
+    },
+    "Revisar a semana": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review the week"
+          }
+        }
+      }
+    },
+    "Revisar de novo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review again"
+          }
+        }
+      }
+    },
+    "Revisar meu plano agora": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review my plan now"
+          }
+        }
+      }
+    },
+    "Revisão da semana": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weekly review"
+          }
+        }
+      }
+    },
+    "Ritmo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pace"
+          }
+        }
+      }
+    },
+    "Ritmo atual": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current pace"
+          }
+        }
+      }
+    },
+    "Ritmos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paces"
+          }
+        }
+      }
+    },
+    "Ritmos calculados pela sua prova de referência.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paces calculated from your reference race."
+          }
+        }
+      }
+    },
+    "Ritmos novos: fácil %@, limiar %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New paces: easy %1$@, threshold %2$@."
+          }
+        }
+      }
+    },
+    "Rodados": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distance run"
+          }
+        }
+      }
+    },
+    "Rodando...": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running..."
+          }
+        }
+      }
+    },
+    "Rodar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run"
+          }
+        }
+      }
+    },
+    "Rodar os 4 casos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run the 4 cases"
+          }
+        }
+      }
+    },
+    "Rodar os 4 casos com a sua chave?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run the 4 cases with your key?"
+          }
+        }
+      }
+    },
+    "Rota": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Route"
+          }
+        }
+      }
+    },
+    "Salvar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        }
+      }
+    },
+    "Salvar como modelo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save as template"
+          }
+        }
+      }
+    },
+    "Salvar corrida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save run"
+          }
+        }
+      }
+    },
+    "Salvar e editar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save and edit"
+          }
+        }
+      }
+    },
+    "Salvar no Keychain": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save to Keychain"
+          }
+        }
+      }
+    },
+    "Salvar nos meus treinos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save to my workouts"
+          }
+        }
+      }
+    },
+    "Salve a sua chave em Ajustes > Coach de IA para conversar.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save your key in Settings > AI Coach to chat."
+          }
+        }
+      }
+    },
+    "Salve a sua chave em Ajustes > Coach de IA.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save your key in Settings > AI Coach."
+          }
+        }
+      }
+    },
+    "Se o batimento não aparecer, comece um treino na própria pulseira: algumas só transmitem durante um treino.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If heart rate doesn't show up, start a workout on the band itself: some only broadcast during a workout."
+          }
+        }
+      }
+    },
+    "Sem GPS: trechos por distância viram tempo pelo seu ritmo-alvo, e a distância total você digita no fim.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without GPS: distance steps become time at your target pace, and you type the total distance at the end."
+          }
+        }
+      }
+    },
+    "Sem permissão de Bluetooth. Ligue em Ajustes do iPhone > Apps > CRUNNING.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Bluetooth permission. Turn it on in iPhone Settings > Apps > CRUNNING."
+          }
+        }
+      }
+    },
+    "Sem permissão de localização, não dá para medir a corrida.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without location permission, the run can't be measured."
+          }
+        }
+      }
+    },
+    "Sem plano em uso. Monte um na aba Plano > Prévia e toque em \"Usar este plano\", ou escolha um treino em Treinos.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No plan in use. Build one in the Plan tab > Preview and tap \"Use this plan\", or pick a workout in Workouts."
+          }
+        }
+      }
+    },
+    "Sem prova em Ajustes > Meus ritmos, os alvos aparecem como esforço. Faça um dos testes abaixo para ter os seus ritmos.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without a race in Settings > My paces, targets show as effort. Do one of the tests below to get your paces."
+          }
+        }
+      }
+    },
+    "Sem prova em Meus ritmos: o alvo vai por esforço (0 a 10).": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No race in My paces: the target goes by effort (0 to 10)."
+          }
+        }
+      }
+    },
+    "Sem prova em Meus ritmos: os treinos vão por esforço até você fazer um teste.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No race in My paces: workouts go by effort until you take a test."
+          }
+        }
+      }
+    },
+    "Sem prova: pelo esforço": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No race: by effort"
+          }
+        }
+      }
+    },
+    "Semana": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Week"
+          }
+        }
+      }
+    },
+    "Semana %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Week %lld"
+          }
+        }
+      }
+    },
+    "Semana a semana": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Week by week"
+          }
+        }
+      }
+    },
+    "Semana dentro do plano": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Week on plan"
+          }
+        }
+      }
+    },
+    "Semanas": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weeks"
+          }
+        }
+      }
+    },
+    "Seu plano aparece aqui": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your plan shows up here"
+          }
+        }
+      }
+    },
+    "Seus ritmos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your paces"
+          }
+        }
+      }
+    },
+    "Simular GPS": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simulate GPS"
+          }
+        }
+      }
+    },
+    "Simular o coach (sem gastar a API)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simulate the coach (no API cost)"
+          }
+        }
+      }
+    },
+    "Sinal do GPS": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GPS signal"
+          }
+        }
+      }
+    },
+    "Sincronizar com o Calendário": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync with Calendar"
+          }
+        }
+      }
+    },
+    "Sintomas abaixo do pescoço (peito, corpo, estômago)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Symptoms below the neck (chest, body, stomach)"
+          }
+        }
+      }
+    },
+    "Sobre": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        }
+      }
+    },
+    "Strava": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strava"
+          }
+        }
+      }
+    },
+    "Suas corridas aparecem aqui, com mapa, parciais e gráficos. Para testar a tela agora, ligue o modo de desenvolvimento em Ajustes.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your runs show up here, with map, splits and charts. To try the screen now, turn on developer mode in Settings."
+          }
+        }
+      }
+    },
+    "Sugerir aquecimento antes dos treinos fortes": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suggest a warm-up before hard workouts"
+          }
+        }
+      }
+    },
+    "Só o resumo do plano: objetivo, semanas, nível, volumes e os treinos de cada dia. Nunca rota, GPS, nome ou dados do Saúde.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only the plan summary: goal, weeks, level, volumes and each day's workouts. Never route, GPS, name or Health data."
+          }
+        }
+      }
+    },
+    "Tema": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme"
+          }
+        }
+      }
+    },
+    "Temperatura: %lld °C": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temperature: %lld °C"
+          }
+        }
+      }
+    },
+    "Tempo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time"
+          }
+        }
+      }
+    },
+    "Tempo real": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Real time"
+          }
+        }
+      }
+    },
+    "Tempos previstos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Predicted times"
+          }
+        }
+      }
+    },
+    "Tentar de novo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try again"
+          }
+        }
+      }
+    },
+    "Testar a voz": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test the voice"
+          }
+        }
+      }
+    },
+    "Texto rápido": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick text"
+          }
+        }
+      }
+    },
+    "Tirar dos modelos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from templates"
+          }
+        }
+      }
+    },
+    "Toda corrida usa o tênis principal. Se um dia correr com outro, troque no resumo da corrida ou depois, no detalhe dela no Histórico. O aviso de troca usa o limite que você definir (muita gente usa algo entre 500 e 800 km; não há um número com base científica).": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every run uses the main shoes. If you run in another pair one day, change it in the run summary or later, in its detail in History. The replacement alert uses the limit you set (many people use something between 500 and 800 km; there's no science-based number)."
+          }
+        }
+      }
+    },
+    "Todas as travas conferidas": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All safety limits checked"
+          }
+        }
+      }
+    },
+    "Toque e segure um dia para correr, salvar, trocar ou mover o treino.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touch and hold a day to run, save, swap or move the workout."
+          }
+        }
+      }
+    },
+    "Toque na sua pulseira para escolher.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap your band to choose it."
+          }
+        }
+      }
+    },
+    "Toque num trecho para editar.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap a step to edit it."
+          }
+        }
+      }
+    },
+    "Toque numa semana para ver": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap a week to see it"
+          }
+        }
+      }
+    },
+    "Travas": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safety limits"
+          }
+        }
+      }
+    },
+    "Trechos que se repetem": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeated steps"
+          }
+        }
+      }
+    },
+    "Treino": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout"
+          }
+        }
+      }
+    },
+    "Treino concluído": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workout complete"
+          }
+        }
+      }
+    },
+    "Treino de hoje": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's workout"
+          }
+        }
+      }
+    },
+    "Treinos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workouts"
+          }
+        }
+      }
+    },
+    "Treinos feitos, esforço e ritmo dentro do esperado. Nada para ajustar; siga o plano.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workouts done, effort and pace as expected. Nothing to adjust; stick to the plan."
+          }
+        }
+      }
+    },
+    "Trocar as credenciais": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change credentials"
+          }
+        }
+      }
+    },
+    "Trocar por equivalente": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swap for an equivalent"
+          }
+        }
+      }
+    },
+    "Tênis": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shoes"
+          }
+        }
+      }
+    },
+    "Tênis desta corrida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shoes for this run"
+          }
+        }
+      }
+    },
+    "Tênis principal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Main shoes"
+          }
+        }
+      }
+    },
+    "Uma prova ou um teste forte das últimas 6 semanas. Os ritmos de todos os treinos saem daqui.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A race or a hard test from the last 6 weeks. Every workout's paces come from here."
+          }
+        }
+      }
+    },
+    "Umidade: %lld%%": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Humidity: %lld%%"
+          }
+        }
+      }
+    },
+    "Unidades": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Units"
+          }
+        }
+      }
+    },
+    "Usa a sua chave: 2 chamadas ao Sonnet e 2 ao Haiku, alguns centavos de dólar. Com \"Simular o coach\" ligado, roda sem gastar.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uses your key: 2 calls to Sonnet and 2 to Haiku, a few cents. With \"Simulate the coach\" on, it runs at no cost."
+          }
+        }
+      }
+    },
+    "Usar %lld semanas": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use %lld weeks"
+          }
+        }
+      }
+    },
+    "Usar como prova de referência": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use as reference race"
+          }
+        }
+      }
+    },
+    "Usar este plano": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use this plan"
+          }
+        }
+      }
+    },
+    "Usar na corrida": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use during runs"
+          }
+        }
+      }
+    },
+    "Use + entre os trechos e 6x(...) para repetir. Intensidades: fácil, trote, caminhada, maratona, limiar, forte, rápido, prova.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use + between steps and 6x(...) to repeat. Intensities: easy, jog, walk, marathon, threshold, hard, fast, race."
+          }
+        }
+      }
+    },
+    "VDOT": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VDOT"
+          }
+        }
+      }
+    },
+    "Vale na hora e fica salvo para as próximas corridas (é o mesmo de Ajustes > Avisos durante a corrida). Sem o bipe, a contagem regressiva continua na tela e na voz.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Takes effect now and is saved for the next runs (same as Settings > Alerts during the run). Without the beep, the countdown stays on screen and in the voice."
+          }
+        }
+      }
+    },
+    "Vale revisar a semana": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Worth reviewing the week"
+          }
+        }
+      }
+    },
+    "Velocidade": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed"
+          }
+        }
+      }
+    },
+    "Ver no Strava": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View on Strava"
+          }
+        }
+      }
+    },
+    "Ver o questionário oficial PAR-Q+": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See the official PAR-Q+ questionnaire"
+          }
+        }
+      }
+    },
+    "Ver os trechos: tempo, distância, ritmo e zona": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See the steps: time, distance, pace and zone"
+          }
+        }
+      }
+    },
+    "Ver proposta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See proposal"
+          }
+        }
+      }
+    },
+    "Versão": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        }
+      }
+    },
+    "Vibração na troca de etapa": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vibration on step change"
+          }
+        }
+      }
+    },
+    "Voltar ao anterior": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go back to the previous one"
+          }
+        }
+      }
+    },
+    "Voltar ao plano anterior": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go back to the previous plan"
+          }
+        }
+      }
+    },
+    "Voltar para a rota de exemplo": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to the sample route"
+          }
+        }
+      }
+    },
+    "Voltar para planejado": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to planned"
+          }
+        }
+      }
+    },
+    "Volume atual: %lld km por semana": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current volume: %lld km per week"
+          }
+        }
+      }
+    },
+    "Volume por semana": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weekly volume"
+          }
+        }
+      }
+    },
+    "Voz": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice"
+          }
+        }
+      }
+    },
+    "Vão para a IA só dados agregados do plano (volumes, treinos, esforço, se o ritmo ficou na faixa) e o que você escrever. Nunca rota, GPS, nome ou dados do Saúde.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only aggregated plan data goes to the AI (volumes, workouts, effort, whether pace stayed in range) plus what you write. Never route, GPS, name or Health data."
+          }
+        }
+      }
+    },
+    "anos": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "years"
+          }
+        }
+      }
+    },
+    "bpm (opcional)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bpm (optional)"
+          }
+        }
+      }
+    },
+    "e mais %lld semanas": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "and %lld more weeks"
+          }
+        }
+      }
+    },
+    "esforço %lld a %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "effort %1$lld to %2$lld"
+          }
+        }
+      }
+    },
+    "m": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "m"
+          }
+        }
+      }
+    },
+    "mais devagar": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "slower"
+          }
+        }
+      }
+    },
+    "mais rápido": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "faster"
+          }
+        }
+      }
+    },
+    "milhas": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "miles"
+          }
+        }
+      }
+    },
+    "na esteira (distância no fim)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "on the treadmill (distance at the end)"
+          }
+        }
+      }
+    },
+    "não informado": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "not entered"
+          }
+        }
+      }
+    },
+    "quilômetros": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kilometers"
+          }
+        }
+      }
+    },
+    "sem batimento": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "no heart rate"
+          }
+        }
+      }
+    },
+    "sk-ant-...": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sk-ant-..."
+          }
+        }
+      }
+    },
+    "Índice de Daniels e Gilbert: estima o que a prova diz do seu condicionamento. Não é o VO2máx de laboratório.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daniels and Gilbert index: estimates what the race says about your fitness. It's not a lab VO2max."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

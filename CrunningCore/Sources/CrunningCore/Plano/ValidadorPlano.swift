@@ -22,23 +22,33 @@ public enum Violacao: Equatable, Sendable, CustomStringConvertible {
 
     public var description: String {
         switch self {
-        case let .semanaMalFormada(s): "Semana \(s) sem os 7 dias."
-        case let .semDescanso(s): "Semana \(s) sem dia de descanso."
-        case let .qualidadeDemais(s, q): "Semana \(s) com \(q) treinos de qualidade."
-        case let .diasFortesSeguidos(s, d): "Semana \(s): dias fortes seguidos no dia \(d)."
-        case let .saltoSemanal(s): "Semana \(s) sobe mais de 25% em relação à anterior."
-        case let .acimaDoTeto(s): "Semana \(s) passa o teto de progressão."
-        case let .corridaAcimaDoPico(s, d): "Semana \(s), dia \(d): corrida mais de 10% acima da maior das 4 semanas anteriores."
-        case let .corridaAcimaDaFracao(s, d): "Semana \(s), dia \(d): corrida grande demais para o volume da semana."
-        case let .corridaLongaDemais(s, d): "Semana \(s), dia \(d): corrida mais longa que o tempo máximo."
-        case let .corridaMaiorQueOLongao(s, d): "Semana \(s), dia \(d): corrida do tamanho do longão (o longão tem que ser a maior)."
-        case let .trabalhoAcimaDoLimite(s, d): "Semana \(s), dia \(d): trabalho de qualidade acima do limite da sessão."
-        case let .qualidadeAcimaDoLimite(s): "Semana \(s) com mais de 20% do volume em qualidade."
-        case .semPolimento: "Plano de prova sem polimento."
-        case .semProva: "Plano de prova sem a prova na última semana."
-        case let .inicianteSessoesDemais(s): "Semana \(s) com mais de 3 sessões."
-        case let .inicianteDiasSeguidos(s): "Semana \(s) com sessões em dias seguidos."
-        case let .inicianteSaltoDeCorrida(s): "Semana \(s) aumenta a corrida mais de 25%."
+        case let .semanaMalFormada(s): L("Semana \(s) sem os 7 dias.", "Week \(s) doesn't have all 7 days.")
+        case let .semDescanso(s): L("Semana \(s) sem dia de descanso.", "Week \(s) has no rest day.")
+        case let .qualidadeDemais(s, q): L("Semana \(s) com \(q) treinos de qualidade.", "Week \(s) has \(q) quality workouts.")
+        case let .diasFortesSeguidos(s, d): L("Semana \(s): dias fortes seguidos no dia \(d).", "Week \(s): back-to-back hard days on day \(d).")
+        case let .saltoSemanal(s): L("Semana \(s) sobe mais de 25% em relação à anterior.", "Week \(s) goes up more than 25% from the previous one.")
+        case let .acimaDoTeto(s): L("Semana \(s) passa o teto de progressão.", "Week \(s) exceeds the progression cap.")
+        case let .corridaAcimaDoPico(s, d):
+            L("Semana \(s), dia \(d): corrida mais de 10% acima da maior das 4 semanas anteriores.",
+              "Week \(s), day \(d): run more than 10% longer than the longest of the previous 4 weeks.")
+        case let .corridaAcimaDaFracao(s, d):
+            L("Semana \(s), dia \(d): corrida grande demais para o volume da semana.",
+              "Week \(s), day \(d): run too long for the week's volume.")
+        case let .corridaLongaDemais(s, d):
+            L("Semana \(s), dia \(d): corrida mais longa que o tempo máximo.",
+              "Week \(s), day \(d): run longer than the maximum time.")
+        case let .corridaMaiorQueOLongao(s, d):
+            L("Semana \(s), dia \(d): corrida do tamanho do longão (o longão tem que ser a maior).",
+              "Week \(s), day \(d): run as long as the long run (the long run must be the longest).")
+        case let .trabalhoAcimaDoLimite(s, d):
+            L("Semana \(s), dia \(d): trabalho de qualidade acima do limite da sessão.",
+              "Week \(s), day \(d): quality work above the session limit.")
+        case let .qualidadeAcimaDoLimite(s): L("Semana \(s) com mais de 20% do volume em qualidade.", "Week \(s) has more than 20% of its volume as quality work.")
+        case .semPolimento: L("Plano de prova sem polimento.", "Race plan without a taper.")
+        case .semProva: L("Plano de prova sem a prova na última semana.", "Race plan without the race in the last week.")
+        case let .inicianteSessoesDemais(s): L("Semana \(s) com mais de 3 sessões.", "Week \(s) has more than 3 sessions.")
+        case let .inicianteDiasSeguidos(s): L("Semana \(s) com sessões em dias seguidos.", "Week \(s) has sessions on consecutive days.")
+        case let .inicianteSaltoDeCorrida(s): L("Semana \(s) aumenta a corrida mais de 25%.", "Week \(s) increases running time by more than 25%.")
         }
     }
 }

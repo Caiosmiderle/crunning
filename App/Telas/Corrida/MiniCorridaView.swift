@@ -43,9 +43,9 @@ struct MiniCorridaView: View {
 
             switch gravador.sessao.estado {
             case .correndo, .pausadaAuto:
-                botao("Pausar", icone: "pause.fill") { gravador.pausar() }
+                botao(L("Pausar", "Pause"), icone: "pause.fill") { gravador.pausar() }
             case .pausadaManual:
-                botao("Retomar", icone: "play.fill") { gravador.retomar() }
+                botao(L("Retomar", "Resume"), icone: "play.fill") { gravador.retomar() }
             default:
                 EmptyView()
             }
@@ -65,17 +65,17 @@ struct MiniCorridaView: View {
     private var nomeAtual: String {
         if let execucao = gravador.execucao {
             if let etapa = execucao.etapaAtual { return etapa.nome }
-            if execucao.terminou { return "Treino concluído" }
+            if execucao.terminou { return L("Treino concluído", "Workout complete") }
             return execucao.treino.nome
         }
-        return gravador.esteira ? "Esteira" : "Corrida livre"
+        return gravador.esteira ? L("Esteira", "Treadmill") : L("Corrida livre", "Free run")
     }
 
     private var titulo: String {
         switch gravador.sessao.estado {
-        case .pronta: "Pronto · " + nomeAtual
-        case .pausadaManual: "Pausado · " + nomeAtual
-        case .pausadaAuto: "Pausa automática · " + nomeAtual
+        case .pronta: L("Pronto · ", "Ready · ") + nomeAtual
+        case .pausadaManual: L("Pausado · ", "Paused · ") + nomeAtual
+        case .pausadaAuto: L("Pausa automática · ", "Auto-paused · ") + nomeAtual
         default: nomeAtual
         }
     }
@@ -97,9 +97,9 @@ struct MiniCorridaView: View {
     private var detalhe: String {
         let sessao = gravador.sessao
         let agora = gravador.agora
-        guard sessao.estado != .pronta else { return "Toque para abrir" }
+        guard sessao.estado != .pronta else { return L("Toque para abrir", "Tap to open") }
         if gravador.esteira {
-            return gravador.execucao == nil ? "na esteira" : "Tempo " + Formatador.duracao(sessao.tempoEmMovimento(em: agora))
+            return gravador.execucao == nil ? L("na esteira", "on the treadmill") : L("Tempo ", "Time ") + Formatador.duracao(sessao.tempoEmMovimento(em: agora))
         }
         var partes = [Formatador.distancia(sessao.distancia, unidade: unidade)]
         if let ritmo = sessao.ritmoAtual(em: agora) {

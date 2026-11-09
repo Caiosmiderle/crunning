@@ -216,7 +216,7 @@ final class GravadorCorrida: Identifiable {
     }
 
     private func iniciarAtividade() {
-        let titulo = execucao?.treino.nome ?? (esteira ? "Esteira" : simulada ? "Corrida simulada" : "Corrida livre")
+        let titulo = execucao?.treino.nome ?? (esteira ? L("Esteira", "Treadmill") : simulada ? L("Corrida simulada", "Simulated run") : L("Corrida livre", "Free run"))
         atividade.iniciar(titulo: titulo, esteira: esteira, estado: estadoAtividade())
     }
 
@@ -224,7 +224,7 @@ final class GravadorCorrida: Identifiable {
     private func estadoAtividade() -> TreinoAtividadeAtributos.ContentState {
         let l = leitura()
         let pausada = sessao.estado == .pausadaManual || sessao.estado == .pausadaAuto
-        var nome = esteira ? "Esteira" : "Corrida livre"
+        var nome = esteira ? L("Esteira", "Treadmill") : L("Corrida livre", "Free run")
         var detalhe: String?
         var fim: Date?
         var restanteTexto: String?
@@ -235,7 +235,7 @@ final class GravadorCorrida: Identifiable {
             nome = etapa.nome
             cor = etapa.tipo.hex
             if let k = etapa.repeticao, let n = etapa.totalRepeticoes, n > 1 {
-                detalhe = "Repetição \(k) de \(n)"
+                detalhe = L("Repetição \(k) de \(n)", "Rep \(k) of \(n)")
             } else if let faixa = etapa.faixa {
                 detalhe = "Pace " + TextoTreino.faixa(faixa, unidade: unidade)
             }
@@ -248,7 +248,7 @@ final class GravadorCorrida: Identifiable {
                 restanteTexto = resta < 1000 ? "\(Int(resta.rounded())) m" : Formatador.distancia(resta, casas: 2)
             }
         } else if execucao?.terminou == true {
-            nome = "Treino concluído"
+            nome = L("Treino concluído", "Workout complete")
             progresso = 1
             cor = TipoTreino.prova.hex
         }
@@ -365,7 +365,7 @@ final class GravadorCorrida: Identifiable {
         salvarSessao(forcar: true)
         iniciarAtividade()
         ultimoAviso = AvisoCorrida(
-            texto: sessao.estado == .pausadaManual ? "Corrida recuperada (pausada)" : "Corrida recuperada",
+            texto: sessao.estado == .pausadaManual ? L("Corrida recuperada (pausada)", "Run recovered (paused)") : L("Corrida recuperada", "Run recovered"),
             icone: "arrow.clockwise.circle.fill"
         )
     }
@@ -453,10 +453,10 @@ final class GravadorCorrida: Identifiable {
         for evento in eventos {
             switch evento {
             case .pausouSozinha:
-                ultimoAviso = AvisoCorrida(texto: "Pausa automática", icone: "pause.circle.fill")
-                if avisos.voz { locutor.falar("Pausa automática.") }
+                ultimoAviso = AvisoCorrida(texto: L("Pausa automática", "Auto-pause"), icone: "pause.circle.fill")
+                if avisos.voz { locutor.falar(L("Pausa automática.", "Auto-paused.")) }
             case .retomouSozinha:
-                ultimoAviso = AvisoCorrida(texto: "Retomando", icone: "play.circle.fill")
+                ultimoAviso = AvisoCorrida(texto: L("Retomando", "Resuming"), icone: "play.circle.fill")
                 if avisos.voz { locutor.falar(Fala.retomada) }
             case let .parcial(numero, duracao):
                 ultimoAviso = AvisoCorrida(texto: "Km \(numero) · \(Formatador.duracao(duracao))", icone: "flag.fill")
@@ -573,18 +573,18 @@ final class GravadorCorrida: Identifiable {
             case let .ritmo(aviso):
                 guard avisos.ritmo else { continue }
                 switch aviso {
-                case .acelerar: ultimoAviso = AvisoCorrida(texto: "Acelere um pouco", icone: "hare.fill")
-                case .reduzir: ultimoAviso = AvisoCorrida(texto: "Reduza um pouco", icone: "tortoise.fill")
-                case .voltouAoRitmo: ultimoAviso = AvisoCorrida(texto: "No ritmo", icone: "checkmark.circle.fill")
+                case .acelerar: ultimoAviso = AvisoCorrida(texto: L("Acelere um pouco", "Speed up a little"), icone: "hare.fill")
+                case .reduzir: ultimoAviso = AvisoCorrida(texto: L("Reduza um pouco", "Ease off a little"), icone: "tortoise.fill")
+                case .voltouAoRitmo: ultimoAviso = AvisoCorrida(texto: L("No ritmo", "On pace"), icone: "checkmark.circle.fill")
                 }
                 if avisos.voz { locutor.falar(Fala.ritmo(aviso)) }
             case let .volta(numero, duracao, distancia):
-                ultimoAviso = AvisoCorrida(texto: "Volta \(numero) · \(Formatador.duracao(duracao))", icone: "flag.2.crossed.fill")
+                ultimoAviso = AvisoCorrida(texto: L("Volta \(numero) · \(Formatador.duracao(duracao))", "Lap \(numero) · \(Formatador.duracao(duracao))"), icone: "flag.2.crossed.fill")
                 if avisos.voz { locutor.falar(Fala.volta(numero: numero, duracao: duracao, distancia: distancia)) }
             case .terminouTreino:
                 transicoes += 1
                 contagemVisivel = nil
-                ultimoAviso = AvisoCorrida(texto: "Treino concluído", icone: "checkmark.seal.fill")
+                ultimoAviso = AvisoCorrida(texto: L("Treino concluído", "Workout complete"), icone: "checkmark.seal.fill")
                 if avisos.vibracao { locutor.vibrar() }
                 if avisos.voz { locutor.falar(Fala.fimTreino, interromper: true) }
                 salvarSessao(forcar: true)

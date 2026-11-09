@@ -21,7 +21,7 @@ struct EditorPassoView: View {
     @State var carregou = false
 
     static let funcoes: [(FuncaoPasso, String)] = [
-        (.aquecimento, "Aquecer"), (.trabalho, "Trabalho"), (.recuperacao, "Pausa"), (.desaquecimento, "Desaquecer"),
+        (.aquecimento, L("Aquecer", "Warm up")), (.trabalho, L("Trabalho", "Work")), (.recuperacao, L("Pausa", "Recovery")), (.desaquecimento, L("Desaquecer", "Cool down")),
     ]
 
     var body: some View {
@@ -82,7 +82,7 @@ struct EditorPassoView: View {
             } header: {
                 Text("Intensidade")
             } footer: {
-                Text(zonas == nil ? "Sem prova em Meus ritmos: o alvo vai por esforço (0 a 10)." : "Ritmos calculados pela sua prova de referência.")
+                Text(zonas == nil ? L("Sem prova em Meus ritmos: o alvo vai por esforço (0 a 10).", "No race in My paces: the target goes by effort (0 to 10).") : L("Ritmos calculados pela sua prova de referência.", "Paces calculated from your reference race."))
             }
         }
         .scrollContentBackground(.hidden)

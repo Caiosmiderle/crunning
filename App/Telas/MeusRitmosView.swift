@@ -20,11 +20,11 @@ struct MeusRitmosView: View {
     static let distancias: [Distancia] = [
         Distancia(nome: "3 km", metros: 3000), Distancia(nome: "5 km", metros: 5000),
         Distancia(nome: "10 km", metros: 10_000), Distancia(nome: "15 km", metros: 15_000),
-        Distancia(nome: "Meia maratona", metros: 21_097.5), Distancia(nome: "Maratona", metros: 42_195),
+        Distancia(nome: L("Meia maratona", "Half marathon"), metros: 21_097.5), Distancia(nome: L("Maratona", "Marathon"), metros: 42_195),
     ]
     static let previsoes: [Distancia] = [
         Distancia(nome: "5 km", metros: 5000), Distancia(nome: "10 km", metros: 10_000),
-        Distancia(nome: "Meia maratona", metros: 21_097.5), Distancia(nome: "Maratona", metros: 42_195),
+        Distancia(nome: L("Meia maratona", "Half marathon"), metros: 21_097.5), Distancia(nome: L("Maratona", "Marathon"), metros: 42_195),
     ]
     static let intensidades: [Intensidade] = [.facil, .maratona, .limiar, .intervalado, .repeticoes]
 
@@ -68,10 +68,10 @@ struct MeusRitmosView: View {
                         .multilineTextAlignment(.trailing)
                 }
                 if let fc = ZonasDoUsuario.fcMaxima() {
-                    LabeledContent("FC máxima usada", value: "\(Int(fc.valor.rounded())) bpm" + (fc.estimada ? " (estimada)" : ""))
+                    LabeledContent("FC máxima usada", value: "\(Int(fc.valor.rounded())) bpm" + (fc.estimada ? L(" (estimada)", " (estimated)") : ""))
                     ForEach([Intensidade.caminhada, .facil, .maratona, .limiar, .intervalado]) { intensidade in
                         if let zona = FrequenciaCardiaca.zona(intensidade, fcMaxima: fc.valor) {
-                            LabeledContent(intensidade == .caminhada ? "Caminhada e recuperação" : intensidade.nome, value: zona.texto)
+                            LabeledContent(intensidade == .caminhada ? L("Caminhada e recuperação", "Walk and recovery") : intensidade.nome, value: zona.texto)
                                 .monospacedDigit()
                         }
                     }
@@ -195,7 +195,7 @@ struct MeusRitmosView: View {
     private func textoFaixa(_ faixa: FaixaRitmo) -> String {
         let lento = Formatador.ritmo(segundosPorKm: faixa.lento, unidade: unidade)
         let rapido = Formatador.ritmo(segundosPorKm: faixa.rapido, unidade: unidade)
-        return lento == rapido ? lento + " " + unidade.siglaRitmo : "\(lento) a \(rapido) \(unidade.siglaRitmo)"
+        return lento == rapido ? lento + " " + unidade.siglaRitmo : L("\(lento) a \(rapido) \(unidade.siglaRitmo)", "\(lento) to \(rapido) \(unidade.siglaRitmo)")
     }
 
     private func cor(_ intensidade: Intensidade) -> Color {

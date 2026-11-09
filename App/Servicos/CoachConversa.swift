@@ -148,7 +148,7 @@ enum CoachChat {
         """
         Você é o treinador de corrida do CRUNNING conversando com o atleta sobre o plano dele. Ele escreve situações como "viajo semana que vem", "estou com a canela dolorida", "troca o longão de dia" ou "quero mais semanas".
 
-        Responda em português do Brasil, curto e direto, como um treinador. Em "mensagem", explique o que você propõe e por quê. Em "acoes", liste as operações do motor que resolvem o pedido (pode ser nenhuma). O atleta vê a proposta com o antes e o depois e decide se salva; o motor confere todas as travas de segurança e recusa o que não couber.
+        Responda em \(Idioma.atual == .ingles ? "inglês (English)" : "português do Brasil"), curto e direto, como um treinador. Em "mensagem", explique o que você propõe e por quê. Em "acoes", liste as operações do motor que resolvem o pedido (pode ser nenhuma). O atleta vê a proposta com o antes e o depois e decide se salva; o motor confere todas as travas de segurança e recusa o que não couber.
 
         Regras:
         - Use só as operações do esquema; nunca invente treinos ou números. Não mexa em semanas que já passaram (antes de "semanaAtual").
@@ -294,7 +294,7 @@ enum CriadorPlanoCoach {
     - tetoPercentual (5 a 20): aumento máximo do volume por semana. Use 10 por padrão; menos com lesão recente, histórico de lesões ou iniciante; nunca mais de 10 sem motivo claro.
     Não invente tempo de prova nem dados que ele não deu. Se ele já tiver prova de referência no app, os ritmos saem dela.
 
-    Em "explicacao", diga em 2 a 4 frases, em português do Brasil, por que escolheu assim (em especial o que mudou em relação ao que ele pediu). Não dê conselho médico.
+    Em "explicacao", diga em 2 a 4 frases, em \(Idioma.atual == .ingles ? "inglês (English)" : "português do Brasil"), por que escolheu assim (em especial o que mudou em relação ao que ele pediu). Não dê conselho médico.
     """
 
     /// Pede os parâmetros à IA, monta e confere. Uma segunda tentativa leva o motivo da recusa;
@@ -356,6 +356,6 @@ enum CriadorPlanoCoach {
         var e = entrada(doQuestionario)
         if case let .curto(minimas, _) = GeradorPlano.viabilidade(e) { e.semanas = minimas }
         let plano = GeradorPlano.gerar(e)
-        return (plano, "O coach não chegou a um plano que passasse nas travas; montei pelas regras com as suas respostas" + (e.semanas != q.semanas ? ", com \(e.semanas) semanas (o mínimo para a prova)." : "."))
+        return (plano, L("O coach não chegou a um plano que passasse nas travas; montei pelas regras com as suas respostas", "The coach could not reach a plan that passed the safety limits; I built it by the rules with your answers") + (e.semanas != q.semanas ? L(", com \(e.semanas) semanas (o mínimo para a prova).", ", with \(e.semanas) weeks (the minimum for the race).") : "."))
     }
 }

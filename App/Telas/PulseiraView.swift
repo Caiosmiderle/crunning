@@ -1,3 +1,4 @@
+import CrunningCore
 import SwiftUI
 
 /// Escolher a pulseira que transmite o batimento (Mi Band 4 a 7 com a transmissão ligada).
@@ -22,7 +23,7 @@ struct PulseiraView: View {
 
             if !pulseiraGuardada.isEmpty {
                 Section {
-                    LabeledContent(monitor.nomePulseira ?? "Pulseira", value: monitor.atual().map { "\($0) bpm" } ?? "sem sinal")
+                    LabeledContent(monitor.nomePulseira ?? L("Pulseira", "Band"), value: monitor.atual().map { "\($0) bpm" } ?? L("sem sinal", "no signal"))
                         .monospacedDigit()
                     Toggle("Usar na corrida", isOn: $usar)
                     Button("Esquecer esta pulseira", role: .destructive) {
@@ -56,7 +57,7 @@ struct PulseiraView: View {
                             HStack {
                                 Text(item.nome)
                                 Spacer()
-                                Text(item.bpm.map { "\($0) bpm" } ?? "sem batimento")
+                                Text(item.bpm.map { "\($0) bpm" } ?? L("sem batimento", "no heart rate"))
                                     .monospacedDigit()
                                     .foregroundStyle(item.bpm == nil ? Color.secondary : Paleta.verdeLogo)
                                 if item.id.uuidString == pulseiraGuardada {
@@ -75,7 +76,7 @@ struct PulseiraView: View {
             } header: {
                 Text("Por perto")
             } footer: {
-                Text(modoDesenvolvimento ? "Os bytes são os dados de fabricante do anúncio; o batimento é o 6º byte." : "Toque na sua pulseira para escolher.")
+                Text(modoDesenvolvimento ? L("Os bytes são os dados de fabricante do anúncio; o batimento é o 6º byte.", "The bytes are the manufacturer data of the advertisement; heart rate is the 6th byte.") : L("Toque na sua pulseira para escolher.", "Tap your band to choose it."))
             }
         }
         .navigationTitle("Frequência cardíaca")

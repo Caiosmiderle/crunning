@@ -25,14 +25,14 @@ enum TextoTreino {
 
     /// Faixa de ritmo "4:05–4:15 /km", ou o esforço quando não há ritmos de referência.
     static func alvo(_ passo: Passo, zonas: Zonas?, unidade: UnidadeDistancia) -> String {
-        if passo.intensidade == .caminhada { return "Caminhada" }
+        if passo.intensidade == .caminhada { return L("Caminhada", "Walk") }
         if let zonas {
             let distanciaProva: Double?
             if case let .distancia(d) = passo.medida { distanciaProva = d } else { distanciaProva = nil }
             return pace(zonas.faixa(passo.intensidade, distanciaProva: distanciaProva), unidade: unidade)
         }
         let e = passo.intensidade.esforco
-        return "\(passo.intensidade.nome) · esforço \(e.lowerBound) a \(e.upperBound)"
+        return L("\(passo.intensidade.nome) · esforço \(e.lowerBound) a \(e.upperBound)", "\(passo.intensidade.nome) · effort \(e.lowerBound) to \(e.upperBound)")
     }
 
     /// A outra medida estimada (tempo de um trecho por distância, distância de um por tempo) e,
@@ -52,14 +52,14 @@ enum TextoTreino {
             }
         }
         if FrequenciaCardiaca.usaZona(passo, duracaoEstimada: est.duracao), let zona = ZonasDoUsuario.zonaFC(passo.intensidade) {
-            partes.append("tente ficar na " + zona.rotulo)
+            partes.append(L("tente ficar na ", "try to stay in ") + zona.rotulo)
         }
         return partes.isEmpty ? nil : partes.joined(separator: " · ")
     }
 
     /// "pace entre 3:55 e 4:05 /km".
     static func pace(_ f: FaixaRitmo, unidade: UnidadeDistancia) -> String {
-        "pace entre " + Formatador.ritmo(segundosPorKm: f.rapido, unidade: unidade) + " e "
+        L("pace entre ", "pace between ") + Formatador.ritmo(segundosPorKm: f.rapido, unidade: unidade) + L(" e ", " and ")
             + Formatador.ritmo(segundosPorKm: f.lento, unidade: unidade) + " " + unidade.siglaRitmo
     }
 
@@ -161,7 +161,7 @@ struct LinhaDoTempoTreino: View {
             }
             for chave in ordem {
                 guard let s = exemplo[chave] else { continue }
-                let nome = papel == .recuperacao ? "Recuperação" : s.tipo.nome
+                let nome = papel == .recuperacao ? L("Recuperação", "Recovery") : s.tipo.nome
                 itens.append(ItemLegenda(id: chave, cor: cor(s, comTrabalho: comTrabalho),
                                          texto: nome + " " + Self.tempoCurto(total[chave] ?? 0)))
             }
@@ -427,12 +427,12 @@ struct TabelaBlocos: View {
 
     private func feito(_ r: ResultadoEtapa) -> String {
         switch r.situacao {
-        case .naoFeita: return "não feito"
-        case .pulada: return "pulado"
+        case .naoFeita: return L("não feito", "not done")
+        case .pulada: return L("pulado", "skipped")
         case .feita, .parcial:
             var texto = Formatador.duracao(r.duracao)
             if r.distancia >= 50 { texto += " · " + TextoTreino.medida(.distancia(r.distancia), unidade: unidade) }
-            return r.situacao == .parcial ? texto + " (parcial)" : texto
+            return r.situacao == .parcial ? texto + L(" (parcial)", " (partial)") : texto
         }
     }
 }

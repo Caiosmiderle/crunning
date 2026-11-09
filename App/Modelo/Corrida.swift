@@ -47,7 +47,7 @@ final class Corrida {
         duracaoTotal: TimeInterval,
         duracaoEmMovimento: TimeInterval,
         distanciaMetros: Double,
-        titulo: String = "Corrida livre",
+        titulo: String = L("Corrida livre", "Free run"),
         exemplo: Bool = false
     ) {
         self.inicio = inicio
@@ -92,7 +92,7 @@ final class Corrida {
         fc: [AmostraFC] = []
     ) -> Corrida {
         let fim = sessao.fim ?? agora
-        let titulo = execucao?.treino.nome ?? (esteira ? "Corrida na esteira" : simulada ? "Corrida simulada" : "Corrida livre")
+        let titulo = execucao?.treino.nome ?? (esteira ? L("Corrida na esteira", "Treadmill run") : simulada ? L("Corrida simulada", "Simulated run") : L("Corrida livre", "Free run"))
         let corrida = Corrida(
             inicio: sessao.inicio ?? fim,
             duracaoTotal: sessao.tempoTotal(em: fim),
@@ -126,7 +126,7 @@ final class Corrida {
         for ponto in pontos { sessao.receber(ponto) }
         sessao.finalizar(em: pontos.last?.instante ?? inicio)
         let corrida = Corrida.de(sessao: sessao, simulada: true, esforco: Int.random(in: 4...8), agora: agora)
-        corrida.titulo = "Corrida de exemplo"
+        corrida.titulo = L("Corrida de exemplo", "Sample run")
         corrida.exemplo = true
         return corrida
     }

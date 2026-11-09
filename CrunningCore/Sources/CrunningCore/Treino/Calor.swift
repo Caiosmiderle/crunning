@@ -48,9 +48,13 @@ public enum Calor {
 
     public static func texto(_ a: Avaliacao) -> String {
         switch a {
-        case .semAjuste: "Sem ajuste: abaixo de 10 °C de WBGT."
-        case let .ajuste(f): "Ritmos \(Formatador.numero(f * 100, casas: 1))% mais lentos. É o mínimo medido em maratonistas rápidos; se o esforço subir, vá pelo esforço."
-        case .foraDaFaixa: "Calor acima da faixa estudada (25 °C de WBGT): corra pelo esforço, encurte o treino forte, beba água e pare se sentir tontura, náusea ou calafrio."
+        case .semAjuste: L("Sem ajuste: abaixo de 10 °C de WBGT.", "No adjustment: below 10 °C WBGT.")
+        case let .ajuste(f):
+            L("Ritmos \(Formatador.numero(f * 100, casas: 1))% mais lentos. É o mínimo medido em maratonistas rápidos; se o esforço subir, vá pelo esforço.",
+              "Paces \(Formatador.numero(f * 100, casas: 1))% slower. This is the minimum measured in fast marathoners; if the effort rises, go by effort.")
+        case .foraDaFaixa:
+            L("Calor acima da faixa estudada (25 °C de WBGT): corra pelo esforço, encurte o treino forte, beba água e pare se sentir tontura, náusea ou calafrio.",
+              "Heat above the studied range (25 °C WBGT): run by effort, shorten the hard workout, drink water and stop if you feel dizzy, nauseous or chilled.")
         }
     }
 

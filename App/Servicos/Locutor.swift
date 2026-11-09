@@ -1,5 +1,6 @@
 import AudioToolbox
 import AVFoundation
+import CrunningCore
 import Foundation
 
 /// O que avisar durante a corrida (Ajustes > Avisos durante a corrida, ou a engrenagem da
@@ -35,7 +36,7 @@ final class Locutor: NSObject {
     static let compartilhado = Locutor()
 
     private let sintetizador = AVSpeechSynthesizer()
-    private let voz = AVSpeechSynthesisVoice(language: "pt-BR")
+    private let voz = AVSpeechSynthesisVoice(language: Idioma.atual.codigoVoz)
     private var bipeCurto: AVAudioPlayer?
     private var bipeLongo: AVAudioPlayer?
     private var sessaoAtiva = false

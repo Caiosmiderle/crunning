@@ -77,15 +77,15 @@ enum ErroCoachIA: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .semChave: "Salve a sua chave da API em Ajustes > Coach de IA."
-        case .chaveInvalida: "A chave da API foi recusada. Confira em Ajustes > Coach de IA."
-        case let .semPermissao(m): "A chave não tem permissão para isso. \(m)"
-        case .limite: "Limite de uso da API atingido. Tente de novo em alguns minutos."
-        case let .pedidoInvalido(m): "A API recusou o pedido: \(m)"
-        case let .servidor(codigo, m): "A API respondeu com erro \(codigo). \(m)"
-        case let .recusa(categoria): "O modelo não quis analisar este pedido" + (categoria.map { " (\($0))." } ?? ".")
-        case .respostaIncompleta: "A resposta veio cortada. Tente de novo."
-        case .respostaInvalida: "A resposta veio num formato inesperado. Tente de novo."
+        case .semChave: L("Salve a sua chave da API em Ajustes > Coach de IA.", "Save your API key in Settings > AI Coach.")
+        case .chaveInvalida: L("A chave da API foi recusada. Confira em Ajustes > Coach de IA.", "The API key was rejected. Check it in Settings > AI Coach.")
+        case let .semPermissao(m): L("A chave não tem permissão para isso. \(m)", "The key does not have permission for this. \(m)")
+        case .limite: L("Limite de uso da API atingido. Tente de novo em alguns minutos.", "API usage limit reached. Try again in a few minutes.")
+        case let .pedidoInvalido(m): L("A API recusou o pedido: \(m)", "The API rejected the request: \(m)")
+        case let .servidor(codigo, m): L("A API respondeu com erro \(codigo). \(m)", "The API returned error \(codigo). \(m)")
+        case let .recusa(categoria): L("O modelo não quis analisar este pedido", "The model declined to analyze this request") + (categoria.map { " (\($0))." } ?? ".")
+        case .respostaIncompleta: L("A resposta veio cortada. Tente de novo.", "The response was cut off. Try again.")
+        case .respostaInvalida: L("A resposta veio num formato inesperado. Tente de novo.", "The response came in an unexpected format. Try again.")
         }
     }
 }
@@ -229,7 +229,7 @@ enum CoachIA {
     - Aponte problemas concretos, com as semanas envolvidas e uma sugestão prática. Separe gravidade: alta (faz o plano errar o objetivo ou arrisca lesão), média (atrapalha o rendimento), baixa (ajuste fino).
     - Se o plano estiver bom, diga isso e liste poucos pontos.
     - Não dê conselho médico.
-    - Escreva em português do Brasil, de forma direta, como um treinador falando com o atleta.
+    - Escreva em \(Idioma.atual == .ingles ? "inglês (English)" : "português do Brasil"), de forma direta, como um treinador falando com o atleta.
     """
 
     static let instrucoesDasOperacoes = """

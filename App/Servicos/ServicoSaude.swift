@@ -1,3 +1,4 @@
+import CrunningCore
 import Foundation
 import HealthKit
 
@@ -12,20 +13,20 @@ enum DisponibilidadeSaude: Equatable, Sendable {
 
     var titulo: String {
         switch self {
-        case .ativa: "Gravando no Apple Saúde"
-        case .semPermissaoNaInstalacao: "Histórico local + TCX/GPX"
-        case .aparelhoSemSaude: "Saúde indisponível"
+        case .ativa: L("Gravando no Apple Saúde", "Saving to Apple Health")
+        case .semPermissaoNaInstalacao: L("Histórico local + TCX/GPX", "Local history + TCX/GPX")
+        case .aparelhoSemSaude: L("Saúde indisponível", "Health unavailable")
         }
     }
 
     var detalhe: String {
         switch self {
         case .ativa:
-            "Cada corrida concluída vira um treino no Apple Saúde, com distância, duração, energia e rota."
+            L("Cada corrida concluída vira um treino no Apple Saúde, com distância, duração, energia e rota.", "Every finished run becomes a workout in Apple Health, with distance, duration, energy and route.")
         case .semPermissaoNaInstalacao:
-            "Com Apple ID gratuito, a Apple não libera o Saúde para apps instalados por fora. As corridas ficam no histórico do app e saem em TCX (distância, tempo, energia e rota; também na esteira) ou GPX para outro app."
+            L("Com Apple ID gratuito, a Apple não libera o Saúde para apps instalados por fora. As corridas ficam no histórico do app e saem em TCX (distância, tempo, energia e rota; também na esteira) ou GPX para outro app.", "With a free Apple ID, Apple does not allow Health for sideloaded apps. Runs stay in the app history and can be exported as TCX (distance, time, energy and route; treadmill too) or GPX to another app.")
         case .aparelhoSemSaude:
-            "Este aparelho não tem o app Saúde. As corridas ficam no histórico do app."
+            L("Este aparelho não tem o app Saúde. As corridas ficam no histórico do app.", "This device does not have the Health app. Runs stay in the app history.")
         }
     }
 }

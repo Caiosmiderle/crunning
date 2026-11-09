@@ -89,7 +89,7 @@ struct CartaoEtapaAtual: View {
                 HStack(spacing: 6) {
                     Image(systemName: "heart.fill")
                         .foregroundStyle(corBatimento(zona))
-                    Text("Tente ficar na \(zona.rotulo) (\(zona.minimo.map { "\($0)–" } ?? "até ")\(zona.maximo) bpm)" + (bpm.map { " · agora \($0)" } ?? ""))
+                    Text(L("Tente ficar na \(zona.rotulo) (\(zona.minimo.map { "\($0)–" } ?? "até ")\(zona.maximo) bpm)", "Try to stay in \(zona.rotulo) (\(zona.minimo.map { "\($0)–" } ?? "up to ")\(zona.maximo) bpm)") + (bpm.map { L(" · agora \($0)", " · now \($0)") } ?? ""))
                         .font(.subheadline.weight(.semibold))
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
@@ -130,7 +130,7 @@ struct CartaoEtapaAtual: View {
         guard let p = etapa.passo else { return "" }
         var texto = ""
         if case let .distancia(d) = etapa.planejado, case .tempo = etapa.medida {
-            texto = "≈ " + TextoTreino.medida(.distancia(d), unidade: unidade) + " na esteira · "
+            texto = "≈ " + TextoTreino.medida(.distancia(d), unidade: unidade) + L(" na esteira · ", " on the treadmill · ")
         }
         if let faixa = etapa.faixa { return texto + TextoTreino.pace(faixa, unidade: unidade).capitalizandoPrimeira }
         return texto + p.intensidade.testeDaFala
@@ -194,10 +194,10 @@ struct MedidorRitmo: View {
 
     private func texto(_ s: SituacaoRitmo) -> String {
         switch s {
-        case .semDados: "Medindo..."
-        case .dentro: "No ritmo"
-        case let .lento(forte): temPiso ? (forte ? "Acelere" : "Acelere um pouco") : "Tranquilo"
-        case let .rapido(forte): forte ? "Reduza" : "Reduza um pouco"
+        case .semDados: L("Medindo...", "Measuring...")
+        case .dentro: L("No ritmo", "On pace")
+        case let .lento(forte): temPiso ? (forte ? L("Acelere", "Speed up") : L("Acelere um pouco", "Speed up a little")) : L("Tranquilo", "All good")
+        case let .rapido(forte): forte ? L("Reduza", "Slow down") : L("Reduza um pouco", "Ease off a little")
         }
     }
 
@@ -293,7 +293,7 @@ struct ListaEtapasExecucao: View {
                         .fill(etapa.tipo.cor)
                         .frame(width: 6, height: i == 0 ? 30 : 22)
                     VStack(alignment: .leading, spacing: 1) {
-                        Text((i == 0 ? "A seguir: " : "") + etapa.nome)
+                        Text((i == 0 ? L("A seguir: ", "Next: ") : "") + etapa.nome)
                             .font(i == 0 ? .headline : .subheadline)
                         if i == 0, let faixa = etapa.faixa {
                             Text(TextoTreino.faixa(faixa, unidade: unidade))

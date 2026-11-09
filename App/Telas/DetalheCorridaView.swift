@@ -61,37 +61,37 @@ struct DetalheCorridaView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(dados.inicio.formatted(.dateTime.weekday(.wide).day().month(.wide).hour().minute().locale(.ptBR)))
+                Text(dados.inicio.formatted(.dateTime.weekday(.wide).day().month(.wide).hour().minute()))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 if let nome = tenisAtivos.first(where: { $0.codigo == corrida.tenis })?.nome {
-                    Text("Tênis: " + nome)
+                    Text(L("Tênis: ", "Shoes: ") + nome)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
 
                 Grid(horizontalSpacing: 16, verticalSpacing: 14) {
                     GridRow {
-                        Metrica(titulo: "Distância", valor: Formatador.distancia(dados.distancia, unidade: unidade))
-                        Metrica(titulo: "Tempo em movimento", valor: Formatador.duracao(dados.duracaoEmMovimento))
+                        Metrica(titulo: L("Distância", "Distance"), valor: Formatador.distancia(dados.distancia, unidade: unidade))
+                        Metrica(titulo: L("Tempo em movimento", "Moving time"), valor: Formatador.duracao(dados.duracaoEmMovimento))
                     }
                     GridRow {
-                        Metrica(titulo: "Ritmo médio", valor: ritmoMedio)
-                        Metrica(titulo: "Tempo total", valor: Formatador.duracao(dados.duracaoTotal))
+                        Metrica(titulo: L("Ritmo médio", "Avg pace"), valor: ritmoMedio)
+                        Metrica(titulo: L("Tempo total", "Total time"), valor: Formatador.duracao(dados.duracaoTotal))
                     }
                     GridRow {
-                        Metrica(titulo: "Subida", valor: "\(Int(dados.subida.rounded())) m")
-                        Metrica(titulo: "Esforço", valor: dados.esforco.map { "\($0) de 10" } ?? "—")
+                        Metrica(titulo: L("Subida", "Elevation gain"), valor: "\(Int(dados.subida.rounded())) m")
+                        Metrica(titulo: L("Esforço", "Effort"), valor: dados.esforco.map { L("\($0) de 10", "\($0) of 10") } ?? "—")
                     }
                     if let media = dados.fcMedia, let maxima = dados.fcMaxima {
                         GridRow {
-                            Metrica(titulo: "FC média", valor: "\(media) bpm")
-                            Metrica(titulo: "FC máxima", valor: "\(maxima) bpm")
+                            Metrica(titulo: L("FC média", "Avg HR"), valor: "\(media) bpm")
+                            Metrica(titulo: L("FC máxima", "Max HR"), valor: "\(maxima) bpm")
                         }
                     }
                     if let energia = Exportacao.calorias(distancia: dados.distancia, duracaoEmMovimento: dados.duracaoEmMovimento) {
                         GridRow {
-                            Metrica(titulo: "Energia (estimada)", valor: "\(Int(energia.rounded())) kcal")
+                            Metrica(titulo: L("Energia (estimada)", "Energy (estimated)"), valor: "\(Int(energia.rounded())) kcal")
                             Color.clear.frame(height: 1)
                         }
                     }
@@ -127,7 +127,7 @@ struct DetalheCorridaView: View {
                             .cartaoVidro()
                     }
                 } else if carregou {
-                    Text(dados.esteira ? "Corrida na esteira: sem rota." : "Esta corrida não tem rota gravada.")
+                    Text(dados.esteira ? L("Corrida na esteira: sem rota.", "Treadmill run: no route.") : L("Esta corrida não tem rota gravada.", "This run has no recorded route."))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .padding(20)
@@ -214,17 +214,17 @@ struct DetalheCorridaView: View {
             } else if enviandoStrava || (corrida.stravaPendente && corrida.stravaErro == nil) {
                 HStack(spacing: 8) {
                     ProgressView()
-                    Text(enviandoStrava ? "Enviando ao Strava…" : "Na fila: vai sozinha quando houver internet.")
+                    Text(enviandoStrava ? L("Enviando ao Strava…", "Sending to Strava…") : L("Na fila: vai sozinha quando houver internet.", "Queued: it will go on its own when there is internet."))
                         .font(.subheadline)
                 }
             } else {
                 if let erro = corrida.stravaErro {
-                    Text(corrida.stravaPendente ? erro + " Vai tentar de novo sozinho." : erro)
+                    Text(corrida.stravaPendente ? erro + L(" Vai tentar de novo sozinho.", " It will retry on its own.") : erro)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                Button(corrida.stravaErro == nil ? "Enviar ao Strava" : "Tentar de novo", systemImage: "arrow.up.circle") {
+                Button(corrida.stravaErro == nil ? L("Enviar ao Strava", "Send to Strava") : L("Tentar de novo", "Try again"), systemImage: "arrow.up.circle") {
                     enviandoStrava = true
                     Task {
                         await EnvioStrava.enfileirar(corrida)
@@ -261,16 +261,16 @@ struct CartaoDiagnosticoGPS: View {
     var body: some View {
         DisclosureGroup(isExpanded: $aberto) {
             VStack(alignment: .leading, spacing: 10) {
-                linha("Pontos com o app na tela", "\(diagnostico.pontosPrimeiroPlano)")
-                linha("Pontos com a tela bloqueada ou o app em segundo plano", "\(diagnostico.pontosSegundoPlano)")
-                linha("Maior intervalo sem ponto", maiorIntervalo)
-                linha("Intervalos de \(Int(DiagnosticoGPS.intervaloLongo)) s ou mais", "\(diagnostico.intervalosLongos)")
-                linha("Vezes que o iOS fechou o app", "\(diagnostico.quantas(.reaberto))")
+                linha(L("Pontos com o app na tela", "Points with the app on screen"), "\(diagnostico.pontosPrimeiroPlano)")
+                linha(L("Pontos com a tela bloqueada ou o app em segundo plano", "Points with the screen locked or the app in the background"), "\(diagnostico.pontosSegundoPlano)")
+                linha(L("Maior intervalo sem ponto", "Longest gap without a point"), maiorIntervalo)
+                linha(L("Intervalos de \(Int(DiagnosticoGPS.intervaloLongo)) s ou mais", "Gaps of \(Int(DiagnosticoGPS.intervaloLongo)) s or more"), "\(diagnostico.intervalosLongos)")
+                linha(L("Vezes que o iOS fechou o app", "Times iOS closed the app"), "\(diagnostico.quantas(.reaberto))")
                 if !diagnostico.eventos.isEmpty {
                     Divider()
                     ForEach(Array(diagnostico.eventos.suffix(30).enumerated()), id: \.offset) { _, evento in
                         HStack(alignment: .firstTextBaseline) {
-                            Text(evento.instante.formatted(.dateTime.hour().minute().second().locale(.ptBR)))
+                            Text(evento.instante.formatted(.dateTime.hour().minute().second()))
                                 .monospacedDigit()
                                 .foregroundStyle(.secondary)
                             Text(evento.tipo.descricao)
@@ -304,15 +304,15 @@ struct CartaoDiagnosticoGPS: View {
     }
 
     private var resumo: String {
-        if diagnostico.quantas(.reaberto) > 0 { return "O iOS fechou o app no meio; a corrida foi retomada." }
-        if diagnostico.maiorIntervalo >= DiagnosticoGPS.intervaloLongo { return "Ficou \(maiorIntervalo) sem ponto." }
-        if diagnostico.eventos.contains(where: { $0.tipo.ehProblema }) { return "O iOS avisou de problemas no GPS." }
-        return "Gravou sem falhas."
+        if diagnostico.quantas(.reaberto) > 0 { return L("O iOS fechou o app no meio; a corrida foi retomada.", "iOS closed the app midway; the run was resumed.") }
+        if diagnostico.maiorIntervalo >= DiagnosticoGPS.intervaloLongo { return L("Ficou \(maiorIntervalo) sem ponto.", "Went \(maiorIntervalo) without a point.") }
+        if diagnostico.eventos.contains(where: { $0.tipo.ehProblema }) { return L("O iOS avisou de problemas no GPS.", "iOS reported GPS problems.") }
+        return L("Gravou sem falhas.", "Recorded without gaps.")
     }
 
     private var maiorIntervalo: String {
         let segundos = diagnostico.maiorIntervalo
-        guard segundos >= 1 else { return "menos de 1 s" }
+        guard segundos >= 1 else { return L("menos de 1 s", "less than 1 s") }
         return segundos < 60 ? "\(Int(segundos.rounded())) s" : Formatador.duracao(segundos)
     }
 

@@ -1,3 +1,4 @@
+import CrunningCore
 import SwiftUI
 
 /// Os avisos da corrida. Aparecem em Ajustes e no botão de ajustes da tela de corrida; a
@@ -36,7 +37,7 @@ struct AjustesNaCorridaView: View {
                 Section {
                     ControlesAvisos()
                     Button("Testar a voz", systemImage: "speaker.wave.2") {
-                        Locutor.compartilhado.falar("Tiro 1 de 6. 400 metros, ritmo 4 e 15 por quilômetro.", interromper: true)
+                        Locutor.compartilhado.falar(L("Tiro 1 de 6. 400 metros, ritmo 4 e 15 por quilômetro.", "Rep 1 of 6. 400 meters, pace 4 15 per kilometer."), interromper: true)
                     }
                 } footer: {
                     Text("Vale na hora e fica salvo para as próximas corridas (é o mesmo de Ajustes > Avisos durante a corrida). Sem o bipe, a contagem regressiva continua na tela e na voz.")

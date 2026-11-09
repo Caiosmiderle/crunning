@@ -24,8 +24,8 @@ public enum UnidadeDistancia: String, CaseIterable, Codable, Sendable, Identifia
 
     public var nome: String {
         switch self {
-        case .quilometros: "Quilômetros"
-        case .milhas: "Milhas"
+        case .quilometros: L("Quilômetros", "Kilometers")
+        case .milhas: L("Milhas", "Miles")
         }
     }
 
@@ -69,11 +69,14 @@ public enum Formatador {
         return "\(minutos):" + doisDigitos(segs)
     }
 
-    /// Número com vírgula decimal e quantidade fixa de casas: 5.234 -> "5,23".
+    /// Separador decimal: vírgula por padrão; o app troca pelo do idioma do iPhone na abertura.
+    nonisolated(unsafe) public static var separadorDecimal = ","
+
+    /// Número com o separador decimal e quantidade fixa de casas: 5.234 -> "5,23" (ou "5.23").
     public static func numero(_ valor: Double, casas: Int) -> String {
         let casas = max(0, min(casas, 6))
         guard valor.isFinite else { return "0" }
-        return String(format: "%.\(casas)f", valor).replacingOccurrences(of: ".", with: ",")
+        return String(format: "%.\(casas)f", valor).replacingOccurrences(of: ".", with: separadorDecimal)
     }
 
     private static func doisDigitos(_ n: Int) -> String {

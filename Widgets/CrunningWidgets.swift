@@ -5,6 +5,12 @@ import WidgetKit
 
 @main
 struct CrunningWidgets: WidgetBundle {
+    init() {
+        // A extensão roda em outro processo: segue o idioma do iPhone como o app.
+        Idioma.atual = Idioma.doSistema(Bundle.main.preferredLocalizations)
+        Formatador.separadorDecimal = Idioma.atual == .ingles ? "." : ","
+    }
+
     var body: some Widget {
         TreinoLiveActivity()
     }

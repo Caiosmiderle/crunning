@@ -23,15 +23,15 @@ struct PreviaPlanoView: View {
             switch self {
             case .cincoK: "5 km"
             case .dezK: "10 km"
-            case .meia: "Meia maratona"
-            case .maratona: "Maratona"
-            case .condicionamento: "Condicionamento"
-            case .comecar: "Começar a correr"
+            case .meia: L("Meia maratona", "Half marathon")
+            case .maratona: L("Maratona", "Marathon")
+            case .condicionamento: L("Condicionamento", "General fitness")
+            case .comecar: L("Começar a correr", "Start running")
             }
         }
     }
 
-    static let nomesDias = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]
+    nonisolated static var nomesDias: [String] { [L("Seg", "Mon"), L("Ter", "Tue"), L("Qua", "Wed"), L("Qui", "Thu"), L("Sex", "Fri"), L("Sáb", "Sat"), L("Dom", "Sun")] }
 
     @AppStorage(Preferencias.unidade) var unidade: UnidadeDistancia = .quilometros
     @AppStorage(Preferencias.provaDistancia) var distanciaReferencia: Double = 5000
@@ -101,7 +101,7 @@ struct PreviaPlanoView: View {
             } header: {
                 Text("Hoje")
             } footer: {
-                Text("A maior corrida das últimas 4 semanas limita as corridas do plano: nenhuma passa 10% dela, e ela cresce até 10% por semana. " + (tempoReferencia > 0 ? "Ritmos pela prova de referência de Meus ritmos." : "Sem prova em Meus ritmos: as distâncias são estimadas pelo nível."))
+                Text(L("A maior corrida das últimas 4 semanas limita as corridas do plano: nenhuma passa 10% dela, e ela cresce até 10% por semana. ", "The longest run of the last 4 weeks limits the runs in the plan: none goes more than 10% beyond it, and it grows by up to 10% per week. ") + (tempoReferencia > 0 ? L("Ritmos pela prova de referência de Meus ritmos.", "Paces from the reference race in My paces.") : L("Sem prova em Meus ritmos: as distâncias são estimadas pelo nível.", "No race in My paces: distances are estimated from the level.")))
             }
 
             Section {
@@ -160,7 +160,7 @@ struct PreviaPlanoView: View {
                     }
                     if !analisando {
                         if Chaveiro.temChave {
-                            Button(analise == nil ? "Analisar com o coach de IA" : "Analisar de novo") {
+                            Button(analise == nil ? L("Analisar com o coach de IA", "Analyze with the AI coach") : L("Analisar de novo", "Analyze again")) {
                                 Task { await analisar(plano) }
                             }
                         } else {
@@ -219,11 +219,11 @@ struct PreviaPlanoView: View {
                         } label: {
                             HStack {
                                 Text("Semana \(semana.numero)").font(.body.weight(.medium))
-                                Text(semana.fase.nome + (semana.alivio ? " · alívio" : ""))
+                                Text(semana.fase.nome + (semana.alivio ? L(" · alívio", " · recovery week") : ""))
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                 Spacer()
-                                Text(Formatador.distancia(semana.volumeTreino, unidade: unidade, casas: 0) + (semana.temProva ? " + prova" : ""))
+                                Text(Formatador.distancia(semana.volumeTreino, unidade: unidade, casas: 0) + (semana.temProva ? L(" + prova", " + race") : ""))
                                     .font(.subheadline.monospacedDigit())
                             }
                         }
@@ -274,9 +274,19 @@ struct PreviaPlanoView: View {
 
     private func rotulo(_ avaliacao: String) -> (texto: String, cor: Color) {
         switch avaliacao {
-        case "boa": ("Plano bom", Paleta.verdeLogo)
-        case "aceitavel": ("Plano aceitável", Paleta.foraLeve)
-        default: ("Plano com problemas", Paleta.foraForte)
+        case "boa": (L("Plano bom", "Good plan"), Paleta.verdeLogo)
+        case "aceitavel": (L("Plano aceitável", "Acceptable plan"), Paleta.foraLeve)
+        default: (L("Plano com problemas", "Plan with problems"), Paleta.foraForte)
+        }
+    }
+
+    /// "alta", "media" e "baixa" vêm do esquema da IA (em português); na tela, no idioma do app.
+    private func nomeGravidade(_ gravidade: String) -> String {
+        switch gravidade {
+        case "alta": L("Alta", "High")
+        case "media": L("Média", "Medium")
+        case "baixa": L("Baixa", "Low")
+        default: gravidade.capitalized
         }
     }
 
@@ -296,17 +306,17 @@ struct PreviaPlanoView: View {
         ForEach(analise.pontos, id: \.self) { ponto in
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
-                    Text(ponto.gravidade == "media" ? "Média" : ponto.gravidade.capitalized)
+                    Text(nomeGravidade(ponto.gravidade))
                         .font(.caption.weight(.bold))
                         .foregroundStyle(corGravidade(ponto.gravidade))
                     if !ponto.semanas.isEmpty {
-                        Text("semana" + (ponto.semanas.count > 1 ? "s " : " ") + ponto.semanas.map(String.init).joined(separator: ", "))
+                        Text(L("semana", "week") + (ponto.semanas.count > 1 ? "s " : " ") + ponto.semanas.map(String.init).joined(separator: ", "))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
                 Text(ponto.problema).font(.subheadline)
-                Text("Sugestão: " + ponto.sugestao).font(.subheadline).foregroundStyle(.secondary)
+                Text(L("Sugestão: ", "Suggestion: ") + ponto.sugestao).font(.subheadline).foregroundStyle(.secondary)
                 if let correcao = ponto.correcao?.correcao {
                     if aplicadas.contains(ponto.problema) {
                         Label("Correção aplicada", systemImage: "checkmark.circle.fill")
@@ -316,7 +326,7 @@ struct PreviaPlanoView: View {
                         Button {
                             propor(correcao, motivo: ponto.problema, chave: ponto.problema)
                         } label: {
-                            Label("Ver correção: " + correcao.descricao, systemImage: "wand.and.stars")
+                            Label(L("Ver correção: ", "See fix: ") + correcao.descricao, systemImage: "wand.and.stars")
                                 .font(.subheadline.weight(.semibold))
                         }
                         .buttonStyle(.borderless)
@@ -337,12 +347,12 @@ struct PreviaPlanoView: View {
             let novo = try correcao.aplicar(plano)
             let comparacao = ComparacaoPlano(antes: plano, depois: novo)
             guard comparacao.mudouAlgo else {
-                mensagemCorrecao = "Essa correção não muda nada no plano."
+                mensagemCorrecao = L("Essa correção não muda nada no plano.", "This fix does not change anything in the plan.")
                 return
             }
             proposta = PropostaCorrecao(correcao: correcao, novo: novo, comparacao: comparacao, motivo: motivo, chave: chave)
         } catch {
-            mensagemCorrecao = "O motor recusou \"\(correcao.descricao)\": " + Self.explicar(error)
+            mensagemCorrecao = L("O motor recusou \"\(correcao.descricao)\": ", "The engine refused \"\(correcao.descricao)\": ") + Self.explicar(error)
         }
     }
 
@@ -352,7 +362,7 @@ struct PreviaPlanoView: View {
         withAnimation { plano = p.novo }
         sincronizarFormulario(p.novo.entrada)
         if let chave = p.chave { aplicadas.insert(chave) }
-        mensagemCorrecao = "Aplicado: " + p.correcao.descricao + "."
+        mensagemCorrecao = L("Aplicado: ", "Applied: ") + p.correcao.descricao + "."
         proposta = nil
     }
 
@@ -360,7 +370,7 @@ struct PreviaPlanoView: View {
         guard let anterior = historico.popLast() else { return }
         withAnimation { plano = anterior }
         sincronizarFormulario(anterior.entrada)
-        mensagemCorrecao = "Voltou ao plano anterior."
+        mensagemCorrecao = L("Voltou ao plano anterior.", "Back to the previous plan.")
     }
 
     private func sincronizarFormulario(_ e: EntradaPlano) {
@@ -378,13 +388,13 @@ struct PreviaPlanoView: View {
             return motivo
         case let .operacao(operacao):
             switch operacao {
-            case .semanaInvalida: return "essa semana não existe no plano."
-            case .diaInvalido: return "dia inválido."
-            case .semSessao: return "não há treino nesse dia."
-            case .semEquivalente: return "não há treino equivalente que caiba nas travas."
-            case .naoSeAplica: return "não se aplica a este plano."
+            case .semanaInvalida: return L("essa semana não existe no plano.", "that week does not exist in the plan.")
+            case .diaInvalido: return L("dia inválido.", "invalid day.")
+            case .semSessao: return L("não há treino nesse dia.", "there is no workout on that day.")
+            case .semEquivalente: return L("não há treino equivalente que caiba nas travas.", "there is no equivalent workout that fits the safety limits.")
+            case .naoSeAplica: return L("não se aplica a este plano.", "it does not apply to this plan.")
             case let .violaria(violacoes):
-                return "quebraria as travas (" + violacoes.prefix(2).map(\.description).joined(separator: "; ") + ")."
+                return L("quebraria as travas (", "it would break the safety limits (") + violacoes.prefix(2).map(\.description).joined(separator: "; ") + ")."
             }
         }
     }
@@ -398,7 +408,7 @@ struct PreviaPlanoView: View {
             Button("Salvar nos meus treinos", systemImage: "square.and.arrow.down") {
                 contexto.insert(TreinoSalvo(treino: sessao.treino))
                 try? contexto.save()
-                mensagemCorrecao = "\(sessao.treino.nome) salvo em Treinos."
+                mensagemCorrecao = L("\(sessao.treino.nome) salvo em Treinos.", "\(sessao.treino.nome) saved to Workouts.")
             }
             if sessao.treino.modeloID != nil, !sessao.ehProva {
                 Button("Trocar por equivalente", systemImage: "arrow.triangle.2.circlepath") {
@@ -408,7 +418,7 @@ struct PreviaPlanoView: View {
             Menu("Mover para", systemImage: "arrow.left.arrow.right") {
                 ForEach(0..<7, id: \.self) { outro in
                     if outro != dia {
-                        Button(Self.nomesDias[outro] + (semana.dias[outro] == nil ? "" : " (troca)")) {
+                        Button(Self.nomesDias[outro] + (semana.dias[outro] == nil ? "" : L(" (troca)", " (swap)"))) {
                             propor(.moverTreino(semana: semana.numero, de: dia, para: outro), motivo: nil, chave: nil)
                         }
                     }
@@ -490,7 +500,7 @@ struct PropostaCorrecaoView: View {
                             VStack(alignment: .trailing, spacing: 2) {
                                 Text(km(linha.volumeAntes) + " → " + km(linha.volumeDepois))
                                     .font(.subheadline.monospacedDigit())
-                                Text("maior corrida " + km(linha.longaoAntes) + " → " + km(linha.longaoDepois))
+                                Text(L("maior corrida ", "longest run ") + km(linha.longaoAntes) + " → " + km(linha.longaoDepois))
                                     .font(.caption.monospacedDigit())
                                     .foregroundStyle(.secondary)
                             }

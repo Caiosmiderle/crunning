@@ -22,7 +22,7 @@ struct PlanoAtivoView: View {
     @State var provaDia = 5
     @State var provaKm = 5.0
 
-    static let nomesDias = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]
+    nonisolated static var nomesDias: [String] { [L("Seg", "Mon"), L("Ter", "Tue"), L("Qua", "Wed"), L("Qui", "Thu"), L("Sex", "Fri"), L("Sáb", "Sat"), L("Dom", "Sun")] }
 
     var body: some View {
         if let agenda = ativo.agenda {
@@ -37,7 +37,7 @@ struct PlanoAtivoView: View {
         let atual = agenda.posicao(de: hoje)
         let numero = min(max(semanaVista ?? atual?.semana ?? 1, 1), agenda.plano.semanas.count)
         let semana = agenda.plano.semanas[numero - 1]
-        return Tela(selo: "Semana \(numero) de \(agenda.plano.semanas.count) · \(semana.fase.nome)" + (semana.alivio ? " · alívio" : ""),
+        return Tela(selo: L("Semana \(numero) de \(agenda.plano.semanas.count) · \(semana.fase.nome)", "Week \(numero) of \(agenda.plano.semanas.count) · \(semana.fase.nome)") + (semana.alivio ? L(" · alívio", " · recovery week") : ""),
                     iconeSelo: "calendar", titulo: agenda.plano.entrada.objetivo.nome) {
             HStack {
                 Button { semanaVista = numero - 1 } label: { Image(systemName: "chevron.left") }
@@ -45,7 +45,7 @@ struct PlanoAtivoView: View {
                 Spacer()
                 VStack(spacing: 2) {
                     Text(intervalo(agenda, numero)).font(.subheadline.weight(.semibold))
-                    Text(Formatador.distancia(semana.volumeTreino, unidade: unidade, casas: 0) + " planejados" + (semana.temProva ? " + prova" : ""))
+                    Text(Formatador.distancia(semana.volumeTreino, unidade: unidade, casas: 0) + L(" planejados", " planned") + (semana.temProva ? L(" + prova", " + race") : ""))
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
@@ -90,11 +90,11 @@ struct PlanoAtivoView: View {
                         if nova.voltarAoAnterior() {
                             ativo.agenda = nova
                             try? contexto.save()
-                            mensagem = "Voltou ao plano de antes da última mudança."
+                            mensagem = L("Voltou ao plano de antes da última mudança.", "Back to the plan from before the last change.")
                         }
                     }
                 }
-                Button(sincronizar ? "Parar de sincronizar com o Calendário" : "Sincronizar com o Calendário", systemImage: "calendar") {
+                Button(sincronizar ? L("Parar de sincronizar com o Calendário", "Stop syncing with Calendar") : L("Sincronizar com o Calendário", "Sync with Calendar"), systemImage: "calendar") {
                     Task { await alternarCalendario(agenda) }
                 }
                 if let arquivoPDF {
@@ -198,24 +198,24 @@ struct PlanoAtivoView: View {
         if sincronizar {
             sincronizar = false
             CalendarioSync.limpar()
-            mensagem = "Os treinos saíram do calendário CRUNNING."
+            mensagem = L("Os treinos saíram do calendário CRUNNING.", "The workouts were removed from the CRUNNING calendar.")
             return
         }
         guard await CalendarioSync.pedirAcesso() else {
-            mensagem = "Sem acesso ao Calendário. Libere em Ajustes do iPhone > CRUNNING > Calendários > Acesso total."
+            mensagem = L("Sem acesso ao Calendário. Libere em Ajustes do iPhone > CRUNNING > Calendários > Acesso total.", "No access to Calendar. Allow it in iPhone Settings > CRUNNING > Calendars > Full Access.")
             return
         }
         sincronizar = true
         if let n = CalendarioSync.sincronizar(agenda) {
-            mensagem = "\(n) treinos no calendário CRUNNING do app Calendário. Ele se atualiza quando o plano muda."
+            mensagem = L("\(n) treinos no calendário CRUNNING do app Calendário. Ele se atualiza quando o plano muda.", "\(n) workouts in the CRUNNING calendar of the Calendar app. It updates when the plan changes.")
         } else {
-            mensagem = "Não deu para criar o calendário CRUNNING."
+            mensagem = L("Não deu para criar o calendário CRUNNING.", "Could not create the CRUNNING calendar.")
         }
     }
 
     private func intervalo(_ agenda: AgendaPlano, _ semana: Int) -> String {
         let a = agenda.data(semana: semana, dia: 0), b = agenda.data(semana: semana, dia: 6)
-        return a.formatted(.dateTime.day().month(.abbreviated).locale(.ptBR)) + " a " + b.formatted(.dateTime.day().month(.abbreviated).locale(.ptBR))
+        return a.formatted(.dateTime.day().month(.abbreviated)) + L(" a ", " – ") + b.formatted(.dateTime.day().month(.abbreviated))
     }
 
     @ViewBuilder
@@ -226,7 +226,7 @@ struct PlanoAtivoView: View {
         HStack(spacing: 12) {
             VStack(spacing: 2) {
                 Text(Self.nomesDias[dia]).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
-                Text(data.formatted(.dateTime.day().locale(.ptBR))).font(.headline.monospacedDigit())
+                Text(data.formatted(.dateTime.day())).font(.headline.monospacedDigit())
             }
             .frame(width: 40)
             if let sessao = agenda.sessao(semana: semana, dia: dia) {
@@ -268,7 +268,7 @@ struct PlanoAtivoView: View {
                     porque: sessao.treino.modeloID.flatMap { Modelos.modelo(id: $0)?.porque },
                     salvo: nil,
                     plano: (semana, dia),
-                    subtitulo: "Semana \(semana) · " + data.formatted(.dateTime.weekday(.wide).day().month().locale(.ptBR))
+                    subtitulo: L("Semana \(semana) · ", "Week \(semana) · ") + data.formatted(.dateTime.weekday(.wide).day().month())
                 )
             } label: {
                 linhaDia(agenda, semana: semana, dia: dia, hoje: hoje)
@@ -298,7 +298,7 @@ struct PlanoAtivoView: View {
             Menu("Mover para", systemImage: "arrow.left.arrow.right") {
                 ForEach(0..<7, id: \.self) { outro in
                     if outro != dia {
-                        Button(Self.nomesDias[outro] + (agenda.sessao(semana: semana, dia: outro) == nil ? "" : " (troca)")) {
+                        Button(Self.nomesDias[outro] + (agenda.sessao(semana: semana, dia: outro) == nil ? "" : L(" (troca)", " (swap)"))) {
                             propor(.moverTreino(semana: semana, de: dia, para: outro), agenda)
                         }
                     }
@@ -318,10 +318,10 @@ struct PlanoAtivoView: View {
         do {
             let novo = try correcao.aplicar(agenda.plano)
             let comparacao = ComparacaoPlano(antes: agenda.plano, depois: novo)
-            guard comparacao.mudouAlgo else { mensagem = "Essa mudança não altera o plano."; return }
+            guard comparacao.mudouAlgo else { mensagem = L("Essa mudança não altera o plano.", "This change does not alter the plan."); return }
             proposta = PropostaCorrecao(correcao: correcao, novo: novo, comparacao: comparacao, motivo: nil, chave: nil)
         } catch {
-            mensagem = "O motor recusou: " + PreviaPlanoView.explicar(error)
+            mensagem = L("O motor recusou: ", "The engine refused: ") + PreviaPlanoView.explicar(error)
         }
     }
 
@@ -330,7 +330,7 @@ struct PlanoAtivoView: View {
         agenda.trocarPlano(p.novo)
         ativo.agenda = agenda
         try? contexto.save()
-        mensagem = "Aplicado: " + p.correcao.descricao + "."
+        mensagem = L("Aplicado: ", "Applied: ") + p.correcao.descricao + "."
         proposta = nil
     }
 }
@@ -349,12 +349,18 @@ struct UsarPlanoView: View {
 
     /// Perguntas próprias sobre sinais de alerta (o PAR-Q+ oficial não pode ser alterado, então só é indicado).
     static let perguntas = [
-        "Algum médico já falou de problema no coração ou de pressão alta com você?",
-        "Você sente dor ou aperto no peito em repouso, no dia a dia ou ao fazer esforço?",
-        "Nos últimos 12 meses, você desmaiou ou perdeu o equilíbrio por tontura?",
-        "Você tem alguma doença crônica diagnosticada ou toma remédio de uso contínuo?",
-        "Tem alguma lesão ou problema em osso, articulação ou músculo que piora com esforço?",
-        "Está grávida ou teve bebê há pouco tempo?",
+        L("Algum médico já falou de problema no coração ou de pressão alta com você?",
+          "Has a doctor ever told you that you have a heart condition or high blood pressure?"),
+        L("Você sente dor ou aperto no peito em repouso, no dia a dia ou ao fazer esforço?",
+          "Do you feel pain or tightness in your chest at rest, during daily activities or when you exert yourself?"),
+        L("Nos últimos 12 meses, você desmaiou ou perdeu o equilíbrio por tontura?",
+          "In the past 12 months, have you fainted or lost your balance because of dizziness?"),
+        L("Você tem alguma doença crônica diagnosticada ou toma remédio de uso contínuo?",
+          "Do you have a diagnosed chronic medical condition, or do you take prescription medication regularly?"),
+        L("Tem alguma lesão ou problema em osso, articulação ou músculo que piora com esforço?",
+          "Do you have a bone, joint or muscle injury or problem that gets worse with physical activity?"),
+        L("Está grávida ou teve bebê há pouco tempo?",
+          "Are you pregnant, or have you given birth recently?"),
     ]
 
     var body: some View {
@@ -410,13 +416,13 @@ struct UsarPlanoView: View {
 /// PDF do plano inteiro, semana a semana (uma página comprida).
 enum PlanoPDF {
     static func titulo(_ s: SemanaPlano, unidade: UnidadeDistancia) -> String {
-        let alivio = s.alivio ? " · alívio" : ""
+        let alivio = s.alivio ? L(" · alívio", " · recovery week") : ""
         let volume = Formatador.distancia(s.volumeTreino, unidade: unidade, casas: 0)
-        return "Semana \(s.numero) · \(s.fase.nome)\(alivio) · \(volume)"
+        return L("Semana \(s.numero) · \(s.fase.nome)\(alivio) · \(volume)", "Week \(s.numero) · \(s.fase.nome)\(alivio) · \(volume)")
     }
 
     static func linha(_ agenda: AgendaPlano, semana: Int, dia: Int, sessao: SessaoPlanejada, unidade: UnidadeDistancia) -> String {
-        let data = agenda.data(semana: semana, dia: dia).formatted(.dateTime.day().month(.abbreviated).locale(.ptBR))
+        let data = agenda.data(semana: semana, dia: dia).formatted(.dateTime.day().month(.abbreviated))
         let distancia = Formatador.distancia(sessao.distancia, unidade: unidade, casas: 1)
         let blocos = TextoRapido.texto(sessao.treino.blocos)
         return "\(PlanoAtivoView.nomesDias[dia]) \(data): \(sessao.treino.nome), \(distancia) (\(blocos))"
@@ -426,7 +432,7 @@ enum PlanoPDF {
     static func gerar(_ agenda: AgendaPlano, unidade: UnidadeDistancia) -> URL? {
         let conteudo = VStack(alignment: .leading, spacing: 10) {
             Text("CRUNNING · " + agenda.plano.entrada.objetivo.nome).font(.title2.bold())
-            Text("\(agenda.plano.semanas.count) semanas, a partir de " + agenda.inicio.formatted(.dateTime.day().month(.wide).year().locale(.ptBR)))
+            Text(L("\(agenda.plano.semanas.count) semanas, a partir de ", "\(agenda.plano.semanas.count) weeks, starting ") + agenda.inicio.formatted(.dateTime.day().month(.wide).year()))
                 .font(.subheadline)
             ForEach(agenda.plano.semanas, id: \.numero) { s in
                 VStack(alignment: .leading, spacing: 3) {

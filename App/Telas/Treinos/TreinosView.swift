@@ -14,7 +14,7 @@ struct TreinosView: View {
         let meus = salvos.filter { !$0.ehModelo }
         let modelos = salvos.filter(\.ehModelo)
         NavigationStack {
-            Tela(selo: tempoReferencia > 0 ? "Ritmos pela sua prova" : "Ritmos por esforço", iconeSelo: "speedometer", titulo: "Treinos") {
+            Tela(selo: tempoReferencia > 0 ? L("Ritmos pela sua prova", "Paces from your race") : L("Ritmos por esforço", "Paces by effort"), iconeSelo: "speedometer", titulo: L("Treinos", "Workouts")) {
                 Button {
                     criando = true
                 } label: {
@@ -35,7 +35,7 @@ struct TreinosView: View {
                 }
 
                 if !meus.isEmpty {
-                    secao("Meus treinos")
+                    secao(L("Meus treinos", "My workouts"))
                     ForEach(meus) { salvo in
                         if let treino = salvo.treino {
                             NavigationLink {
@@ -49,7 +49,7 @@ struct TreinosView: View {
                 }
 
                 if !modelos.isEmpty {
-                    secao("Meus modelos")
+                    secao(L("Meus modelos", "My templates"))
                     ForEach(modelos) { salvo in
                         if let treino = salvo.treino {
                             NavigationLink {
@@ -62,7 +62,7 @@ struct TreinosView: View {
                     }
                 }
 
-                secao("Prontos")
+                secao(L("Prontos", "Ready-made"))
                 ForEach(ModelosProntos.todos) { pronto in
                     NavigationLink {
                         DetalheTreinoView(treino: pronto.treino, porque: pronto.porque, salvo: nil)

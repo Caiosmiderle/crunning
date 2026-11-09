@@ -1,3 +1,4 @@
+import CrunningCore
 import SwiftData
 import SwiftUI
 
@@ -61,9 +62,9 @@ enum Tema: String, CaseIterable, Identifiable {
 
     var nome: String {
         switch self {
-        case .escuro: "Escuro"
-        case .claro: "Claro"
-        case .sistema: "Igual ao iPhone"
+        case .escuro: L("Escuro", "Dark")
+        case .claro: L("Claro", "Light")
+        case .sistema: L("Igual ao iPhone", "Same as iPhone")
         }
     }
 
@@ -76,7 +77,3 @@ enum Tema: String, CaseIterable, Identifiable {
     }
 }
 
-extension Locale {
-    /// O app é todo em português; datas e números seguem pt-BR mesmo se o iPhone estiver em outro idioma.
-    static let ptBR = Locale(identifier: "pt_BR")
-}

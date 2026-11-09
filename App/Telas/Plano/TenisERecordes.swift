@@ -94,7 +94,7 @@ struct CartaoRecordes: View {
                         Text(r.nome).font(.subheadline.weight(.medium))
                         Spacer()
                         Text(Formatador.duracao(r.tempo)).font(.subheadline.monospacedDigit().weight(.semibold))
-                        Text(r.data.formatted(.dateTime.day().month(.abbreviated).year(.twoDigits).locale(.ptBR)))
+                        Text(r.data.formatted(.dateTime.day().month(.abbreviated).year(.twoDigits)))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .frame(width: 70, alignment: .trailing)

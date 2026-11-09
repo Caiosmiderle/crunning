@@ -102,12 +102,12 @@ struct ConstrutorTreinoView: View {
 
             Section("Adicionar") {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                    atalho("Aquecimento", "flame", .passo(Passo(.aquecimento, .tempo(600), .facil)))
-                    atalho("Tiro", "bolt.fill", .passo(Passo(.trabalho, .distancia(400), .intervalado)))
-                    atalho("Ritmo", "speedometer", .passo(Passo(.trabalho, .tempo(1200), .limiar)))
-                    atalho("Recuperação", "arrow.down.heart", .passo(Passo(.recuperacao, .tempo(120), .facil)))
-                    atalho("Desaquecimento", "wind", .passo(Passo(.desaquecimento, .tempo(600), .facil)))
-                    atalho("Repetição", "repeat", .repetir(vezes: 4, passos: [
+                    atalho(L("Aquecimento", "Warm-up"), "flame", .passo(Passo(.aquecimento, .tempo(600), .facil)))
+                    atalho(L("Tiro", "Rep"), "bolt.fill", .passo(Passo(.trabalho, .distancia(400), .intervalado)))
+                    atalho(L("Ritmo", "Tempo"), "speedometer", .passo(Passo(.trabalho, .tempo(1200), .limiar)))
+                    atalho(L("Recuperação", "Recovery"), "arrow.down.heart", .passo(Passo(.recuperacao, .tempo(120), .facil)))
+                    atalho(L("Desaquecimento", "Cool-down"), "wind", .passo(Passo(.desaquecimento, .tempo(600), .facil)))
+                    atalho(L("Repetição", "Repeat"), "repeat", .repetir(vezes: 4, passos: [
                         Passo(.trabalho, .distancia(400), .intervalado), Passo(.recuperacao, .tempo(90), .facil),
                     ]))
                 }
@@ -122,7 +122,7 @@ struct ConstrutorTreinoView: View {
         }
         .scrollContentBackground(.hidden)
         .background { FundoView() }
-        .navigationTitle(salvo == nil ? "Novo treino" : "Editar treino")
+        .navigationTitle(salvo == nil ? L("Novo treino", "New workout") : L("Editar treino", "Edit workout"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
@@ -159,7 +159,7 @@ struct ConstrutorTreinoView: View {
     // MARK: Partes
 
     private var nomeSugerido: String {
-        blocos.isEmpty ? "Nome do treino" : Treino.tipoInferido(blocos).nome
+        blocos.isEmpty ? L("Nome do treino", "Workout name") : Treino.tipoInferido(blocos).nome
     }
 
     private var treinoAtual: Treino {

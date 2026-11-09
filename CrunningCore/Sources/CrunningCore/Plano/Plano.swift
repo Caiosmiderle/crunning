@@ -21,12 +21,13 @@ public enum Objetivo: Codable, Sendable, Hashable {
         switch self {
         case let .prova(d):
             switch d {
-            case 42_000...: "Maratona"
-            case 21_000..<42_000: "Meia maratona"
-            default: "Prova de \(Formatador.numero(d / 1000, casas: d.truncatingRemainder(dividingBy: 1000) == 0 ? 0 : 1)) km"
+            case 42_000...: L("Maratona", "Marathon")
+            case 21_000..<42_000: L("Meia maratona", "Half marathon")
+            default: L("Prova de \(Formatador.numero(d / 1000, casas: d.truncatingRemainder(dividingBy: 1000) == 0 ? 0 : 1)) km",
+                       "\(Formatador.numero(d / 1000, casas: d.truncatingRemainder(dividingBy: 1000) == 0 ? 0 : 1)) km race")
             }
-        case .condicionamento: "Condicionamento"
-        case .comecarACorrer: "Começar a correr"
+        case .condicionamento: L("Condicionamento", "General fitness")
+        case .comecarACorrer: L("Começar a correr", "Start running")
         }
     }
 }
@@ -40,9 +41,9 @@ public enum Nivel: String, CaseIterable, Codable, Sendable, Identifiable {
 
     public var nome: String {
         switch self {
-        case .iniciante: "Iniciante"
-        case .intermediario: "Intermediário"
-        case .avancado: "Avançado"
+        case .iniciante: L("Iniciante", "Beginner")
+        case .intermediario: L("Intermediário", "Intermediate")
+        case .avancado: L("Avançado", "Advanced")
         }
     }
 }
@@ -56,11 +57,11 @@ public enum Fase: String, CaseIterable, Codable, Sendable {
 
     public var nome: String {
         switch self {
-        case .adaptacao: "Adaptação"
-        case .base: "Base"
-        case .construcao: "Construção"
-        case .especifica: "Específica"
-        case .polimento: "Polimento"
+        case .adaptacao: L("Adaptação", "Adaptation")
+        case .base: L("Base", "Base")
+        case .construcao: L("Construção", "Build")
+        case .especifica: L("Específica", "Specific")
+        case .polimento: L("Polimento", "Taper")
         }
     }
 }

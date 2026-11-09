@@ -18,14 +18,14 @@ public struct DiagnosticoGPS: Codable, Sendable, Equatable {
 
         public var descricao: String {
             switch self {
-            case .segundoPlano: "App em segundo plano"
-            case .primeiroPlano: "App de volta na tela"
-            case .parado: "iOS: aparelho parado"
-            case .semSinal: "iOS: sem localização"
-            case .usoInsuficiente: "iOS: app sem permissão de uso em segundo plano"
-            case .precisaoReduzida: "iOS: localização aproximada"
-            case .semPermissao: "iOS: sem permissão de localização"
-            case .reaberto: "O iOS fechou o app; corrida retomada"
+            case .segundoPlano: L("App em segundo plano", "App in background")
+            case .primeiroPlano: L("App de volta na tela", "App back on screen")
+            case .parado: L("iOS: aparelho parado", "iOS: device stationary")
+            case .semSinal: L("iOS: sem localização", "iOS: no location")
+            case .usoInsuficiente: L("iOS: app sem permissão de uso em segundo plano", "iOS: app not allowed to run in background")
+            case .precisaoReduzida: L("iOS: localização aproximada", "iOS: approximate location")
+            case .semPermissao: L("iOS: sem permissão de localização", "iOS: no location permission")
+            case .reaberto: L("O iOS fechou o app; corrida retomada", "iOS closed the app; run resumed")
             }
         }
 

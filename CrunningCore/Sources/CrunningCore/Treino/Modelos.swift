@@ -42,27 +42,31 @@ public enum Modelos {
     // MARK: Corridas contínuas
 
     public static let facil = ModeloTreino(
-        id: "facil", nome: "Corrida fácil", tipo: .facil, tipoDose: .distanciaTotal, intensidadePrincipal: .facil,
-        porque: "Volume aeróbico com pouco desgaste. É a maior parte da semana: constrói a base sem atrapalhar a recuperação dos treinos fortes.",
+        id: "facil", nome: L("Corrida fácil", "Easy run"), tipo: .facil, tipoDose: .distanciaTotal, intensidadePrincipal: .facil,
+        porque: L("Volume aeróbico com pouco desgaste. É a maior parte da semana: constrói a base sem atrapalhar a recuperação dos treinos fortes.",
+                  "Aerobic volume with little wear. It is most of the week: it builds the base without getting in the way of recovery from hard workouts."),
         fontes: ["Seiler 2010"]
     ) { d in [.passo(Passo(.trabalho, .distancia(metros(d)), .facil))] }
 
     public static let recuperacao = ModeloTreino(
-        id: "recuperacao", nome: "Recuperação", tipo: .recuperacao, tipoDose: .distanciaTotal, intensidadePrincipal: .facil,
-        porque: "Corrida bem leve, só para soltar as pernas e somar volume sem cansar.",
+        id: "recuperacao", nome: L("Recuperação", "Recovery"), tipo: .recuperacao, tipoDose: .distanciaTotal, intensidadePrincipal: .facil,
+        porque: L("Corrida bem leve, só para soltar as pernas e somar volume sem cansar.",
+                  "A very easy run, just to loosen the legs and add volume without getting tired."),
         fontes: ["Seiler 2010"]
     ) { d in [.passo(Passo(.trabalho, .distancia(metros(d)), .facil))] }
 
     public static let longao = ModeloTreino(
-        id: "longao", nome: "Longão", tipo: .longao, tipoDose: .distanciaTotal, intensidadePrincipal: .facil,
-        porque: "A corrida mais longa da semana, sempre fácil. Prepara pernas e cabeça para a duração da prova.",
-        fontes: ["prática de treinadores"]
+        id: "longao", nome: L("Longão", "Long run"), tipo: .longao, tipoDose: .distanciaTotal, intensidadePrincipal: .facil,
+        porque: L("A corrida mais longa da semana, sempre fácil. Prepara pernas e cabeça para a duração da prova.",
+                  "The longest run of the week, always easy. It prepares legs and mind for the duration of the race."),
+        fontes: [L("prática de treinadores", "coaching practice")]
     ) { d in [.passo(Passo(.trabalho, .distancia(metros(d)), .facil))] }
 
     public static let progressivo = ModeloTreino(
-        id: "progressivo", nome: "Progressivo", tipo: .ritmoProva, tipoDose: .distanciaTotal, intensidadePrincipal: .maratona,
-        porque: "Começa fácil e termina no ritmo de maratona, para treinar ritmo com as pernas já cansadas, como no fim da prova.",
-        fontes: ["prática de treinadores"]
+        id: "progressivo", nome: L("Progressivo", "Progression run"), tipo: .ritmoProva, tipoDose: .distanciaTotal, intensidadePrincipal: .maratona,
+        porque: L("Começa fácil e termina no ritmo de maratona, para treinar ritmo com as pernas já cansadas, como no fim da prova.",
+                  "Starts easy and finishes at marathon pace, to practice pace on tired legs, like at the end of the race."),
+        fontes: [L("prática de treinadores", "coaching practice")]
     ) { d in
         let total = metros(d)
         let rapido = metros(total / 3)
@@ -73,9 +77,10 @@ public enum Modelos {
     }
 
     public static let aceleracoes = ModeloTreino(
-        id: "aceleracoes", nome: "Fácil com acelerações", tipo: .facil, tipoDose: .distanciaTotal, intensidadePrincipal: .facil,
-        porque: "Corrida fácil com 6 acelerações de 20 segundos, rápidas e soltas. Treinam técnica e velocidade sem gerar cansaço.",
-        fontes: ["prática de treinadores"]
+        id: "aceleracoes", nome: L("Fácil com acelerações", "Easy with strides"), tipo: .facil, tipoDose: .distanciaTotal, intensidadePrincipal: .facil,
+        porque: L("Corrida fácil com 6 acelerações de 20 segundos, rápidas e soltas. Treinam técnica e velocidade sem gerar cansaço.",
+                  "Easy run with 6 strides of 20 seconds, fast and relaxed. They train technique and speed without causing fatigue."),
+        fontes: [L("prática de treinadores", "coaching practice")]
     ) { d in
         [
             .passo(Passo(.trabalho, .distancia(metros(d)), .facil)),
@@ -90,8 +95,9 @@ public enum Modelos {
 
     public static let fartlek = ModeloTreino(
         id: "fartlek", nome: "Fartlek", tipo: .limiar, tipoDose: .minutosDeTrabalho, intensidadePrincipal: .limiar,
-        porque: "Trechos de 2 minutos no limiar alternados com trote, controlados por tempo. Introduz intensidade com menos desgaste que um treino de pista.",
-        fontes: ["prática de treinadores"]
+        porque: L("Trechos de 2 minutos no limiar alternados com trote, controlados por tempo. Introduz intensidade com menos desgaste que um treino de pista.",
+                  "2-minute segments at threshold alternated with jogging, controlled by time. It introduces intensity with less wear than a track workout."),
+        fontes: [L("prática de treinadores", "coaching practice")]
     ) { minutos in
         [
             .passo(Passo(.aquecimento, .tempo(600), .facil)),
@@ -104,15 +110,17 @@ public enum Modelos {
     }
 
     public static let limiarContinuo = ModeloTreino(
-        id: "limiar-continuo", nome: "Limiar contínuo", tipo: .limiar, tipoDose: .distanciaDeTrabalho, intensidadePrincipal: .limiar,
-        porque: "Corrida contínua no ritmo de limiar, o ritmo que se aguenta por cerca de uma hora. Melhora a capacidade de sustentar um ritmo forte.",
-        fontes: ["Daniels (prática de treinadores)"]
+        id: "limiar-continuo", nome: L("Limiar contínuo", "Continuous threshold"), tipo: .limiar, tipoDose: .distanciaDeTrabalho, intensidadePrincipal: .limiar,
+        porque: L("Corrida contínua no ritmo de limiar, o ritmo que se aguenta por cerca de uma hora. Melhora a capacidade de sustentar um ritmo forte.",
+                  "Continuous run at threshold pace, the pace you can hold for about an hour. It improves your ability to sustain a hard pace."),
+        fontes: [L("Daniels (prática de treinadores)", "Daniels (coaching practice)")]
     ) { d in [aquecimento(), .passo(Passo(.trabalho, .distancia(metros(d)), .limiar)), desaquecimento()] }
 
     public static let cruise = ModeloTreino(
         id: "cruise", nome: "Cruise intervals", tipo: .limiar, tipoDose: .distanciaDeTrabalho, intensidadePrincipal: .limiar,
-        porque: "O ritmo de limiar dividido em tiros com 1 minuto de pausa. As pausas curtas permitem mais tempo nesse ritmo.",
-        fontes: ["Daniels (prática de treinadores)"]
+        porque: L("O ritmo de limiar dividido em tiros com 1 minuto de pausa. As pausas curtas permitem mais tempo nesse ritmo.",
+                  "Threshold pace split into reps with 1-minute breaks. The short breaks allow more time at that pace."),
+        fontes: [L("Daniels (prática de treinadores)", "Daniels (coaching practice)")]
     ) { d in
         let tamanho: Double = d >= 4800 ? 1600 : 1000
         return [
@@ -129,9 +137,9 @@ public enum Modelos {
 
     static func intervalado(_ tamanho: Double, pausa: TimeInterval, porque: String) -> ModeloTreino {
         ModeloTreino(
-            id: "intervalado-\(Int(tamanho))", nome: "Intervalado \(Int(tamanho)) m", tipo: .intervalado,
+            id: "intervalado-\(Int(tamanho))", nome: L("Intervalado \(Int(tamanho)) m", "Intervals \(Int(tamanho)) m"), tipo: .intervalado,
             tipoDose: .distanciaDeTrabalho, intensidadePrincipal: .intervalado, porque: porque,
-            fontes: ["Buchheit e Laursen 2013"]
+            fontes: [L("Buchheit e Laursen 2013", "Buchheit and Laursen 2013")]
         ) { d in
             [
                 aquecimento(),
@@ -144,15 +152,24 @@ public enum Modelos {
         }
     }
 
-    public static let intervalado400 = intervalado(400, pausa: 90, porque: "Tiros curtos de 400 m perto do ritmo de VO2máx, com trote entre eles. Variação para quando ainda não há volume para tiros longos.")
-    public static let intervalado800 = intervalado(800, pausa: 120, porque: "Tiros de 800 m perto do ritmo de VO2máx, com trote entre eles. Somam tempo perto do consumo máximo de oxigênio, o estímulo que mais o eleva.")
-    public static let intervalado1000 = intervalado(1000, pausa: 150, porque: "Tiros de 1.000 m perto do ritmo de VO2máx, com trote entre eles. Somam tempo perto do consumo máximo de oxigênio, o estímulo que mais o eleva.")
-    public static let intervalado1200 = intervalado(1200, pausa: 180, porque: "Tiros de 1.200 m perto do ritmo de VO2máx, com trote entre eles. Os mais longos da série: mais tempo seguido perto do VO2máx.")
+    public static let intervalado400 = intervalado(400, pausa: 90, porque: L(
+        "Tiros curtos de 400 m perto do ritmo de VO2máx, com trote entre eles. Variação para quando ainda não há volume para tiros longos.",
+        "Short 400 m reps near VO2max pace, with jogging between them. A variation for when there is not yet enough volume for long reps."))
+    public static let intervalado800 = intervalado(800, pausa: 120, porque: L(
+        "Tiros de 800 m perto do ritmo de VO2máx, com trote entre eles. Somam tempo perto do consumo máximo de oxigênio, o estímulo que mais o eleva.",
+        "800 m reps near VO2max pace, with jogging between them. They add up time near maximal oxygen uptake, the stimulus that raises it the most."))
+    public static let intervalado1000 = intervalado(1000, pausa: 150, porque: L(
+        "Tiros de 1.000 m perto do ritmo de VO2máx, com trote entre eles. Somam tempo perto do consumo máximo de oxigênio, o estímulo que mais o eleva.",
+        "1,000 m reps near VO2max pace, with jogging between them. They add up time near maximal oxygen uptake, the stimulus that raises it the most."))
+    public static let intervalado1200 = intervalado(1200, pausa: 180, porque: L(
+        "Tiros de 1.200 m perto do ritmo de VO2máx, com trote entre eles. Os mais longos da série: mais tempo seguido perto do VO2máx.",
+        "1,200 m reps near VO2max pace, with jogging between them. The longest of the series: more continuous time near VO2max."))
 
     public static let escada = ModeloTreino(
-        id: "escada", nome: "Escada", tipo: .intervalado, tipoDose: .distanciaDeTrabalho, intensidadePrincipal: .intervalado,
-        porque: "Tiros de 400 a 1.200 m subindo e descendo, perto do ritmo de VO2máx. Mesmo estímulo do intervalado, com variedade.",
-        fontes: ["Buchheit e Laursen 2013"]
+        id: "escada", nome: L("Escada", "Ladder"), tipo: .intervalado, tipoDose: .distanciaDeTrabalho, intensidadePrincipal: .intervalado,
+        porque: L("Tiros de 400 a 1.200 m subindo e descendo, perto do ritmo de VO2máx. Mesmo estímulo do intervalado, com variedade.",
+                  "Reps from 400 to 1,200 m going up and down, near VO2max pace. Same stimulus as intervals, with variety."),
+        fontes: [L("Buchheit e Laursen 2013", "Buchheit and Laursen 2013")]
     ) { d in
         let degraus: [Double] = d >= 3600 ? [400, 800, 1200, 800, 400] : d >= 2400 ? [400, 800, 800, 400] : [400, 800, 400]
         var blocos: [Bloco] = [aquecimento()]
@@ -168,10 +185,11 @@ public enum Modelos {
 
     static func repeticoes(_ tamanho: Double) -> ModeloTreino {
         ModeloTreino(
-            id: "repeticoes-\(Int(tamanho))", nome: "Repetições \(Int(tamanho)) m", tipo: .repeticoes,
+            id: "repeticoes-\(Int(tamanho))", nome: L("Repetições \(Int(tamanho)) m", "Repetitions \(Int(tamanho)) m"), tipo: .repeticoes,
             tipoDose: .distanciaDeTrabalho, intensidadePrincipal: .repeticoes,
-            porque: "Tiros curtos e rápidos com recuperação completa. Treinam velocidade e economia de corrida, não o fôlego.",
-            fontes: ["Daniels (prática de treinadores)"]
+            porque: L("Tiros curtos e rápidos com recuperação completa. Treinam velocidade e economia de corrida, não o fôlego.",
+                      "Short, fast reps with full recovery. They train speed and running economy, not endurance."),
+            fontes: [L("Daniels (prática de treinadores)", "Daniels (coaching practice)")]
         ) { d in
             [
                 aquecimento(),
@@ -188,9 +206,10 @@ public enum Modelos {
     public static let repeticoes400 = repeticoes(400)
 
     public static let subidas = ModeloTreino(
-        id: "subidas", nome: "Subidas", tipo: .intervalado, tipoDose: .ciclos, intensidadePrincipal: .intervalado,
-        porque: "Tiros de 1 minuto em subida, voltando em trote. Força específica de corrida com menos impacto.",
-        fontes: ["prática de treinadores"]
+        id: "subidas", nome: L("Subidas", "Hill repeats"), tipo: .intervalado, tipoDose: .ciclos, intensidadePrincipal: .intervalado,
+        porque: L("Tiros de 1 minuto em subida, voltando em trote. Força específica de corrida com menos impacto.",
+                  "1-minute uphill reps, jogging back down. Running-specific strength with less impact."),
+        fontes: [L("prática de treinadores", "coaching practice")]
     ) { ciclos in
         [
             .passo(Passo(.aquecimento, .tempo(900), .facil)),
@@ -203,15 +222,16 @@ public enum Modelos {
     }
 
     public static let ritmoMaratona = ModeloTreino(
-        id: "ritmo-maratona", nome: "Ritmo de maratona", tipo: .ritmoProva, tipoDose: .distanciaDeTrabalho, intensidadePrincipal: .maratona,
-        porque: "Trecho contínuo no ritmo previsto de maratona. Ensina o corpo e a cabeça o ritmo exato da prova.",
-        fontes: ["prática de treinadores"]
+        id: "ritmo-maratona", nome: L("Ritmo de maratona", "Marathon pace"), tipo: .ritmoProva, tipoDose: .distanciaDeTrabalho, intensidadePrincipal: .maratona,
+        porque: L("Trecho contínuo no ritmo previsto de maratona. Ensina o corpo e a cabeça o ritmo exato da prova.",
+                  "A continuous segment at your predicted marathon pace. It teaches body and mind the exact race pace."),
+        fontes: [L("prática de treinadores", "coaching practice")]
     ) { d in [aquecimento(), .passo(Passo(.trabalho, .distancia(metros(d)), .maratona)), desaquecimento()] }
 
     public static let prova = ModeloTreino(
-        id: "prova", nome: "Prova", tipo: .prova, tipoDose: .distanciaTotal, intensidadePrincipal: .prova,
-        porque: "O dia da prova. O ritmo-alvo é o previsto para a distância.",
-        fontes: ["Daniels e Gilbert 1979"]
+        id: "prova", nome: L("Prova", "Race"), tipo: .prova, tipoDose: .distanciaTotal, intensidadePrincipal: .prova,
+        porque: L("O dia da prova. O ritmo-alvo é o previsto para a distância.", "Race day. The target pace is the one predicted for the distance."),
+        fontes: [L("Daniels e Gilbert 1979", "Daniels and Gilbert 1979")]
     ) { d in [.passo(Passo(.trabalho, .distancia(d), .prova))] }
 
     // MARK: Catálogo
@@ -247,8 +267,9 @@ public enum Modelos {
             ]))
         }
         blocos.append(.passo(Passo(.desaquecimento, .tempo(300), .caminhada)))
-        return Treino(nome: "Caminhada e corrida", tipo: .facil, blocos: blocos, modeloID: "caminhada-corrida")
+        return Treino(nome: L("Caminhada e corrida", "Walk and run"), tipo: .facil, blocos: blocos, modeloID: "caminhada-corrida")
     }
 
-    public static let porqueCaminhadaCorrida = "Alterna corrida leve e caminhada por tempo. A corrida aumenta aos poucos até 30 minutos contínuos."
+    public static let porqueCaminhadaCorrida = L("Alterna corrida leve e caminhada por tempo. A corrida aumenta aos poucos até 30 minutos contínuos.",
+                                                 "Alternates easy running and walking by time. Running time builds up gradually to 30 continuous minutes.")
 }

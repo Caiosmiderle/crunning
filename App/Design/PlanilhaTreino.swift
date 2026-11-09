@@ -38,13 +38,13 @@ enum Planilha {
 
     static func descricao(_ p: Passo) -> String {
         switch p.intensidade {
-        case .caminhada: "de caminhada"
-        case .facil: p.funcao == .trabalho ? "leve" : "de trote"
-        case .maratona: "no pace de maratona"
-        case .limiar: "no limiar"
-        case .intervalado: "forte"
-        case .repeticoes: "rápido"
-        case .prova: "no pace de prova"
+        case .caminhada: L("de caminhada", "walk")
+        case .facil: p.funcao == .trabalho ? L("leve", "easy") : L("de trote", "jog")
+        case .maratona: L("no pace de maratona", "at marathon pace")
+        case .limiar: L("no limiar", "at threshold")
+        case .intervalado: L("forte", "hard")
+        case .repeticoes: L("rápido", "fast")
+        case .prova: L("no pace de prova", "at race pace")
         }
     }
 
@@ -55,9 +55,9 @@ enum Planilha {
     }
 
     static func secoes(_ treino: Treino, zonas: Zonas?, unidade: UnidadeDistancia) -> [Secao] {
-        var aquecimento = Secao(id: "aquecimento", nome: "Aquecimento", linhas: [])
-        var principal = Secao(id: "principal", nome: "Parte principal", linhas: [])
-        var desaquecimento = Secao(id: "desaquecimento", nome: "Desaquecimento", linhas: [])
+        var aquecimento = Secao(id: "aquecimento", nome: L("Aquecimento", "Warm-up"), linhas: [])
+        var principal = Secao(id: "principal", nome: L("Parte principal", "Main set"), linhas: [])
+        var desaquecimento = Secao(id: "desaquecimento", nome: L("Desaquecimento", "Cool-down"), linhas: [])
         var n = 0
         func proximo() -> Int { n += 1; return n }
 
@@ -76,14 +76,14 @@ enum Planilha {
                     // O caso clássico: "6 × 400 m forte, com 1'30" de trote".
                     let w = passos[0], r = passos[1]
                     var d = detalhes(w, zonas: zonas, unidade: unidade)
-                    d.append("com " + medida(r.medida, unidade: unidade) + " " + descricao(r) + " entre eles")
+                    d.append(L("com ", "with ") + medida(r.medida, unidade: unidade) + " " + descricao(r) + L(" entre eles", " between reps"))
                     principal.linhas.append(Linha(
                         id: proximo(), titulo: "\(vezes) × " + medida(w.medida, unidade: unidade) + " " + descricao(w),
                         detalhes: d, tipo: w.tipoParaCor
                     ))
                 } else {
                     let forte = passos.first { $0.funcao == .trabalho } ?? passos.first
-                    principal.linhas.append(Linha(id: proximo(), titulo: "\(vezes) vezes:", detalhes: [],
+                    principal.linhas.append(Linha(id: proximo(), titulo: L("\(vezes) vezes:", "\(vezes) times:"), detalhes: [],
                                                   tipo: forte?.tipoParaCor ?? .facil))
                     for p in passos {
                         principal.linhas.append(Linha(
@@ -96,7 +96,7 @@ enum Planilha {
         }
         // Treino de um bloco só (rodagem, longão): sem as três partes, só "Treino".
         if aquecimento.linhas.isEmpty, desaquecimento.linhas.isEmpty {
-            principal = Secao(id: "principal", nome: "Treino", linhas: principal.linhas)
+            principal = Secao(id: "principal", nome: L("Treino", "Workout"), linhas: principal.linhas)
         }
         return [aquecimento, principal, desaquecimento].filter { !$0.linhas.isEmpty }
     }

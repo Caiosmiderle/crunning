@@ -69,13 +69,13 @@ public enum Intensidade: String, CaseIterable, Codable, Sendable, Identifiable {
 
     public var nome: String {
         switch self {
-        case .caminhada: "Caminhada"
-        case .facil: "Fácil"
-        case .maratona: "Ritmo de maratona"
-        case .limiar: "Limiar"
-        case .intervalado: "Intervalado"
-        case .repeticoes: "Repetições"
-        case .prova: "Ritmo de prova"
+        case .caminhada: L("Caminhada", "Walk")
+        case .facil: L("Fácil", "Easy")
+        case .maratona: L("Ritmo de maratona", "Marathon pace")
+        case .limiar: L("Limiar", "Threshold")
+        case .intervalado: L("Intervalado", "Intervals")
+        case .repeticoes: L("Repetições", "Repetitions")
+        case .prova: L("Ritmo de prova", "Race pace")
         }
     }
 
@@ -103,13 +103,13 @@ public enum Intensidade: String, CaseIterable, Codable, Sendable, Identifiable {
     /// Teste da fala: como deve estar a conversa nessa intensidade.
     public var testeDaFala: String {
         switch self {
-        case .caminhada: "Conversa normal."
-        case .facil: "Dá para conversar em frases inteiras."
-        case .maratona: "Frases inteiras, mas com esforço."
-        case .limiar: "Só frases curtas."
-        case .intervalado: "Poucas palavras de cada vez."
-        case .repeticoes: "Não dá para falar."
-        case .prova: "Depende da distância: frases curtas a poucas palavras."
+        case .caminhada: L("Conversa normal.", "Normal conversation.")
+        case .facil: L("Dá para conversar em frases inteiras.", "You can talk in full sentences.")
+        case .maratona: L("Frases inteiras, mas com esforço.", "Full sentences, but with effort.")
+        case .limiar: L("Só frases curtas.", "Only short sentences.")
+        case .intervalado: L("Poucas palavras de cada vez.", "A few words at a time.")
+        case .repeticoes: L("Não dá para falar.", "You can't talk.")
+        case .prova: L("Depende da distância: frases curtas a poucas palavras.", "Depends on the distance: short sentences to a few words.")
         }
     }
 }

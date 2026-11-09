@@ -18,7 +18,7 @@ struct PlanoView: View {
 
     private var semPlano: some View {
         NavigationStack {
-            Tela(selo: "Sem plano ativo", iconeSelo: "calendar", titulo: "Plano") {
+            Tela(selo: L("Sem plano ativo", "No active plan"), iconeSelo: "calendar", titulo: L("Plano", "Plan")) {
                 faixaDaSemana
                     .entradaCascata(2)
                 cartaoExplicacao
@@ -37,10 +37,10 @@ struct PlanoView: View {
             ForEach(dias, id: \.self) { dia in
                 let ehHoje = calendario.isDateInToday(dia)
                 VStack(spacing: 6) {
-                    Text(dia.formatted(.dateTime.weekday(.narrow).locale(.ptBR)))
+                    Text(dia.formatted(.dateTime.weekday(.narrow)))
                         .font(.caption2.weight(.semibold))
                         .foregroundStyle(.secondary)
-                    Text(dia.formatted(.dateTime.day().locale(.ptBR)))
+                    Text(dia.formatted(.dateTime.day()))
                         .font(.system(.headline, design: .rounded))
                         .monospacedDigit()
                     Circle()
@@ -96,10 +96,10 @@ struct OpcoesDePlano: View {
             } label: {
                 cartao(
                     icone: "bubble.left.and.text.bubble.right",
-                    titulo: "Montar o plano com o coach",
+                    titulo: L("Montar o plano com o coach", "Build the plan with the coach"),
                     texto: comPlanoAtivo
-                        ? "Responda as perguntas de novo. O plano atual só é trocado se você tocar em \"Usar este plano\"."
-                        : "Responda algumas perguntas; o coach escolhe os parâmetros e o motor monta com as travas."
+                        ? L("Responda as perguntas de novo. O plano atual só é trocado se você tocar em \"Usar este plano\".", "Answer the questions again. The current plan is only replaced if you tap \"Use this plan\".")
+                        : L("Responda algumas perguntas; o coach escolhe os parâmetros e o motor monta com as travas.", "Answer a few questions; the coach picks the parameters and the engine builds it within the safety limits.")
                 )
             }
             .buttonStyle(.plain)
@@ -108,8 +108,8 @@ struct OpcoesDePlano: View {
             } label: {
                 cartao(
                     icone: "wand.and.stars",
-                    titulo: "Prévia do motor de treino",
-                    texto: "Monte um plano de teste e veja as fases, os treinos e as travas."
+                    titulo: L("Prévia do motor de treino", "Training engine preview"),
+                    texto: L("Monte um plano de teste e veja as fases, os treinos e as travas.", "Build a test plan and see the phases, the workouts and the safety limits.")
                 )
             }
             .buttonStyle(.plain)

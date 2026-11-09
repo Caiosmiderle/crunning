@@ -63,7 +63,7 @@ struct CorridaView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
                     .contentTransition(.numericText())
-                Text(gravador.esteira ? "na esteira (distância no fim)" : unidade == .quilometros ? "quilômetros" : "milhas")
+                Text(gravador.esteira ? L("na esteira (distância no fim)", "on the treadmill (distance at the end)") : unidade == .quilometros ? L("quilômetros", "kilometers") : L("milhas", "miles"))
                     .font(.title3.weight(.medium))
                     .foregroundStyle(.secondary)
             }
@@ -72,17 +72,17 @@ struct CorridaView: View {
             if !gravador.esteira {
                 Grid(horizontalSpacing: 16, verticalSpacing: 16) {
                     GridRow {
-                        Metrica(titulo: "Tempo", valor: Formatador.duracao(sessao.tempoEmMovimento(em: agora)), grande: true)
-                        Metrica(titulo: "Ritmo atual", valor: ritmo(sessao.ritmoAtual(em: agora)), grande: true)
+                        Metrica(titulo: L("Tempo", "Time"), valor: Formatador.duracao(sessao.tempoEmMovimento(em: agora)), grande: true)
+                        Metrica(titulo: L("Ritmo atual", "Current pace"), valor: ritmo(sessao.ritmoAtual(em: agora)), grande: true)
                     }
                     GridRow {
-                        Metrica(titulo: "Ritmo médio", valor: ritmo(sessao.ritmoMedio(em: agora)), grande: true)
-                        Metrica(titulo: "Tempo total", valor: Formatador.duracao(sessao.tempoTotal(em: agora)), grande: true)
+                        Metrica(titulo: L("Ritmo médio", "Avg pace"), valor: ritmo(sessao.ritmoMedio(em: agora)), grande: true)
+                        Metrica(titulo: L("Tempo total", "Total time"), valor: Formatador.duracao(sessao.tempoTotal(em: agora)), grande: true)
                     }
                     if gravador.usaFC {
                         GridRow {
-                            Metrica(titulo: "Batimento (bpm)", valor: fcAgora, grande: true)
-                            Metrica(titulo: "FC média", valor: gravador.resumoFC.map { "\($0.media)" } ?? "--", grande: true)
+                            Metrica(titulo: L("Batimento (bpm)", "Heart rate (bpm)"), valor: fcAgora, grande: true)
+                            Metrica(titulo: L("FC média", "Avg HR"), valor: gravador.resumoFC.map { "\($0.media)" } ?? "--", grande: true)
                         }
                     }
                 }
@@ -214,15 +214,15 @@ struct CorridaView: View {
     private func metricasTreino(sessao: SessaoCorrida, agora: Date) -> some View {
         Grid(horizontalSpacing: 12, verticalSpacing: 8) {
             GridRow {
-                Metrica(titulo: gravador.esteira ? "Esteira" : "Distância",
+                Metrica(titulo: gravador.esteira ? L("Esteira", "Treadmill") : L("Distância", "Distance"),
                         valor: gravador.esteira ? "—" : Formatador.distancia(sessao.distancia, unidade: unidade))
-                Metrica(titulo: "Tempo", valor: Formatador.duracao(sessao.tempoEmMovimento(em: agora)))
-                Metrica(titulo: "Ritmo médio", valor: ritmo(sessao.ritmoMedio(em: agora)))
+                Metrica(titulo: L("Tempo", "Time"), valor: Formatador.duracao(sessao.tempoEmMovimento(em: agora)))
+                Metrica(titulo: L("Ritmo médio", "Avg pace"), valor: ritmo(sessao.ritmoMedio(em: agora)))
             }
             if gravador.usaFC {
                 GridRow {
-                    Metrica(titulo: "Batimento", valor: fcAgora)
-                    Metrica(titulo: "FC média", valor: gravador.resumoFC.map { "\($0.media)" } ?? "--")
+                    Metrica(titulo: L("Batimento", "Heart rate"), valor: fcAgora)
+                    Metrica(titulo: L("FC média", "Avg HR"), valor: gravador.resumoFC.map { "\($0.media)" } ?? "--")
                     Color.clear.frame(height: 1)
                 }
             }
@@ -239,7 +239,7 @@ struct CorridaView: View {
     private func cabecalho(_ estado: EstadoCorrida, titulo nomeTreino: String?) -> some View {
         HStack(spacing: 10) {
             if EstadoApp.podeMinimizar {
-                botaoTopo(rotulo: "Minimizar a corrida", icone: "chevron.down") {
+                botaoTopo(rotulo: L("Minimizar a corrida", "Minimize the run"), icone: "chevron.down") {
                     estadoApp.corridaMinimizada = true
                 }
             }
@@ -255,7 +255,7 @@ struct CorridaView: View {
             }
             Spacer()
             IndicadorGPS(qualidade: gravador.qualidade)
-            botaoTopo(rotulo: "Avisos da corrida", icone: "gearshape") { ajustando = true }
+            botaoTopo(rotulo: L("Avisos da corrida", "Run alerts"), icone: "gearshape") { ajustando = true }
         }
     }
 
@@ -304,7 +304,7 @@ struct CorridaView: View {
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
-                    DeslizarParaConfirmar(rotulo: comTreino ? "Deslize para começar o treino" : "Deslize para iniciar", icone: "figure.run") {
+                    DeslizarParaConfirmar(rotulo: comTreino ? L("Deslize para começar o treino", "Slide to start the workout") : L("Deslize para iniciar", "Slide to start"), icone: "figure.run") {
                         gravador.iniciar()
                     }
                 }
@@ -317,24 +317,24 @@ struct CorridaView: View {
         case .correndo, .pausadaAuto:
             if comTreino && terminou {
                 VStack(spacing: 12) {
-                    botaoRedondo(icone: "pause.fill", rotulo: "Pausar", cor: Color.primary, tamanho: 64) { gravador.pausar() }
-                    DeslizarParaConfirmar(rotulo: "Deslize para finalizar", icone: "flag.checkered") { gravador.finalizar() }
+                    botaoRedondo(icone: "pause.fill", rotulo: L("Pausar", "Pause"), cor: Color.primary, tamanho: 64) { gravador.pausar() }
+                    DeslizarParaConfirmar(rotulo: L("Deslize para finalizar", "Slide to finish"), icone: "flag.checkered") { gravador.finalizar() }
                 }
             } else if comTreino {
                 HStack(spacing: 28) {
-                    botaoPequeno(icone: "flag.2.crossed", rotulo: "Volta") { gravador.marcarVolta() }
-                    botaoRedondo(icone: "pause.fill", rotulo: "Pausar", cor: Color.primary) { gravador.pausar() }
-                    botaoPequeno(icone: "forward.end.fill", rotulo: "Pular") {
+                    botaoPequeno(icone: "flag.2.crossed", rotulo: L("Volta", "Lap")) { gravador.marcarVolta() }
+                    botaoRedondo(icone: "pause.fill", rotulo: L("Pausar", "Pause"), cor: Color.primary) { gravador.pausar() }
+                    botaoPequeno(icone: "forward.end.fill", rotulo: L("Pular", "Skip")) {
                         if gravador.execucao?.etapaAtual?.exercicio != nil { gravador.pularEtapa() } else { confirmandoPulo = true }
                     }
                 }
             } else {
-                botaoRedondo(icone: "pause.fill", rotulo: "Pausar", cor: Color.primary) { gravador.pausar() }
+                botaoRedondo(icone: "pause.fill", rotulo: L("Pausar", "Pause"), cor: Color.primary) { gravador.pausar() }
             }
         case .pausadaManual:
             VStack(spacing: 16) {
-                botaoRedondo(icone: "play.fill", rotulo: "Retomar", cor: Paleta.verdeLogo) { gravador.retomar() }
-                DeslizarParaConfirmar(rotulo: "Deslize para finalizar", icone: "flag.checkered") { gravador.finalizar() }
+                botaoRedondo(icone: "play.fill", rotulo: L("Retomar", "Resume"), cor: Paleta.verdeLogo) { gravador.retomar() }
+                DeslizarParaConfirmar(rotulo: L("Deslize para finalizar", "Slide to finish"), icone: "flag.checkered") { gravador.finalizar() }
             }
         case .finalizada:
             EmptyView()
@@ -369,14 +369,14 @@ struct CorridaView: View {
 
     private func titulo(_ estado: EstadoCorrida) -> String {
         let base: String = switch estado {
-        case .pronta: "Pronto para começar"
-        case .correndo: "Correndo"
-        case .pausadaManual: "Pausado"
-        case .pausadaAuto: "Pausa automática"
-        case .finalizada: "Concluída"
+        case .pronta: L("Pronto para começar", "Ready to start")
+        case .correndo: L("Correndo", "Running")
+        case .pausadaManual: L("Pausado", "Paused")
+        case .pausadaAuto: L("Pausa automática", "Auto-paused")
+        case .finalizada: L("Concluída", "Finished")
         }
-        if gravador.esteira { return base + " · esteira" }
-        return gravador.simulada ? base + " · simulação" : base
+        if gravador.esteira { return base + L(" · esteira", " · treadmill") }
+        return gravador.simulada ? base + L(" · simulação", " · simulation") : base
     }
 
     private func ritmo(_ segundosPorKm: Double?) -> String {

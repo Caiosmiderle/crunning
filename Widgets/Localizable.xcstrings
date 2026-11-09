@@ -1,0 +1,28 @@
+{
+  "sourceLanguage": "pt-BR",
+  "strings": {
+    "--:--": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "--:--"
+          }
+        }
+      }
+    },
+    "Pausado": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paused"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

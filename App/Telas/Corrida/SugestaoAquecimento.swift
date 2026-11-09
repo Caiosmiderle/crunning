@@ -44,7 +44,7 @@ struct SugestaoAquecimento: View {
             }
 
             DisclosureGroup("Por quê") {
-                Text(rotina.porque + " Fontes: " + rotina.fontes.joined(separator: "; ") + ".")
+                Text(rotina.porque + L(" Fontes: ", " Sources: ") + rotina.fontes.joined(separator: "; ") + ".")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

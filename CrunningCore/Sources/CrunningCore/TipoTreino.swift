@@ -19,15 +19,15 @@ public enum TipoTreino: String, CaseIterable, Codable, Sendable, Identifiable {
 
     public var nome: String {
         switch self {
-        case .caminhada: "Caminhada"
-        case .recuperacao: "Recuperação"
-        case .facil: "Fácil"
-        case .longao: "Longão"
-        case .ritmoProva: "Ritmo de prova"
-        case .limiar: "Limiar"
-        case .intervalado: "Intervalado"
-        case .repeticoes: "Repetições"
-        case .prova: "Prova"
+        case .caminhada: L("Caminhada", "Walk")
+        case .recuperacao: L("Recuperação", "Recovery")
+        case .facil: L("Fácil", "Easy")
+        case .longao: L("Longão", "Long run")
+        case .ritmoProva: L("Ritmo de prova", "Race pace")
+        case .limiar: L("Limiar", "Threshold")
+        case .intervalado: L("Intervalado", "Intervals")
+        case .repeticoes: L("Repetições", "Repetitions")
+        case .prova: L("Prova", "Race")
         }
     }
 

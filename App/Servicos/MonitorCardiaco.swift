@@ -134,7 +134,7 @@ extension MonitorCardiaco: CBCentralManagerDelegate {
         guard let dados = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data else { return }
         let bytes = [UInt8](dados)
         let id = peripheral.identifier
-        let nome = peripheral.name ?? (advertisementData[CBAdvertisementDataLocalNameKey] as? String) ?? "Pulseira Xiaomi"
+        let nome = peripheral.name ?? (advertisementData[CBAdvertisementDataLocalNameKey] as? String) ?? L("Pulseira Xiaomi", "Xiaomi band")
         MainActor.assumeIsolated { self.recebeu(id: id, nome: nome, bytes: bytes) }
     }
 }

@@ -138,18 +138,18 @@ public struct EtapaExecucao: Codable, Sendable, Equatable, Identifiable {
 
     public static func nome(_ p: Passo) -> String {
         switch p.funcao {
-        case .aquecimento: return "Aquecimento"
-        case .desaquecimento: return "Desaquecimento"
-        case .recuperacao: return p.intensidade == .caminhada ? "Caminhada" : "Recuperação"
+        case .aquecimento: return L("Aquecimento", "Warm-up")
+        case .desaquecimento: return L("Desaquecimento", "Cool-down")
+        case .recuperacao: return p.intensidade == .caminhada ? L("Caminhada", "Walk") : L("Recuperação", "Recovery")
         case .trabalho:
             switch p.intensidade {
-            case .caminhada: return "Caminhada"
-            case .facil: return "Corrida leve"
-            case .maratona: return "Ritmo de maratona"
-            case .limiar: return "Limiar"
-            case .intervalado: return "Tiro"
-            case .repeticoes: return "Tiro rápido"
-            case .prova: return "Ritmo de prova"
+            case .caminhada: return L("Caminhada", "Walk")
+            case .facil: return L("Corrida leve", "Easy run")
+            case .maratona: return L("Ritmo de maratona", "Marathon pace")
+            case .limiar: return L("Limiar", "Threshold")
+            case .intervalado: return L("Tiro", "Rep")
+            case .repeticoes: return L("Tiro rápido", "Fast rep")
+            case .prova: return L("Ritmo de prova", "Race pace")
             }
         }
     }

@@ -39,13 +39,13 @@ struct VolumeSemanalView: View {
             VStack(alignment: .leading, spacing: 16) {
                 Grid(horizontalSpacing: 12, verticalSpacing: 12) {
                     GridRow {
-                        bloco("Esta semana", km(estaSemana?.feito ?? 0),
-                              estaSemana?.planejado.map { "de " + km($0) + " planejados" })
-                        bloco("Semana passada", km(passada?.feito ?? 0),
-                              variacao.map { ($0 >= 0 ? "+" : "−") + "\(Int((abs($0) * 100).rounded()))% sobre a anterior" })
+                        bloco(L("Esta semana", "This week"), km(estaSemana?.feito ?? 0),
+                              estaSemana?.planejado.map { L("de ", "of ") + km($0) + L(" planejados", " planned") })
+                        bloco(L("Semana passada", "Last week"), km(passada?.feito ?? 0),
+                              variacao.map { ($0 >= 0 ? "+" : "−") + L("\(Int((abs($0) * 100).rounded()))% sobre a anterior", "\(Int((abs($0) * 100).rounded()))% vs. the week before") })
                     }
                     GridRow {
-                        bloco("Média de 4 semanas", km(media), nil)
+                        bloco(L("Média de 4 semanas", "4-week average"), km(media), nil)
                         Color.clear.frame(height: 1)
                     }
                 }
@@ -134,7 +134,7 @@ struct VolumeSemanalView: View {
     private func balao(_ s: VolumeSemana) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(intervalo(s.inicio)).font(.caption.weight(.semibold))
-            Text(km(s.feito) + (s.planejado.map { " de " + km($0) } ?? "")).font(.caption).monospacedDigit()
+            Text(km(s.feito) + (s.planejado.map { L(" de ", " of ") + km($0) } ?? "")).font(.caption).monospacedDigit()
         }
         .padding(8)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
@@ -164,7 +164,7 @@ struct VolumeSemanalView: View {
             Text("Semana a semana").font(.headline)
             ForEach(lista.filter { $0.inicio <= atual }) { s in
                 HStack {
-                    Text(intervalo(s.inicio) + (s.inicio == atual ? " (esta)" : ""))
+                    Text(intervalo(s.inicio) + (s.inicio == atual ? L(" (esta)", " (this week)") : ""))
                         .font(.subheadline)
                     Spacer()
                     Text(km(s.feito)).font(.subheadline.weight(.semibold)).monospacedDigit()

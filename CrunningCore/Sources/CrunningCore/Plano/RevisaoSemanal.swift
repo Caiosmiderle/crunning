@@ -19,10 +19,20 @@ public struct DesvioSemana: Equatable, Sendable {
     public var motivos: [String] {
         var lista: [String] = []
         func plural(_ n: Int, _ um: String, _ varios: String) -> String { n == 1 ? "1 \(um)" : "\(n) \(varios)" }
-        if perdidas > 0 { lista.append(plural(perdidas, "treino perdido", "treinos perdidos")) }
-        if foraDoPlano > 0 { lista.append(plural(foraDoPlano, "corrida fora do plano", "corridas fora do plano")) }
-        if esforcoAltoEmFaceis > 0 { lista.append("esforço alto em " + plural(esforcoAltoEmFaceis, "corrida fácil", "corridas fáceis")) }
-        if ritmoFora > 0 { lista.append("ritmo fora da faixa em " + plural(ritmoFora, "treino forte", "treinos fortes")) }
+        if perdidas > 0 {
+            lista.append(plural(perdidas, L("treino perdido", "missed workout"), L("treinos perdidos", "missed workouts")))
+        }
+        if foraDoPlano > 0 {
+            lista.append(plural(foraDoPlano, L("corrida fora do plano", "run outside the plan"), L("corridas fora do plano", "runs outside the plan")))
+        }
+        if esforcoAltoEmFaceis > 0 {
+            lista.append(L("esforço alto em ", "high effort in ")
+                         + plural(esforcoAltoEmFaceis, L("corrida fácil", "easy run"), L("corridas fáceis", "easy runs")))
+        }
+        if ritmoFora > 0 {
+            lista.append(L("ritmo fora da faixa em ", "pace off target in ")
+                         + plural(ritmoFora, L("treino forte", "hard workout"), L("treinos fortes", "hard workouts")))
+        }
         return lista
     }
 }

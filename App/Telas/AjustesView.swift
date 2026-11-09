@@ -43,7 +43,7 @@ struct AjustesView: View {
                     ControlesAvisos()
                     Toggle("Sugerir aquecimento antes dos treinos fortes", isOn: $aquecimentoGuiado)
                     Button("Testar a voz", systemImage: "speaker.wave.2") {
-                        Locutor.compartilhado.falar("Tiro 1 de 6. 400 metros, ritmo 4 e 15 por quilômetro.")
+                        Locutor.compartilhado.falar(L("Tiro 1 de 6. 400 metros, ritmo 4 e 15 por quilômetro.", "Rep 1 of 6. 400 meters, pace 4 15 per kilometer."))
                     }
                 } header: {
                     Text("Avisos durante a corrida")
@@ -141,7 +141,7 @@ struct AjustesView: View {
                                 Text("10x").tag(10.0)
                                 Text("20x").tag(20.0)
                             }
-                            LabeledContent("Rota", value: temGPXImportado ? "GPX importado" : "Volta de exemplo (fictícia)")
+                            LabeledContent("Rota", value: temGPXImportado ? L("GPX importado", "Imported GPX") : L("Volta de exemplo (fictícia)", "Sample loop (fictional)"))
                             Button("Importar um GPX para simular") { importandoGPX = true }
                             if temGPXImportado {
                                 Button("Voltar para a rota de exemplo") {
@@ -150,7 +150,7 @@ struct AjustesView: View {
                                     mensagemSimulacao = nil
                                 }
                             }
-                            Text(mensagemSimulacao ?? "Com a simulação ligada, \"Correr agora\" reproduz a rota como se fosse o GPS, para testar a tela de corrida sem sair de casa. O GPS de verdade também liga (pede a permissão de localização), só para a simulação continuar com a tela bloqueada; os pontos dele não entram na corrida.")
+                            Text(mensagemSimulacao ?? L("Com a simulação ligada, \"Correr agora\" reproduz a rota como se fosse o GPS, para testar a tela de corrida sem sair de casa. O GPS de verdade também liga (pede a permissão de localização), só para a simulação continuar com a tela bloqueada; os pontos dele não entram na corrida.", "With simulation on, \"Run now\" plays the route back as if it were the GPS, to test the run screen without leaving home. The real GPS also turns on (it asks for location permission), only so the simulation keeps going with the screen locked; its points do not go into the run."))
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                         }
@@ -186,9 +186,9 @@ struct AjustesView: View {
         do {
             let pontos = try Simulacao.importar(Data(contentsOf: url))
             temGPXImportado = true
-            mensagemSimulacao = "Rota importada: \(pontos) pontos. Ela fica só no iPhone."
+            mensagemSimulacao = L("Rota importada: \(pontos) pontos. Ela fica só no iPhone.", "Route imported: \(pontos) points. It stays only on the iPhone.")
         } catch {
-            mensagemSimulacao = "Esse arquivo não parece um GPX com pontos de rota."
+            mensagemSimulacao = L("Esse arquivo não parece um GPX com pontos de rota.", "This file does not look like a GPX with route points.")
         }
     }
 

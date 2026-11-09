@@ -17,22 +17,24 @@ public struct ErroTextoRapido: Error, Equatable, Sendable, CustomStringConvertib
 /// - Repetição: `6x(...)`, `6 x 400m forte / 90s trote` (sem parênteses, a barra separa os passos).
 /// - Quanto: `10min`, `10 min`, `10'`, `90s`, `1h`, `1h30`, `2min30s`, `2:30`, `400m`, `1km`, `1,5 km`, `5k`.
 /// - Intensidade: fácil, leve, trote, caminhada, maratona, limiar, tempo, forte, tiro, rápido, prova...
+///   Também em inglês: easy, jog, walk, marathon, threshold, tempo, hard, interval, fast, reps, race...
 /// - Sem intensidade: fácil (num tiro de repetição, intervalado).
 /// - A função (aquecimento, trabalho, recuperação, desaquecimento) sai da posição, ou de palavras como
-///   "aquecimento", "desaquecimento", "rec" e "descanso".
+///   "aquecimento", "desaquecimento", "rec" e "descanso" (ou "warm-up", "cool-down", "recovery" e "rest").
 public enum TextoRapido {
     // MARK: Interpretar
 
     public static func interpretar(_ texto: String) throws -> [Bloco] {
         let limpo = normalizar(texto)
         guard !limpo.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            throw ErroTextoRapido("Escreva o treino, por exemplo: 10min fácil + 6x(400m forte / 90s trote) + 10min fácil.")
+            throw ErroTextoRapido(L("Escreva o treino, por exemplo: 10min fácil + 6x(400m forte / 90s trote) + 10min fácil.",
+                                    "Write the workout, for example: 10min easy + 6x(400m hard / 90s jog) + 10min easy."))
         }
         var brutos: [BlocoBruto] = []
         for item in try dividir(limpo, em: ["+", ",", ";", "\n"]) {
             brutos.append(contentsOf: try interpretarItem(item))
         }
-        guard !brutos.isEmpty else { throw ErroTextoRapido("Não achei nenhum trecho no texto.") }
+        guard !brutos.isEmpty else { throw ErroTextoRapido(L("Não achei nenhum trecho no texto.", "I couldn't find any segment in the text.")) }
         return inferirFuncoes(brutos)
     }
 
@@ -43,7 +45,7 @@ public enum TextoRapido {
         } catch let erro as ErroTextoRapido {
             return .failure(erro)
         } catch {
-            return .failure(ErroTextoRapido("Não entendi o texto."))
+            return .failure(ErroTextoRapido(L("Não entendi o texto.", "I didn't understand the text.")))
         }
     }
 
@@ -80,29 +82,31 @@ public enum TextoRapido {
             if km == km.rounded() { return "\(Int(km))km" }
             var texto = Formatador.numero(km, casas: 4)
             while texto.hasSuffix("0") { texto.removeLast() }
-            if texto.hasSuffix(",") { texto.removeLast() }
+            // O separador decimal é "," em português e pode ser "." em inglês.
+            if texto.hasSuffix(",") || texto.hasSuffix(".") { texto.removeLast() }
             return texto + "km"
         }
     }
 
+    /// Palavras escritas no idioma do app; todas são aceitas de volta por `interpretar`.
     static func palavra(_ p: Passo) -> String {
         switch (p.funcao, p.intensidade) {
-        case (.aquecimento, .facil): "aquecimento"
-        case (.desaquecimento, .facil): "desaquecimento"
-        case (.recuperacao, .facil): "trote"
+        case (.aquecimento, .facil): L("aquecimento", "warmup")
+        case (.desaquecimento, .facil): L("desaquecimento", "cooldown")
+        case (.recuperacao, .facil): L("trote", "jog")
         default: nomeCurto(p.intensidade)
         }
     }
 
     public static func nomeCurto(_ i: Intensidade) -> String {
         switch i {
-        case .caminhada: "caminhada"
-        case .facil: "fácil"
-        case .maratona: "maratona"
-        case .limiar: "limiar"
-        case .intervalado: "forte"
-        case .repeticoes: "rápido"
-        case .prova: "prova"
+        case .caminhada: L("caminhada", "walk")
+        case .facil: L("fácil", "easy")
+        case .maratona: L("maratona", "marathon")
+        case .limiar: L("limiar", "threshold")
+        case .intervalado: L("forte", "hard")
+        case .repeticoes: L("rápido", "fast")
+        case .prova: L("prova", "race")
         }
     }
 
@@ -127,6 +131,8 @@ public enum TextoRapido {
         var s = texto.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: Locale(identifier: "pt_BR")).lowercased()
         let trocas: [(String, String)] = [
             ("×", "x"), ("’", "'"), ("′", "'"), ("‘", "'"), ("″", "\""), ("“", "\""), ("”", "\""), ("\r", "\n"),
+            // Inglês: "warm-up" e "cool-down" viram uma palavra só (o hífen e o espaço separariam).
+            ("warm-up", "warmup"), ("warm up", "warmup"), ("cool-down", "cooldown"), ("cool down", "cooldown"),
         ]
         for (de, para) in trocas { s = s.replacingOccurrences(of: de, with: para) }
         return s
@@ -147,7 +153,7 @@ public enum TextoRapido {
             if c == "(" { profundidade += 1 }
             if c == ")" {
                 profundidade -= 1
-                if profundidade < 0 { throw ErroTextoRapido("Tem um \")\" sem o \"(\" correspondente.") }
+                if profundidade < 0 { throw ErroTextoRapido(L("Tem um \")\" sem o \"(\" correspondente.", "There is a \")\" without a matching \"(\".")) }
             }
             if profundidade == 0, separadores.contains(c) {
                 partes.append(atual)
@@ -156,7 +162,7 @@ public enum TextoRapido {
                 atual.append(c)
             }
         }
-        if profundidade != 0 { throw ErroTextoRapido("Faltou fechar um parêntese.") }
+        if profundidade != 0 { throw ErroTextoRapido(L("Faltou fechar um parêntese.", "A parenthesis was not closed.")) }
         partes.append(atual)
         return partes.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
     }
@@ -177,8 +183,9 @@ public enum TextoRapido {
             return (vezes, String(c[(j + 1)...]).trimmingCharacters(in: .whitespaces))
         }
         let resto = String(c[j...])
-        if resto.hasPrefix("vezes") {
-            return (vezes, String(resto.dropFirst(5)).trimmingCharacters(in: .whitespaces))
+        // "6 vezes (...)" ou, em inglês, "6 times (...)".
+        for palavra in ["vezes", "times"] where resto.hasPrefix(palavra) {
+            return (vezes, String(resto.dropFirst(palavra.count)).trimmingCharacters(in: .whitespaces))
         }
         return nil
     }
@@ -188,24 +195,32 @@ public enum TextoRapido {
             let vezes = repeticao.vezes
             let resto = repeticao.resto
             guard (1...maximoRepeticoes).contains(vezes) else {
-                throw ErroTextoRapido("Use de 1 a \(maximoRepeticoes) repetições (\"\(item)\").")
+                throw ErroTextoRapido(L("Use de 1 a \(maximoRepeticoes) repetições (\"\(item)\").",
+                                        "Use 1 to \(maximoRepeticoes) repetitions (\"\(item)\")."))
             }
-            guard !resto.isEmpty else { throw ErroTextoRapido("Faltou o que repetir depois de \"\(vezes)x\".") }
+            guard !resto.isEmpty else {
+                throw ErroTextoRapido(L("Faltou o que repetir depois de \"\(vezes)x\".", "Missing what to repeat after \"\(vezes)x\"."))
+            }
             let partes: [String]
             if resto.hasPrefix("(") {
                 guard resto.hasSuffix(")"), fechaNoFim(resto) else {
-                    throw ErroTextoRapido("Depois do parêntese da repetição use + para continuar (\"\(item)\").")
+                    throw ErroTextoRapido(L("Depois do parêntese da repetição use + para continuar (\"\(item)\").",
+                                            "After the repetition's parenthesis, use + to continue (\"\(item)\")."))
                 }
                 let dentro = String(resto.dropFirst().dropLast())
-                if dentro.contains("(") { throw ErroTextoRapido("Repetição dentro de repetição ainda não é aceita.") }
+                if dentro.contains("(") {
+                    throw ErroTextoRapido(L("Repetição dentro de repetição ainda não é aceita.", "Repetitions inside repetitions are not supported yet."))
+                }
                 partes = try dividir(dentro, em: ["/", "+", ",", ";", "\n"])
             } else {
                 partes = try dividir(resto, em: ["/"])
             }
-            guard !partes.isEmpty else { throw ErroTextoRapido("Faltou o que repetir em \"\(item)\".") }
+            guard !partes.isEmpty else { throw ErroTextoRapido(L("Faltou o que repetir em \"\(item)\".", "Missing what to repeat in \"\(item)\".")) }
             var passos: [PassoBruto] = []
             for parte in partes {
-                if prefixoRepeticao(parte) != nil { throw ErroTextoRapido("Repetição dentro de repetição ainda não é aceita.") }
+                if prefixoRepeticao(parte) != nil {
+                    throw ErroTextoRapido(L("Repetição dentro de repetição ainda não é aceita.", "Repetitions inside repetitions are not supported yet."))
+                }
                 passos.append(try interpretarPasso(parte))
             }
             return [.repetir(vezes, passos)]
@@ -213,7 +228,8 @@ public enum TextoRapido {
         var texto = item
         if texto.hasPrefix("("), texto.hasSuffix(")"), fechaNoFim(texto) { texto = String(texto.dropFirst().dropLast()) }
         if texto.contains("(") || texto.contains(")") {
-            throw ErroTextoRapido("Parênteses só servem para repetições, como 6x(400m forte / 90s trote).")
+            throw ErroTextoRapido(L("Parênteses só servem para repetições, como 6x(400m forte / 90s trote).",
+                                    "Parentheses are only for repetitions, like 6x(400m hard / 90s jog)."))
         }
         return try dividir(texto, em: ["/"]).map { .passo(try interpretarPasso($0)) }
     }
@@ -235,14 +251,16 @@ public enum TextoRapido {
         let c = Array(texto)
         // O primeiro número que começa uma palavra (o "2" de "vo2" não conta).
         guard let inicio = c.indices.first(where: { c[$0].isASCII && c[$0].isNumber && ($0 == 0 || !c[$0 - 1].isLetter) }) else {
-            throw ErroTextoRapido("Faltou quanto em \"\(texto)\": tempo (10min) ou distância (400m).")
+            throw ErroTextoRapido(L("Faltou quanto em \"\(texto)\": tempo (10min) ou distância (400m).",
+                                    "Missing how much in \"\(texto)\": time (10min) or distance (400m)."))
         }
         let (medida, fim) = try lerMedida(c, inicio: inicio, trecho: texto)
         let resto = String(c[0..<inicio]) + " " + String(c[fim...])
         let r = Array(resto)
         let temOutroNumero = r.indices.contains { k in r[k].isASCII && r[k].isNumber && (k == 0 || !r[k - 1].isLetter) }
         if temOutroNumero {
-            throw ErroTextoRapido("Um trecho por vez em \"\(texto)\": separe com + (ou com / dentro da repetição).")
+            throw ErroTextoRapido(L("Um trecho por vez em \"\(texto)\": separe com + (ou com / dentro da repetição).",
+                                    "One segment at a time in \"\(texto)\": separate them with + (or with / inside a repetition)."))
         }
         let (intensidade, funcao) = try lerIntensidade(resto, trecho: texto)
         return PassoBruto(medida: medida, intensidade: intensidade, funcao: funcao)
@@ -255,13 +273,24 @@ public enum TextoRapido {
         case distancia(Double)
     }
 
+    /// Da mais longa para a mais curta dentro de cada família: com a unidade colada na palavra
+    /// seguinte ("400mforte"), vale a primeira que for começo das letras.
     static let unidades: [(String, Unidade)] = [
+        // Inglês (nenhuma é começo de uma unidade em português).
+        ("kilometers", .distancia(1000)), ("kilometres", .distancia(1000)), ("kilometer", .distancia(1000)),
+        ("kilometre", .distancia(1000)), ("minutes", .tempo(60)), ("seconds", .tempo(1)), ("minute", .tempo(60)),
+        ("second", .tempo(1)), ("meters", .distancia(1)), ("metres", .distancia(1)), ("meter", .distancia(1)),
+        ("metre", .distancia(1)), ("hours", .tempo(3600)), ("hour", .tempo(3600)), ("secs", .tempo(1)),
+        ("sec", .tempo(1)),
+        // Português.
         ("quilometros", .distancia(1000)), ("quilometro", .distancia(1000)), ("minutos", .tempo(60)),
         ("segundos", .tempo(1)), ("segundo", .tempo(1)), ("minuto", .tempo(60)), ("metros", .distancia(1)),
         ("horas", .tempo(3600)), ("metro", .distancia(1)), ("hora", .tempo(3600)), ("mins", .tempo(60)),
         ("segs", .tempo(1)), ("min", .tempo(60)), ("seg", .tempo(1)), ("mts", .distancia(1)), ("km", .distancia(1000)),
         ("hr", .tempo(3600)), ("mt", .distancia(1)), ("h", .tempo(3600)), ("m", .distancia(1)), ("k", .distancia(1000)),
         ("s", .tempo(1)),
+        // "hrs" no fim: colado ("1hrsolto"), o "hr" do português vem antes.
+        ("hrs", .tempo(3600)),
     ]
 
     static func lerNumero(_ c: [Character], _ i0: Int) -> (Double, Int)? {
@@ -320,12 +349,13 @@ public enum TextoRapido {
                 var partes = [valor]
                 while i < c.count, c[i] == ":" {
                     guard let parte = lerNumero(c, i + 1) else {
-                        throw ErroTextoRapido("Tempo incompleto em \"\(trecho)\" (use 2:30 ou 1:05:00).")
+                        throw ErroTextoRapido(L("Tempo incompleto em \"\(trecho)\" (use 2:30 ou 1:05:00).",
+                                                "Incomplete time in \"\(trecho)\" (use 2:30 or 1:05:00)."))
                     }
                     partes.append(parte.0)
                     i = parte.1
                 }
-                guard partes.count <= 3 else { throw ErroTextoRapido("Tempo estranho em \"\(trecho)\".") }
+                guard partes.count <= 3 else { throw ErroTextoRapido(L("Tempo estranho em \"\(trecho)\".", "Odd time in \"\(trecho)\".")) }
                 segundos += partes.count == 2 ? partes[0] * 60 + partes[1] : partes[0] * 3600 + partes[1] * 60 + partes[2]
                 temTempo = true
                 let k = pularEspacos(c, i)
@@ -357,7 +387,8 @@ public enum TextoRapido {
                 break
             } else {
                 let numero = String(c[inicio..<i]).trimmingCharacters(in: .whitespaces)
-                throw ErroTextoRapido("Faltou a unidade depois de \"\(numero)\" em \"\(trecho)\": use min, s, m ou km.")
+                throw ErroTextoRapido(L("Faltou a unidade depois de \"\(numero)\" em \"\(trecho)\": use min, s, m ou km.",
+                                        "Missing unit after \"\(numero)\" in \"\(trecho)\": use min, s, m or km."))
             }
             let proximo = pularEspacos(c, i)
             guard proximo < c.count, c[proximo].isASCII, c[proximo].isNumber else { break }
@@ -365,15 +396,18 @@ public enum TextoRapido {
         }
 
         if temTempo && temDistancia {
-            throw ErroTextoRapido("Use tempo ou distância, não os dois, em \"\(trecho)\".")
+            throw ErroTextoRapido(L("Use tempo ou distância, não os dois, em \"\(trecho)\".",
+                                    "Use time or distance, not both, in \"\(trecho)\"."))
         }
         if temDistancia {
             let d = (metros * 10).rounded() / 10
-            guard d > 0, d <= distanciaMaxima else { throw ErroTextoRapido("Distância fora do normal em \"\(trecho)\".") }
+            guard d > 0, d <= distanciaMaxima else {
+                throw ErroTextoRapido(L("Distância fora do normal em \"\(trecho)\".", "Unusual distance in \"\(trecho)\"."))
+            }
             return (.distancia(d), i)
         }
         let t = segundos.rounded()
-        guard t > 0, t <= tempoMaximo else { throw ErroTextoRapido("Tempo fora do normal em \"\(trecho)\".") }
+        guard t > 0, t <= tempoMaximo else { throw ErroTextoRapido(L("Tempo fora do normal em \"\(trecho)\".", "Unusual time in \"\(trecho)\".")) }
         return (.tempo(t), i)
     }
 
@@ -381,6 +415,8 @@ public enum TextoRapido {
 
     static let enchimento: Set<String> = [
         "de", "do", "da", "em", "no", "na", "a", "o", "ao", "com", "ritmo", "pace", "zona", "bem", "um", "uma", "pouco",
+        // Inglês.
+        "at", "the", "of", "in", "on", "with", "an", "zone", "run",
     ]
 
     static let dicionario: [String: (Intensidade?, FuncaoPasso?)] = {
@@ -388,17 +424,19 @@ public enum TextoRapido {
         func por(_ palavras: [String], _ i: Intensidade?, _ f: FuncaoPasso? = nil) {
             for p in palavras { d[p] = (i, f) }
         }
-        por(["caminhada", "caminhar", "caminhando", "andar", "andando", "walk"], .caminhada)
-        por(["facil", "leve", "solto", "suave", "regenerativo", "easy", "trote", "trotando", "jog", "z2"], .facil)
-        por(["aquecimento", "aquecer", "aquece", "aq"], .facil, .aquecimento)
-        por(["desaquecimento", "desaquecer", "desaq", "volta calma", "calma"], .facil, .desaquecimento)
-        por(["rec", "recuperacao", "recuperar", "recupera", "intervalo"], .facil, .recuperacao)
-        por(["descanso", "pausa", "parado", "parada", "repouso"], .caminhada, .recuperacao)
-        por(["maratona", "rm", "mp"], .maratona)
+        por(["caminhada", "caminhar", "caminhando", "andar", "andando", "walk", "walking"], .caminhada)
+        por(["facil", "leve", "solto", "suave", "regenerativo", "easy", "trote", "trotando", "jog", "jogging", "z2"], .facil)
+        por(["aquecimento", "aquecer", "aquece", "aq", "warmup"], .facil, .aquecimento)
+        por(["desaquecimento", "desaquecer", "desaq", "volta calma", "calma", "cooldown"], .facil, .desaquecimento)
+        por(["rec", "recuperacao", "recuperar", "recupera", "intervalo", "recovery", "recover"], .facil, .recuperacao)
+        por(["descanso", "pausa", "parado", "parada", "repouso", "rest", "resting"], .caminhada, .recuperacao)
+        por(["maratona", "rm", "mp", "marathon"], .maratona)
         por(["limiar", "tempo", "threshold", "lim", "t"], .limiar)
-        por(["forte", "tiro", "tiros", "intervalado", "intervalados", "vo2", "vo2max", "i", "int"], .intervalado)
-        por(["rapido", "rapida", "muito forte", "repeticao", "repeticoes", "r", "rep", "sprint", "sprints", "velocidade", "tiro curto", "aceleracao", "aceleracoes"], .repeticoes)
-        por(["prova", "race", "competicao", "teste"], .prova)
+        por(["forte", "tiro", "tiros", "intervalado", "intervalados", "vo2", "vo2max", "i", "int",
+             "hard", "interval", "intervals"], .intervalado)
+        por(["rapido", "rapida", "muito forte", "repeticao", "repeticoes", "r", "rep", "sprint", "sprints", "velocidade", "tiro curto", "aceleracao", "aceleracoes",
+             "fast", "very hard", "repetition", "repetitions", "reps", "stride", "strides", "speed"], .repeticoes)
+        por(["prova", "race", "competicao", "teste", "test"], .prova)
         return d
     }()
 
@@ -413,7 +451,8 @@ public enum TextoRapido {
         var funcao: FuncaoPasso?
         for palavra in palavras {
             guard let par = dicionario[palavra] else {
-                throw ErroTextoRapido("Não entendi \"\(palavra)\" em \"\(trecho)\". Use fácil, trote, limiar, forte, rápido, maratona, prova ou caminhada.")
+                throw ErroTextoRapido(L("Não entendi \"\(palavra)\" em \"\(trecho)\". Use fácil, trote, limiar, forte, rápido, maratona, prova ou caminhada.",
+                                        "I didn't understand \"\(palavra)\" in \"\(trecho)\". Use easy, jog, threshold, hard, fast, marathon, race or walk."))
             }
             let (i, f) = par
             if let f, funcao == nil { funcao = f }
