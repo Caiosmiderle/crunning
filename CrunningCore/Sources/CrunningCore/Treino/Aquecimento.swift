@@ -1,8 +1,8 @@
 import Foundation
 
 /// Um exercício do aquecimento, com a explicação de como fazer (texto próprio do app).
-public struct ExercicioAquecimento: Sendable, Equatable, Identifiable {
-    public enum Medida: Sendable, Equatable {
+public struct ExercicioAquecimento: Codable, Sendable, Equatable, Identifiable {
+    public enum Medida: Codable, Sendable, Equatable {
         case tempo(TimeInterval)
         case repeticoes(Int, porLado: Bool)
         case distancia(Double, vezes: Int)
