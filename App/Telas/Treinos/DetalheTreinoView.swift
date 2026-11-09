@@ -10,7 +10,7 @@ struct DetalheTreinoView: View {
     let salvo: TreinoSalvo?
     /// Sessão do plano (ao começar, a corrida conta para ela) e a linha de contexto ("Semana 3 · quarta, 12/11").
     var plano: (semana: Int, dia: Int)? = nil
-    var contexto: String? = nil
+    var subtitulo: String? = nil
     @Environment(EstadoApp.self) var estadoApp
     @Environment(\.modelContext) var contexto
     @Environment(\.dismiss) var fechar
@@ -34,8 +34,8 @@ struct DetalheTreinoView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Selo(texto: treino.tipo.nome, icone: "figure.run")
-                if let contexto {
-                    Text(contexto)
+                if let subtitulo {
+                    Text(subtitulo)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }

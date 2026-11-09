@@ -70,7 +70,7 @@ struct CartoesPlanoHoje: View {
                             porque: sessao.treino.modeloID.flatMap { Modelos.modelo(id: $0)?.porque },
                             salvo: nil,
                             plano: (p.semana, p.dia),
-                            contexto: "Treino de hoje · semana \(p.semana)"
+                            subtitulo: "Treino de hoje · semana \(p.semana)"
                         )
                     } label: {
                         Label("Ver os trechos: tempo, distância, ritmo e zona", systemImage: "list.bullet.rectangle")

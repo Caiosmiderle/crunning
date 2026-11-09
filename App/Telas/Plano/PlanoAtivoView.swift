@@ -268,7 +268,7 @@ struct PlanoAtivoView: View {
                     porque: sessao.treino.modeloID.flatMap { Modelos.modelo(id: $0)?.porque },
                     salvo: nil,
                     plano: (semana, dia),
-                    contexto: "Semana \(semana) · " + data.formatted(.dateTime.weekday(.wide).day().month().locale(.ptBR))
+                    subtitulo: "Semana \(semana) · " + data.formatted(.dateTime.weekday(.wide).day().month().locale(.ptBR))
                 )
             } label: {
                 linhaDia(agenda, semana: semana, dia: dia, hoje: hoje)
