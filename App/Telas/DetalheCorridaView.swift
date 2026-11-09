@@ -51,6 +51,7 @@ struct DetalheCorridaView: View {
     @State var carregou = false
     @State var confirmandoApagar = false
     @State var enviandoStrava = false
+    @Query(filter: #Predicate<Tenis> { !$0.aposentado }, sort: \Tenis.criadoEm) var tenisAtivos: [Tenis]
 
     init(corrida: Corrida) {
         self.corrida = corrida
@@ -63,6 +64,11 @@ struct DetalheCorridaView: View {
                 Text(dados.inicio.formatted(.dateTime.weekday(.wide).day().month(.wide).hour().minute().locale(.ptBR)))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                if let nome = tenisAtivos.first(where: { $0.codigo == corrida.tenis })?.nome {
+                    Text("Tênis: " + nome)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
 
                 Grid(horizontalSpacing: 16, verticalSpacing: 14) {
                     GridRow {
@@ -161,6 +167,18 @@ struct DetalheCorridaView: View {
                         ShareLink(item: arquivoGPX) {
                             Label("Exportar GPX", systemImage: "map")
                         }
+                    }
+                    if !tenisAtivos.isEmpty {
+                        Picker(selection: Binding(get: { corrida.tenis }, set: { novo in
+                            corrida.tenis = novo
+                            try? contexto.save()
+                        })) {
+                            Text("Nenhum").tag(String?.none)
+                            ForEach(tenisAtivos) { t in Text(t.nome).tag(Optional(t.codigo)) }
+                        } label: {
+                            Label("Tênis desta corrida", systemImage: "arrow.triangle.2.circlepath")
+                        }
+                        .pickerStyle(.menu)
                     }
                     Button("Apagar corrida", systemImage: "trash", role: .destructive) {
                         confirmandoApagar = true

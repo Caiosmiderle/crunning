@@ -15,7 +15,8 @@ struct ResumoCorridaView: View {
     @State var confirmandoDescarte = false
     @State var textoDistanciaEsteira = ""
     @State var ritmosAtualizados = false
-    @State var tenis: String? = UserDefaults.standard.string(forKey: PreferenciasPlano.ultimoTenis)
+    /// Começa com o tênis principal; trocar aqui vale só para esta corrida.
+    @State var tenis: String? = PreferenciasPlano.principal
 
     var body: some View {
         let sessao = gravador.sessao
@@ -99,7 +100,6 @@ struct ResumoCorridaView: View {
                         .padding(.horizontal, 20)
 
                     Button {
-                        UserDefaults.standard.set(tenis, forKey: PreferenciasPlano.ultimoTenis)
                         let corrida = gravador.salvar(em: contexto, esforco: esforco, distanciaEsteira: gravador.esteira ? distanciaEsteiraMetros : nil, tenis: tenis)
                         estadoApp.gravadorAtivo = nil
                         if Strava.envioAutomatico, !corrida.simulada {

@@ -53,5 +53,14 @@ final class Tenis {
 enum PreferenciasPlano {
     /// Triagem de segurança respondida (antes do primeiro plano).
     static let triagemFeita = "triagemFeita"
+    /// Antigo "último tênis usado"; só serve de ponto de partida para o principal.
     static let ultimoTenis = "ultimoTenis"
+    /// Tênis principal (Tenis.codigo): toda corrida começa com ele (Ajustes > Tênis).
+    static let tenisPrincipal = "tenisPrincipal"
+
+    static var principal: String? {
+        let d = UserDefaults.standard
+        let codigo = d.string(forKey: tenisPrincipal) ?? d.string(forKey: ultimoTenis)
+        return (codigo?.isEmpty ?? true) ? nil : codigo
+    }
 }
