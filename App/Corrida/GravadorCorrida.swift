@@ -71,6 +71,8 @@ final class GravadorCorrida: Identifiable {
     private(set) var transicoes = 0
     /// Número da contagem regressiva na tela (3, 2, 1), ou nil.
     private(set) var contagemVisivel: Int?
+    /// Sessão do plano que esta corrida cumpre (marcada como feita ao salvar).
+    var sessaoPlano: (semana: Int, dia: Int)?
 
     let simulada: Bool
     let esteira: Bool
@@ -165,6 +167,7 @@ final class GravadorCorrida: Identifiable {
         self.sessao = salva.sessao
         self.diagnostico = salva.diagnostico ?? DiagnosticoGPS()
         self.execucao = salva.execucao
+        if let s = salva.planoSemana, let d = salva.planoDia { self.sessaoPlano = (s, d) }
         self.esteira = esteira
         self.avisos = AvisosCorrida.atuais()
         self.agora = relogio.agora
@@ -314,14 +317,20 @@ final class GravadorCorrida: Identifiable {
 
     /// Grava no histórico e apaga a cópia de segurança.
     @discardableResult
-    func salvar(em contexto: ModelContext, esforco: Int?, distanciaEsteira: Double? = nil) -> Corrida {
+    func salvar(em contexto: ModelContext, esforco: Int?, distanciaEsteira: Double? = nil, tenis: String? = nil) -> Corrida {
         if sessao.estado != .finalizada { finalizar() }
         let corrida = Corrida.de(
             sessao: sessao, simulada: simulada, esforco: esforco, agora: relogio.agora,
             diagnostico: esteira ? nil : diagnostico, execucao: execucao, esteira: esteira, distanciaEsteira: distanciaEsteira
         )
+        corrida.planoSemana = sessaoPlano?.semana
+        corrida.planoDia = sessaoPlano?.dia
+        corrida.tenis = tenis
         contexto.insert(corrida)
         try? contexto.save()
+        if let s = sessaoPlano {
+            PlanoAtivo.registrarFeita(semana: s.semana, dia: s.dia, esforco: esforco, em: contexto)
+        }
         ArmazemSessao.apagar()
         return corrida
     }
@@ -359,7 +368,9 @@ final class GravadorCorrida: Identifiable {
             multiplicador: multiplicadorSimulacao,
             sementeSimulacao: sementeSimulacao,
             execucao: execucao,
-            esteira: esteira
+            esteira: esteira,
+            planoSemana: sessaoPlano?.semana,
+            planoDia: sessaoPlano?.dia
         ))
     }
 

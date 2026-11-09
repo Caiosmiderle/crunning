@@ -110,6 +110,11 @@ struct AjustesView: View {
                     } label: {
                         Label("Meus ritmos", systemImage: "speedometer")
                     }
+                    NavigationLink {
+                        TenisView()
+                    } label: {
+                        Label("Tênis", systemImage: "shoeprints.fill")
+                    }
                 } header: {
                     Text("Treino")
                 } footer: {

@@ -119,12 +119,21 @@ São regras explícitas que devolvem uma recomendação. O app pergunta antes de
 | Esforço alto no fácil | 2 corridas fáceis seguidas com esforço 6 ou mais: propõe semana de alívio. | Uso do esforço percebido para monitorar carga (Foster e colegas, 2001); o gatilho é do app. | Prática de treinadores | `Adaptacao` |
 | Dor | Dor que muda a passada ou que persiste: o app não prescreve treino por cima. Propõe parar, reduzir e procurar um profissional; depois, volta por caminhada e corrida. | Segurança; prática clínica. | Prática de treinadores | `Adaptacao` |
 
+## Plano no dia a dia
+
+| Regra | Fonte | Evidência | Código |
+|---|---|---|---|
+| Treino que ficou para trás: o Hoje pergunta o que houve (fez sem o app, perdeu, ficou parado, doente ou com dor) e aplica as regras de "Adaptação do plano" acima; as que mudam o plano viram proposta com antes e depois. | Ver "Adaptação do plano". | Ver acima | `AgendaPlano.pendentes`, `CartoesPlanoHoje` |
+| Esforço alto nas fáceis e treinos de qualidade fora do ritmo usam os dados das corridas feitas pelo plano (esforço do resumo e planejado x feito por bloco). Fora do ritmo sugere um teste novo, em vez de mexer nos ritmos no chute. | Regras de "Adaptação do plano"; o teste segue "Execução do treino". | Prática de treinadores | `AgendaPlano.esforcosRecentesEmFaceis`, `Adaptacao.ladoDoRitmo` |
+| Recordes pessoais: o menor tempo em movimento para 1 km, 5 km, 10 km, meia e maratona em qualquer trecho de qualquer corrida com GPS. | Engenharia. | — | `Recordes.melhorTempo` |
+| Limite de quilometragem do tênis: quem define é você; o app não sugere número como se fosse ciência. | Não achamos estudo que fixe uma quilometragem de troca. | — | `TenisView` |
+
 ## Segurança
 
 | Regra | Fonte | Evidência | Código |
 |---|---|---|---|
 | O app avisa que não é aconselhamento médico. | — | — | `AjustesView` (já existe) |
-| Triagem no primeiro uso com perguntas próprias sobre sinais de alerta (coração, dor no peito, tontura, remédios para pressão, outras condições), com aviso para procurar um médico e link para o PAR-Q+ oficial. | PAR-Q+ (Warburton e colegas, 2011, *Health Fit J Can*; versão de 2023 é a vigente). O formulário oficial não permite alterações, por isso o app não o reproduz: só aponta para ele. | Prática clínica | Fase 8 |
+| Triagem no primeiro uso com perguntas próprias sobre sinais de alerta (coração, dor no peito, tontura, remédios para pressão, outras condições), com aviso para procurar um médico e link para o PAR-Q+ oficial. | PAR-Q+ (Warburton e colegas, 2011, *Health Fit J Can*; versão de 2023 é a vigente). O formulário oficial não permite alterações, por isso o app não o reproduz: só aponta para ele. | Prática clínica | `UsarPlanoView` (antes do primeiro plano; link para eparmedx.com) |
 
 ## Calorias
 

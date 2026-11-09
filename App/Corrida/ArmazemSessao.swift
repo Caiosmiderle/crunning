@@ -14,6 +14,9 @@ struct SessaoSalva: Codable, Sendable {
     /// Treino por blocos em andamento (nil na corrida livre).
     var execucao: ExecucaoTreino? = nil
     var esteira: Bool? = nil
+    /// Sessão do plano em execução.
+    var planoSemana: Int? = nil
+    var planoDia: Int? = nil
 }
 
 /// Grava e lê a corrida em andamento. Tudo passa por uma fila serial, então um

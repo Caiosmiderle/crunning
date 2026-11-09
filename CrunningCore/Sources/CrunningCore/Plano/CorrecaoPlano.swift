@@ -26,6 +26,10 @@ public enum CorrecaoPlano: Equatable, Sendable {
     case mudarTeto(Double)
     /// Refaz o plano com outros dias de corrida e outro dia de longão.
     case mudarDias(Set<Int>, longao: Int)
+    /// Volta depois de `dias` parado: a semana recomeça com uma fração do volume (Adaptacao).
+    case retomarAposPausa(semana: Int, dias: Int)
+    /// Nova data de prova: a partir da semana, o plano passa a ter `semanasRestantes` semanas.
+    case reajustarProva(aPartirDaSemana: Int, semanasRestantes: Int)
 
     static let nomesDias = ["segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"]
 
@@ -51,6 +55,10 @@ public enum CorrecaoPlano: Equatable, Sendable {
         case let .mudarDias(dias, longao):
             let lista = dias.sorted().map(Self.nomeDia).joined(separator: ", ")
             return "Refazer o plano correndo \(lista), longão no \(Self.nomeDia(longao))"
+        case let .retomarAposPausa(semana, dias):
+            return "Voltar aos poucos a partir da semana \(semana), depois de \(dias) dias parado"
+        case let .reajustarProva(semana, restantes):
+            return "Refazer a partir da semana \(semana) com \(restantes) semanas até a prova"
         }
     }
 
@@ -87,6 +95,11 @@ public enum CorrecaoPlano: Equatable, Sendable {
                 entrada.diasDisponiveis = dias
                 entrada.diaLongao = longao
                 return try refazer(entrada)
+            case let .retomarAposPausa(semana, dias):
+                guard dias > 5 else { throw ErroCorrecao.foraDosLimites("Até 5 dias parado, o plano segue igual.") }
+                return try OperacoesPlano.retomarAposPausa(plano, aPartirDaSemana: semana, diasParado: dias)
+            case let .reajustarProva(semana, restantes):
+                return try OperacoesPlano.reajustar(plano, aPartirDaSemana: semana, semanasRestantes: restantes)
             }
         } catch let erro as ErroOperacao {
             throw ErroCorrecao.operacao(erro)

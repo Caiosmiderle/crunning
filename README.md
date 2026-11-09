@@ -14,6 +14,8 @@ Fase 6 (Live Activity): na tela de bloqueio e na Dynamic Island, o bloco atual c
 
 Fase 7 (Apple Saúde, plano B sem conta paga): com Apple ID gratuito a Apple não libera o HealthKit, então cada corrida sai em TCX (distância, tempo em movimento, energia estimada pelo peso informado e rota; também na esteira) ou GPX, uma por vez ou todas de uma vez, para importar num app que grava no Saúde. Ajustes mostra o modo ativo.
 
+Fase 8 (plano no dia a dia): "Usar este plano" na prévia (com triagem de segurança na primeira vez e link para o PAR-Q+ oficial) põe o plano no calendário. A aba Plano mostra semana a semana o que foi feito, com mover e trocar treino, marcar feito ou perdido, nova data de prova e PDF. O Hoje mostra o treino do dia com o botão de começar, pergunta o que houve com os treinos que ficaram para trás e propõe alívio ou um teste novo quando os dados pedem, sempre com antes e depois. Recordes pessoais no Histórico e quilometragem por tênis.
+
 Próximas fases:, 8 (planos no calendário, Hoje e adaptação), 9 (Coach de IA completo).
 
 ## Como é feito

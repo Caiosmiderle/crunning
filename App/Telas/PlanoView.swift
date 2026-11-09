@@ -1,8 +1,22 @@
 import CrunningCore
+import SwiftData
 import SwiftUI
 
 struct PlanoView: View {
+    @Query var ativos: [PlanoAtivo]
+
     var body: some View {
+        if let ativo = ativos.first {
+            NavigationStack {
+                PlanoAtivoView(ativo: ativo)
+                    .toolbar(.hidden, for: .navigationBar)
+            }
+        } else {
+            semPlano
+        }
+    }
+
+    private var semPlano: some View {
         NavigationStack {
             Tela(selo: "Sem plano ativo", iconeSelo: "calendar", titulo: "Plano") {
                 faixaDaSemana
@@ -60,7 +74,7 @@ struct PlanoView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Seu plano aparece aqui")
                 .font(.title3.weight(.semibold))
-            Text("O calendário com o plano até a prova chega numa próxima versão. O motor que monta o plano já está pronto: veja uma prévia abaixo.")
+            Text("Monte um plano na prévia abaixo, confira (e peça a análise do coach, se quiser) e toque em \"Usar este plano\". Ele vira o calendário desta aba e o treino do dia na aba Hoje.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

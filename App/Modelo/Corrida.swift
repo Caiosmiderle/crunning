@@ -27,6 +27,11 @@ final class Corrida {
     var blocos: Data? = nil
     /// Corrida na esteira: sem rota, distância digitada no fim.
     var esteira: Bool = false
+    /// Sessão do plano que esta corrida cumpriu (semana 1..n, dia 0 = segunda).
+    var planoSemana: Int? = nil
+    var planoDia: Int? = nil
+    /// Código do tênis usado (Tenis.codigo).
+    var tenis: String? = nil
 
     init(
         inicio: Date,

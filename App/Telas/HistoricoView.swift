@@ -20,6 +20,8 @@ struct HistoricoView: View {
                     cartaoVazio
                         .entradaCascata(2)
                 } else {
+                    CartaoRecordes(corridas: corridas)
+                        .entradaCascata(2)
                     ForEach(corridas) { corrida in
                         NavigationLink(value: corrida) {
                             LinhaCorrida(corrida: corrida, unidade: unidade)

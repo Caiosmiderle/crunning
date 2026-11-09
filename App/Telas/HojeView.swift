@@ -7,6 +7,7 @@ struct HojeView: View {
     @AppStorage(Preferencias.unidade) var unidade: UnidadeDistancia = .quilometros
     @Environment(EstadoApp.self) var estadoApp
     @Binding var aba: Aba
+    @Query var ativos: [PlanoAtivo]
 
     var body: some View {
         NavigationStack {
@@ -17,8 +18,14 @@ struct HojeView: View {
                 subtitulo: nil,
                 mostrarMarca: true
             ) {
-                cartaoTreinoDoDia
-                    .entradaCascata(2)
+                Group {
+                    if let ativo = ativos.first {
+                        CartoesPlanoHoje(ativo: ativo, aba: $aba)
+                    } else {
+                        cartaoTreinoDoDia
+                    }
+                }
+                .entradaCascata(2)
                 cartaoSemana
                     .entradaCascata(3)
                 Button {
@@ -66,7 +73,7 @@ struct HojeView: View {
                 .foregroundStyle(.secondary)
             Text("Nada planejado")
                 .font(.title2.weight(.semibold))
-            Text("O plano no calendário chega numa próxima versão. Enquanto isso, monte ou escolha um treino em Treinos (com voz e aquecimento guiado), ou faça uma corrida livre.")
+            Text("Sem plano em uso. Monte um na aba Plano > Prévia e toque em \"Usar este plano\", ou escolha um treino em Treinos.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

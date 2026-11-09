@@ -54,6 +54,7 @@ struct PreviaPlanoView: View {
     /// Pontos da análise cuja correção já foi aplicada.
     @State var aplicadas: Set<String> = []
     @State var mensagemCorrecao: String?
+    @State var usandoPlano = false
     @Environment(EstadoApp.self) var estadoApp
     @Environment(\.modelContext) var contexto
 
@@ -139,6 +140,11 @@ struct PreviaPlanoView: View {
                     if erros.isEmpty {
                         Label("Todas as travas conferidas", systemImage: "checkmark.seal.fill")
                             .foregroundStyle(Paleta.verdeLogo)
+                        Button {
+                            usandoPlano = true
+                        } label: {
+                            Label("Usar este plano", systemImage: "calendar.badge.plus").font(.headline)
+                        }
                     } else {
                         ForEach(erros.map(\.description), id: \.self) { Text($0).foregroundStyle(Paleta.foraForte) }
                     }
@@ -229,6 +235,11 @@ struct PreviaPlanoView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(item: $proposta) { p in
             PropostaCorrecaoView(proposta: p, unidade: unidade) { aplicar(p) }
+        }
+        .sheet(isPresented: $usandoPlano) {
+            if let plano {
+                NavigationStack { UsarPlanoView(plano: plano) }
+            }
         }
     }
 

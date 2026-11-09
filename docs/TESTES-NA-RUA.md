@@ -104,3 +104,13 @@ O que me contar: se o cartão aparece com o app instalado pelo Sideloadly, se at
 
 O que me contar: se algum app recusou o arquivo (e qual), e se a energia ficou parecida com a que você costuma ver.
 
+## Fase 8: plano no calendário (0.8.0)
+
+1. Plano > Prévia: gere um plano e toque em "Usar este plano". Na primeira vez aparecem as perguntas de segurança (e o link do PAR-Q+). Escolha a data de início.
+2. Aba Plano: a semana com os dias e as datas, setas para outras semanas. Toque e segure um dia: correr, marcar feito ou perdido, trocar por equivalente, mover. "Opções do plano": PDF, nova data da prova, montar outro, encerrar.
+3. Aba Hoje: o treino do dia com "Começar treino". Faça o treino (pode ser simulado): no fim, escolha o tênis e o esforço e salve; o dia aparece com ✓ no Plano e "Feito" no Hoje.
+4. Deixe passar um dia de treino sem fazer: o Hoje mostra "Ficou para trás". Teste "Fiquei parado" com 10 dias: aparece a proposta de volta aos poucos com antes e depois.
+5. Ajustes > Tênis: cadastre um par. Histórico: "Recordes pessoais" no topo.
+
+O que me contar: se o treino do dia bate com o calendário, se o check-in faz sentido, e se o PDF abre bem.
+

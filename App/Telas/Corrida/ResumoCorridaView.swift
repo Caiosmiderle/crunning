@@ -15,6 +15,7 @@ struct ResumoCorridaView: View {
     @State var confirmandoDescarte = false
     @State var textoDistanciaEsteira = ""
     @State var ritmosAtualizados = false
+    @State var tenis: String? = UserDefaults.standard.string(forKey: PreferenciasPlano.ultimoTenis)
 
     var body: some View {
         let sessao = gravador.sessao
@@ -88,8 +89,12 @@ struct ResumoCorridaView: View {
                         .padding(20)
                         .cartaoVidro()
 
+                    SeletorTenis(codigo: $tenis)
+                        .padding(.horizontal, 20)
+
                     Button {
-                        gravador.salvar(em: contexto, esforco: esforco, distanciaEsteira: gravador.esteira ? distanciaEsteiraMetros : nil)
+                        UserDefaults.standard.set(tenis, forKey: PreferenciasPlano.ultimoTenis)
+                        gravador.salvar(em: contexto, esforco: esforco, distanciaEsteira: gravador.esteira ? distanciaEsteiraMetros : nil, tenis: tenis)
                         estadoApp.gravadorAtivo = nil
                     } label: {
                         Text("Salvar corrida")

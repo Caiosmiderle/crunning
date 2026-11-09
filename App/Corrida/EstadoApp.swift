@@ -21,10 +21,11 @@ final class EstadoApp {
     }
 
     /// Treino por blocos. O aquecimento guiado segue Ajustes, a não ser que a tela diga outra coisa.
-    func abrirTreino(_ treino: Treino, esteira: Bool = false, aquecimentoGuiado: Bool? = nil) {
+    func abrirTreino(_ treino: Treino, esteira: Bool = false, aquecimentoGuiado: Bool? = nil, plano: (semana: Int, dia: Int)? = nil) {
         let guiado = aquecimentoGuiado ?? (UserDefaults.standard.object(forKey: Preferencias.aquecimentoGuiado) as? Bool ?? true)
         let execucao = ExecucaoTreino(treino: treino, zonas: ZonasDoUsuario.atuais(), aquecimentoGuiado: guiado, esteira: esteira)
         abrir(execucao: execucao, esteira: esteira)
+        gravadorAtivo?.sessaoPlano = plano
     }
 
     private func abrir(execucao: ExecucaoTreino?, esteira: Bool) {
