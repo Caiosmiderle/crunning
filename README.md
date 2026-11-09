@@ -20,6 +20,8 @@ Fase 9 (Coach de IA completo): plano montado com o coach a partir de um question
 
 Também: ajuste dos ritmos pelo calor (WBGT simplificado e Ely e colegas, 2007), prova secundária dentro do plano e avaliação do coach com 4 casos fixos (Ajustes > Desenvolvimento). Na corrida, a engrenagem muda os avisos (voz, bipe, contagem, ritmo, vibração) sem parar o treino, e a seta para baixo minimiza a corrida numa barra acima das abas para usar o resto do app. Frequência cardíaca da Mi Band (anúncio Bluetooth, com o app na tela) na corrida, no resumo e no TCX, e envio das corridas ao Strava pela API oficial com o app criado na sua conta (só envio; nada do Strava vai para o Coach de IA).
 
+Fase 10 (ajustes do uso): calendário com o treino num dia só e nos dias escolhidos, opções de plano sempre à vista, fila de envio ao Strava com reenvio automático, tênis principal fixo, aquecimento como sugestão antes de começar (fora do relógio), revisão semanal só quando a semana sai do plano e lista de treinos com barras em cápsulas.
+
 ## Como é feito
 
 - SwiftUI, Swift 6, SwiftData, iOS 26 (Liquid Glass nativo), sem dependências de terceiros.

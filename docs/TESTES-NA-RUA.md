@@ -59,7 +59,7 @@ O que me contar: algum plano que pareça sem sentido para você como corredor (v
 1. **Construtor:** aba Treinos > Novo treino. No texto rápido, escreva `10min fácil + 6x(400m forte / 90s trote) + 10min fácil`: a linha do tempo aparece na hora, com "×6" em cima da repetição e os totais estimados. Teste variações (`10' leve`, `6 x 400 m tiro / 1:30 trote`, `1,5km limiar`) e um erro de propósito (`400 forte`): a mensagem diz o que corrigir. Toque num trecho da linha do tempo para editar; segure e arraste um bloco (ou use "Editar") para mudar a ordem; use os atalhos de "Adicionar". Salve.
 2. **Biblioteca:** o treino aparece em "Meus treinos". No menu "…" do treino: Duplicar, Salvar como modelo, Editar, Apagar. Em "Prontos", abra "6 × 400 m": os alvos aparecem nos seus ritmos (ou por esforço, sem prova em Meus ritmos).
 3. **Execução simulada:** ligue Ajustes > Modo de desenvolvimento > Simular GPS a **10x**. Abra "6 × 400 m" > Começar. Confira: barra segmentada no topo, a etapa atual com o restante em número grande, "Repetição 2 de 6", o medidor de ritmo com a faixa verde, a lista "A seguir" e as feitas com ✓. Nos últimos 3 segundos de cada etapa: número grande na tela, bipe e voz "3, 2, 1".
-4. **Aquecimento guiado:** depois do trote de aquecimento entram os exercícios (balanço de perna, afundo, educativos, acelerações), cada um com o como fazer, o cronômetro e o botão "Próximo". A voz lê o nome e o como fazer.
+4. **Aquecimento:** desde a 0.10.0 os exercícios não entram mais no treino; aparecem como sugestão antes de começar (veja a fase 10).
 5. **Controles:** "Volta" fala o tempo da volta; "Pular" pede confirmação (nos exercícios, não); pausar e retomar; deslize para finalizar. No resumo: "Por bloco: planejado x feito" com o ritmo de cada tiro e o ✓ quando ficou na faixa.
 6. **Voz com música:** toque uma música no iPhone e use Ajustes > Testar a voz: a música abaixa enquanto a voz fala e volta depois. Desligue a simulação antes de sair.
 
@@ -155,3 +155,15 @@ O que me contar: se as respostas do coach fizeram sentido, quanto custou na sua 
 3. Salve uma corrida de verdade (curta serve): ela vai sozinha para o Strava. No detalhe da corrida, o cartão "Strava" mostra "Ver no Strava" ou o erro com "Tentar de novo".
 4. Corridas antigas: abra no Histórico e toque em "Enviar ao Strava". Se ela já estiver lá (enviada antes pelo arquivo), o app liga à atividade existente.
 5. Confira no Strava: distância, tempo, rota e batimentos (se a pulseira estava ligada). Esteira chega como treino indoor.
+
+## Fase 10: ajustes do uso (0.10.0)
+
+1. **Calendário:** em Plano > Opções do plano, deixe a sincronização ligada e abra o app Calendário. Cada treino aparece só no dia dele (antes aparecia também no dia seguinte). Os eventos antigos são refeitos sozinhos na primeira abertura.
+2. **Dias do plano pelo coach:** monte um plano com o coach marcando, por exemplo, quarta, sexta e domingo. O plano só usa esses dias (pode usar menos, nunca outros). Se o seu plano atual tem treino em dias que você não marcou, monte de novo ou peça no chat do coach.
+3. **Aba Plano com plano ativo:** embaixo do plano continuam "Montar o plano com o coach", "Prévia do motor" e as cores dos treinos.
+4. **Strava sozinho:** com a conexão feita, salve uma corrida sem internet (modo avião). O detalhe dela mostra "Na fila". Tire o modo avião com o app aberto, ou feche e abra o app: ela vai sozinha.
+5. **Tênis principal:** Ajustes > Tênis > ligue "Tênis principal" num deles. As corridas novas já vêm com ele; no resumo dá para trocar só naquela corrida, e depois no detalhe (menu … > Tênis desta corrida).
+6. **Aquecimento como sugestão:** abra um treino forte (6 × 400 m). Antes de começar aparece "Antes de começar" com os exercícios e o como fazer; o tempo do treino só conta depois de deslizar.
+7. **Revisão semanal:** no domingo à noite ou na segunda, com a semana cumprida, o Hoje mostra só "Semana dentro do plano". Com treino perdido, corrida fora do plano, esforço alto nas fáceis ou ritmo fora da faixa, aparece "Vale revisar a semana" com os motivos.
+8. **Lista de treinos:** cartões mais baixos, barras em cápsulas com legenda de tempo por tipo, tempos sem segundos ("≈ 7,1 km · 49 min") e o título "Prontos" não passa mais por cima do relógio.
+
