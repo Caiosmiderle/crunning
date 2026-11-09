@@ -12,9 +12,10 @@ public struct AmostraFC: Codable, Sendable, Equatable {
     }
 }
 
-/// Frequência cardíaca vinda de uma pulseira por Bluetooth. Fica no iPhone e só sai dele no TCX
-/// enviado ao Strava (ou exportado por você); nunca vai para o Coach de IA.
-public enum FrequenciaCardiaca {
+/// Frequência cardíaca vinda de uma pulseira por Bluetooth (o tipo nasce em Treino/Zonas.swift,
+/// com a máxima estimada). Fica no iPhone e só sai dele no TCX enviado ao Strava (ou exportado
+/// por você); nunca vai para o Coach de IA.
+extension FrequenciaCardiaca {
     /// Valores fora disso são leitura ruim (pulseira solta, sem medir).
     public static let faixaValida = 30...230
 
