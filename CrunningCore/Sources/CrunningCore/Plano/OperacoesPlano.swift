@@ -51,6 +51,12 @@ public enum OperacoesPlano {
             guard let s = novo.semanas[i].dias[dia], !s.ehProva else { continue }
             GeradorPlano.reduzir(&novo.semanas[i], dia: dia, para: s.distancia * f, zonas: zonas)
         }
+        // Com menos volume, os limites que dependem dele (fração, qualidade) ficam mais justos: reequilibra.
+        var h = GeradorPlano.historicoInicial(plano.entrada)
+        for anterior in plano.semanas.prefix(i) { h.registrar(anterior) }
+        let picoCorrida = RegrasPlano.picoMaximoCorrida
+            * (h.maiores.suffix(RegrasPlano.janelaPico).max() ?? RegrasPlano.pisoLongaoReferencia)
+        GeradorPlano.equilibrar(&novo.semanas[i], zonas: zonas, limite: .greatestFiniteMagnitude, picoCorrida: picoCorrida)
         return try refazer(novo, aPartirDaSemana: semana + 1)
     }
 
