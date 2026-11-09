@@ -132,7 +132,7 @@ struct CorridaView: View {
                                     }
                                 } else {
                                     CartaoEtapaAtual(etapa: etapa, restante: execucao.restante(leitura), progresso: progresso,
-                                                     unidade: unidade, zonas: nil)
+                                                     unidade: unidade, zonas: nil, bpm: gravador.fcAtual)
                                 }
                             }
                             .padding(20)

@@ -52,6 +52,8 @@ struct CartaoEtapaAtual: View {
     let progresso: Double
     let unidade: UnidadeDistancia
     let zonas: Zonas?
+    /// Batimento de agora, se a pulseira estiver transmitindo.
+    var bpm: Int? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -82,7 +84,25 @@ struct CartaoEtapaAtual: View {
                 .font(.headline)
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
+            if let zona = etapa.passo.flatMap({ ZonasDoUsuario.zonaFC($0.intensidade) }) {
+                HStack(spacing: 6) {
+                    Image(systemName: "heart.fill")
+                        .foregroundStyle(corBatimento(zona))
+                    Text("Zona " + zona.texto + (bpm.map { " · agora \($0)" } ?? ""))
+                        .font(.subheadline.weight(.semibold))
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                }
+                .accessibilityElement(children: .combine)
+            }
         }
+    }
+
+    /// Verde dentro da zona, laranja acima, cinza abaixo ou sem leitura da pulseira.
+    private func corBatimento(_ zona: ZonaFC) -> Color {
+        guard let bpm else { return .secondary }
+        if zona.contem(bpm) { return Paleta.dentroDaFaixa }
+        return bpm > zona.maximo ? Paleta.foraForte : .secondary
     }
 
     private var icone: String {

@@ -8,6 +8,9 @@ struct DetalheTreinoView: View {
     let treino: Treino
     let porque: String?
     let salvo: TreinoSalvo?
+    /// Sessão do plano (ao começar, a corrida conta para ela) e a linha de contexto ("Semana 3 · quarta, 12/11").
+    var plano: (semana: Int, dia: Int)? = nil
+    var contexto: String? = nil
     @Environment(EstadoApp.self) var estadoApp
     @Environment(\.modelContext) var contexto
     @Environment(\.dismiss) var fechar
@@ -31,6 +34,11 @@ struct DetalheTreinoView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Selo(texto: treino.tipo.nome, icone: "figure.run")
+                if let contexto {
+                    Text(contexto)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
                 Text(treino.nome)
                     .font(.system(.largeTitle, design: .default, weight: .light))
                     .tracking(-0.8)
@@ -42,9 +50,18 @@ struct DetalheTreinoView: View {
                     .padding(18)
                     .cartaoVidro(raio: 24)
 
-                ListaBlocos(blocos: treino.blocos, zonas: zonas, unidade: unidade)
-                    .padding(18)
-                    .cartaoVidro(raio: 24)
+                VStack(alignment: .leading, spacing: 12) {
+                    ListaBlocos(blocos: treino.blocos, zonas: zonas, unidade: unidade)
+                    if ZonasDoUsuario.fcMaxima() == nil {
+                        Text("Para ver a zona de batimento de cada trecho, informe sua idade em Ajustes > Meus ritmos.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .cartaoVidro(raio: 24)
 
                 if let porque {
                     Text(porque)
@@ -97,7 +114,7 @@ struct DetalheTreinoView: View {
 
                 Button {
                     let ajuste = calor ? Calor.fracao(Calor.avaliar(wbgt: Calor.wbgtSimplificado(temperatura: Double(temperatura), umidade: Double(umidade)))) : 0
-                    estadoApp.abrirTreino(treino, esteira: esteira, ajusteCalor: ajuste)
+                    estadoApp.abrirTreino(treino, esteira: esteira, plano: plano, ajusteCalor: ajuste)
                 } label: {
                     Label("Começar", systemImage: "play.fill")
                         .font(.title3.weight(.semibold))

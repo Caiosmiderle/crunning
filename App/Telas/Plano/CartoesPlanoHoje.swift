@@ -60,10 +60,22 @@ struct CartoesPlanoHoje: View {
                         Circle().fill(sessao.tipo.cor).frame(width: 12, height: 12)
                         Text(sessao.treino.nome).font(.title2.weight(.semibold))
                     }
-                    Text(Formatador.distancia(sessao.distancia, unidade: unidade, casas: 1) + " · " + Formatador.duracao(sessao.duracao) + " · semana \(p.semana)")
+                    Text("≈ " + Formatador.distancia(sessao.distancia, unidade: unidade, casas: 1) + " · " + LinhaDoTempoTreino.tempoCurto(sessao.duracao) + " · semana \(p.semana)")
                         .font(.subheadline.monospacedDigit())
                         .foregroundStyle(.secondary)
                     LinhaDoTempoTreino(blocos: sessao.treino.blocos, zonas: ZonasDoUsuario.atuais(), legenda: false)
+                    NavigationLink {
+                        DetalheTreinoView(
+                            treino: sessao.treino,
+                            porque: sessao.treino.modeloID.flatMap { Modelos.modelo(id: $0)?.porque },
+                            salvo: nil,
+                            plano: (p.semana, p.dia),
+                            contexto: "Treino de hoje · semana \(p.semana)"
+                        )
+                    } label: {
+                        Label("Ver os trechos: tempo, distância, ritmo e zona", systemImage: "list.bullet.rectangle")
+                            .font(.subheadline.weight(.semibold))
+                    }
                     if let porque = sessao.treino.modeloID.flatMap({ Modelos.modelo(id: $0)?.porque }) {
                         Text(porque).font(.footnote).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                     }

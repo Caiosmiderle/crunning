@@ -6,6 +6,8 @@ struct MeusRitmosView: View {
     @AppStorage(Preferencias.unidade) var unidade: UnidadeDistancia = .quilometros
     @AppStorage(Preferencias.provaDistancia) var distancia: Double = 5000
     @AppStorage(Preferencias.provaTempo) var tempo: Double = 0
+    @AppStorage(Preferencias.idade) var idade = 0
+    @AppStorage(Preferencias.fcMaximaMedida) var fcMedida = 0
     @State var horas = 0
     @State var minutos = 0
     @State var segundos = 0
@@ -52,6 +54,32 @@ struct MeusRitmosView: View {
                 Text("Prova recente")
             } footer: {
                 Text("Uma prova ou um teste forte das últimas 6 semanas. Os ritmos de todos os treinos saem daqui.")
+            }
+
+            Section {
+                LabeledContent("Idade") {
+                    TextField("anos", value: $idade, format: .number)
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.trailing)
+                }
+                LabeledContent("FC máxima medida") {
+                    TextField("bpm (opcional)", value: $fcMedida, format: .number)
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.trailing)
+                }
+                if let fc = ZonasDoUsuario.fcMaxima() {
+                    LabeledContent("FC máxima usada", value: "\(Int(fc.valor.rounded())) bpm" + (fc.estimada ? " (estimada)" : ""))
+                    ForEach([Intensidade.caminhada, .facil, .maratona, .limiar, .intervalado]) { intensidade in
+                        if let zona = FrequenciaCardiaca.zona(intensidade, fcMaxima: fc.valor) {
+                            LabeledContent(intensidade == .caminhada ? "Caminhada e recuperação" : intensidade.nome, value: zona.texto)
+                                .monospacedDigit()
+                        }
+                    }
+                }
+            } header: {
+                Text("Frequência cardíaca")
+            } footer: {
+                Text("Com a idade, a FC máxima é estimada por 208 − 0,7 × idade (Tanaka e colegas, 2001), com erro de cerca de 10 bpm; se você souber a sua, de um teste ou de uma prova forte, informe e ela vale no lugar. Zonas de Daniels em % da FC máxima: fácil 65–79%, maratona 80–90%, limiar 88–92%, intervalado 98–100%. Tiros curtos e repetições vão pelo ritmo: o batimento demora a subir. Fica só no iPhone.")
             }
 
             if tempo > 0, zonas == nil {

@@ -35,6 +35,47 @@ enum TextoTreino {
         return "\(passo.intensidade.nome) · esforço \(e.lowerBound) a \(e.upperBound)"
     }
 
+    /// A outra medida estimada (tempo de um trecho por distância, distância de um por tempo) e a
+    /// zona de batimento: "≈ 1,6 km · Z2 · 123–151 bpm".
+    static func complemento(_ passo: Passo, zonas: Zonas?, unidade: UnidadeDistancia) -> String? {
+        var partes: [String] = []
+        let z = zonas ?? Zonas.estimativaSemReferencia(.intermediario)
+        let est = passo.estimativa(zonas: z)
+        switch passo.medida {
+        case .tempo:
+            if est.distancia >= 50 {
+                partes.append("≈ " + medida(.distancia((est.distancia / 50).rounded() * 50), unidade: unidade))
+            }
+        case .distancia:
+            if est.duracao > 0 {
+                partes.append("≈ " + (est.duracao < 600 ? Formatador.duracao((est.duracao / 5).rounded() * 5) : LinhaDoTempoTreino.tempoCurto(est.duracao)))
+            }
+        }
+        if let zona = ZonasDoUsuario.zonaFC(passo.intensidade) { partes.append(zona.texto) }
+        return partes.isEmpty ? nil : partes.joined(separator: " · ")
+    }
+
+    /// Um trecho por linha, para as notas do Calendário e o PDF:
+    /// "Aquecimento: 10 min · 6:10–6:50 /km · ≈ 1,6 km · Z2 · 123–151 bpm".
+    static func trechos(_ treino: Treino, zonas: Zonas?, unidade: UnidadeDistancia) -> String {
+        func linha(_ p: Passo, recuo: String) -> String {
+            var partes = [medida(p.medida, unidade: unidade), alvo(p, zonas: zonas, unidade: unidade)]
+            if let c = complemento(p, zonas: zonas, unidade: unidade) { partes.append(c) }
+            return recuo + "• " + EtapaExecucao.nome(p) + ": " + partes.joined(separator: " · ")
+        }
+        var linhas: [String] = []
+        for bloco in treino.blocos {
+            switch bloco {
+            case let .passo(p):
+                linhas.append(linha(p, recuo: ""))
+            case let .repetir(vezes, passos):
+                linhas.append("• \(vezes) vezes:")
+                linhas.append(contentsOf: passos.map { linha($0, recuo: "   ") })
+            }
+        }
+        return linhas.joined(separator: "\n")
+    }
+
     static func faixa(_ f: FaixaRitmo, unidade: UnidadeDistancia) -> String {
         Formatador.ritmo(segundosPorKm: f.rapido, unidade: unidade) + "–" + Formatador.ritmo(segundosPorKm: f.lento, unidade: unidade) + " " + unidade.siglaRitmo
     }
@@ -244,12 +285,21 @@ struct LinhaPasso: View {
                 Text(TextoTreino.alvo(passo, zonas: zonas, unidade: unidade))
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                if let complemento {
+                    Text(complemento)
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
             }
             Spacer(minLength: 8)
             Text(TextoTreino.medida(passo.medida, unidade: unidade))
                 .font(.body.monospacedDigit())
         }
         .accessibilityElement(children: .combine)
+    }
+
+    private var complemento: String? {
+        TextoTreino.complemento(passo, zonas: zonas, unidade: unidade)
     }
 }
 

@@ -57,7 +57,7 @@ struct PlanoAtivoView: View {
             .cartaoVidro(raio: 22)
 
             ForEach(0..<7, id: \.self) { dia in
-                linhaDia(agenda, semana: numero, dia: dia, hoje: hoje)
+                diaComDetalhe(agenda, semana: numero, dia: dia, hoje: hoje)
             }
 
             if let mensagem {
@@ -233,7 +233,7 @@ struct PlanoAtivoView: View {
                 RoundedRectangle(cornerRadius: 3, style: .continuous).fill(sessao.tipo.cor).frame(width: 6, height: 36)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(sessao.treino.nome).font(.body.weight(.medium))
-                    Text(Formatador.distancia(sessao.distancia, unidade: unidade, casas: 1) + " · " + Formatador.duracao(sessao.duracao))
+                    Text("≈ " + Formatador.distancia(sessao.distancia, unidade: unidade, casas: 1) + " · " + LinhaDoTempoTreino.tempoCurto(sessao.duracao))
                         .font(.caption.monospacedDigit()).foregroundStyle(.secondary)
                 }
                 Spacer()
@@ -255,6 +255,28 @@ struct PlanoAtivoView: View {
         .contentShape(Rectangle())
         .contextMenu { menuDia(agenda, semana: semana, dia: dia) }
         .accessibilityElement(children: .combine)
+    }
+
+    /// Dia do plano: com treino, abre o detalhe (blocos, ritmos, zonas e o botão de começar).
+    @ViewBuilder
+    private func diaComDetalhe(_ agenda: AgendaPlano, semana: Int, dia: Int, hoje: Date) -> some View {
+        if let sessao = agenda.sessao(semana: semana, dia: dia) {
+            let data = agenda.data(semana: semana, dia: dia)
+            NavigationLink {
+                DetalheTreinoView(
+                    treino: sessao.treino,
+                    porque: sessao.treino.modeloID.flatMap { Modelos.modelo(id: $0)?.porque },
+                    salvo: nil,
+                    plano: (semana, dia),
+                    contexto: "Semana \(semana) · " + data.formatted(.dateTime.weekday(.wide).day().month().locale(.ptBR))
+                )
+            } label: {
+                linhaDia(agenda, semana: semana, dia: dia, hoje: hoje)
+            }
+            .buttonStyle(.plain)
+        } else {
+            linhaDia(agenda, semana: semana, dia: dia, hoje: hoje)
+        }
     }
 
     @ViewBuilder

@@ -13,7 +13,7 @@ enum CalendarioSync {
     }
 
     /// Versão do formato dos eventos; ao mudar, os eventos são refeitos na abertura do app.
-    static let versaoEventos = 2
+    static let versaoEventos = 3
 
     static var precisaRefazer: Bool {
         ligado && UserDefaults.standard.integer(forKey: "versaoEventosCalendario") < versaoEventos
@@ -47,6 +47,10 @@ enum CalendarioSync {
 
     /// Apaga os eventos do calendário CRUNNING e cria um por sessão do plano (dia inteiro).
     /// Devolve quantos eventos criou, ou nil se não deu.
+    private static var unidade: UnidadeDistancia {
+        UnidadeDistancia(rawValue: UserDefaults.standard.string(forKey: Preferencias.unidade) ?? "") ?? .quilometros
+    }
+
     @discardableResult
     static func sincronizar(_ agenda: AgendaPlano) -> Int? {
         guard autorizado else { return nil }
@@ -66,7 +70,8 @@ enum CalendarioSync {
                 evento.startDate = inicio
                 evento.endDate = inicio
                 evento.title = "\(sessao.treino.nome) · " + Formatador.distancia(sessao.distancia, casas: 1)
-                var notas = "Semana \(semana.numero) (\(semana.fase.nome)). " + TextoRapido.texto(sessao.treino.blocos)
+                var notas = "Semana \(semana.numero) (\(semana.fase.nome)).\n\n"
+                    + TextoTreino.trechos(sessao.treino, zonas: ZonasDoUsuario.atuais(), unidade: unidade)
                 if let porque = sessao.treino.modeloID.flatMap({ Modelos.modelo(id: $0)?.porque }) { notas += "\n\n" + porque }
                 evento.notes = notas
                 if (try? loja.save(evento, span: .thisEvent, commit: false)) != nil { criados += 1 }

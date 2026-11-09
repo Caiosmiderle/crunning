@@ -33,6 +33,21 @@ final class TreinoSalvo {
 
 /// Ritmos do usuário a partir da prova de referência de Meus ritmos (nil sem prova).
 enum ZonasDoUsuario {
+    /// FC máxima: a medida (Ajustes > Meus ritmos) ou, sem ela, a estimada pela idade (Tanaka).
+    static func fcMaxima() -> (valor: Double, estimada: Bool)? {
+        let d = UserDefaults.standard
+        let medida = d.integer(forKey: Preferencias.fcMaximaMedida)
+        if (120...230).contains(medida) { return (Double(medida), false) }
+        let idade = d.integer(forKey: Preferencias.idade)
+        if (10...100).contains(idade) { return (FrequenciaCardiaca.maximaEstimada(idade: idade), true) }
+        return nil
+    }
+
+    /// Zona de batimento da intensidade (nil sem FC máxima ou sem faixa para a intensidade).
+    static func zonaFC(_ intensidade: Intensidade) -> ZonaFC? {
+        fcMaxima().flatMap { FrequenciaCardiaca.zona(intensidade, fcMaxima: $0.valor) }
+    }
+
     static func atuais() -> Zonas? {
         let d = UserDefaults.standard
         let tempo = d.double(forKey: Preferencias.provaTempo)

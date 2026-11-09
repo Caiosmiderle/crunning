@@ -45,6 +45,9 @@ enum Preferencias {
     static let usarFC = "usarFC"
     /// Enviar cada corrida ao Strava ao salvar (com a conta conectada).
     static let stravaAutomatico = "stravaAutomatico"
+    /// Idade (para estimar a FC máxima) e FC máxima medida (tem prioridade). Ficam no iPhone.
+    static let idade = "idade"
+    static let fcMaximaMedida = "fcMaximaMedida"
     /// Modo de desenvolvimento: o coach responde com textos fixos, sem gastar a API.
     static let simularCoach = "simularCoach"
 }
