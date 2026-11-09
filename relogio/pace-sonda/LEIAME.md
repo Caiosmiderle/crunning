@@ -38,9 +38,15 @@ Trazer os registros para o PC:
 adb pull /sdcard/CRUNNING-sonda C:\Users\caiog\crunning-artifacts\pace-sonda
 ```
 
+## O que já foi conferido (09/11/2026, relógio no cabo)
+
+- Instala pelo ADB e abre; a tela aparece certa (320x300).
+- **Começar** sobe o serviço em primeiro plano; o sensor encontrado é "Heart Rate Sensor / Huami Tech"; o CSV recebe uma linha por segundo e **Parar** grava o evento "fim".
+- No carregador, a tela de carga da Huami cobre o app quando a tela acorda, e depois que a luz apaga volta o mostrador. Por isso o batimento e o GPS só dá para testar fora do cabo.
+
 ## O teste na rua
 
-1. Com o app aberto, toque em **Começar**. Espere o GPS ficar "ok" e o batimento aparecer.
+1. Fora do cabo, procure **CRUNNING sonda** na lista de apps do relógio. Se não aparecer, ligue no PC e inicie por lá (`adb shell am start ...` e toque em Começar). Com o app aberto, toque em **Começar**. Espere o GPS ficar "ok" e o batimento aparecer.
 2. Deixe a luz apagar sozinha e anote o que a tela mostra.
 3. Corra 30 minutos sem mexer no relógio (pode olhar o pulso).
 4. Em casa, toque em **Parar** (se o app ainda estiver lá) e ligue o relógio no PC.
