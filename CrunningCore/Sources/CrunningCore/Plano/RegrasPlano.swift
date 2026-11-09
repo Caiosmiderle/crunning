@@ -18,6 +18,9 @@ public enum RegrasPlano {
     public static let pisoVolumeReferencia = 10_000.0
     public static let pisoLongaoReferencia = 3_000.0
 
+    /// O volume sobe em rampa e chega ao pico nesta fração das semanas antes do polimento (escolha do app).
+    public static let fracaoSemanasAtePico = 0.75
+
     // MARK: Alívio
 
     public static func aliviaACada(_ nivel: Nivel) -> Int { nivel == .iniciante ? 3 : 4 }

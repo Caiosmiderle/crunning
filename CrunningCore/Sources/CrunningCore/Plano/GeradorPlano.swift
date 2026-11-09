@@ -129,6 +129,14 @@ public enum GeradorPlano {
         let fatoresPolimento = RegrasPlano.fatoresPolimento(semanasPolimento)
         var indicePolimento = 0
         let aCada = RegrasPlano.aliviaACada(e.nivel)
+        // Rampa: o volume chega ao pico perto de 3/4 das semanas antes do polimento, em vez de
+        // subir o teto de 10% toda semana e ficar semanas parado no pico.
+        let referencia = h.volumes.first ?? RegrasPlano.pisoVolumeReferencia
+        let semanasAntesDoPolimento = primeira - 1 + fases.filter { $0 != .polimento }.count
+        let semanaDoPico = max(1, Int((RegrasPlano.fracaoSemanasAtePico * Double(semanasAntesDoPolimento)).rounded()))
+        func rampa(_ numero: Int) -> Double {
+            referencia + max(0, picoAlvo - referencia) * min(1, Double(numero) / Double(semanaDoPico))
+        }
 
         for (i, fase) in fases.enumerated() {
             let numero = primeira + i
@@ -157,7 +165,7 @@ public enum GeradorPlano {
             } else if i == 0, let volumeForcado {
                 alvo = volumeForcado
             } else {
-                let crescer = janela * (1 + e.tetoProgressao)
+                let crescer = min(janela * (1 + e.tetoProgressao), rampa(numero))
                 let voltar = min(maiorHistorico, limiteSalto)
                 alvo = min(max(crescer, voltar), picoAlvo)
             }
@@ -742,7 +750,11 @@ public enum GeradorPlano {
         }
         linhas.append("Fases: " + trechos.joined(separator: ", ") + ".")
         let referencia = max(e.volumeAtual, RegrasPlano.pisoVolumeReferencia)
-        linhas.append("O volume parte de \(km(referencia)) por semana e sobe no máximo \(Int((e.tetoProgressao * 100).rounded()))% sobre as 3 semanas anteriores, nunca mais de 25% de uma semana para a outra.")
+        let pico = volumePico(e, referencia: referencia)
+        let subida = pico > referencia + 500
+            ? "sobe aos poucos até no máximo \(km(pico)), o pico do objetivo para o seu nível, perto de 3/4 das semanas antes do polimento"
+            : "fica nesse nível, que já é o pico do objetivo para o seu nível"
+        linhas.append("O volume parte de \(km(referencia)) por semana e \(subida). Nunca sobe mais de \(Int((e.tetoProgressao * 100).rounded()))% sobre as 3 semanas anteriores, nem mais de 25% de uma semana para a outra.")
         linhas.append("Semana de alívio a cada \(RegrasPlano.aliviaACada(e.nivel)) semanas, com 20% menos volume.")
         linhas.append("Nenhuma corrida passa 10% da maior das 4 semanas anteriores. O longão é a maior corrida da semana (as fáceis ficam em até 80% dele) e tem limite de fração do volume e de tempo (\(Int(RegrasPlano.duracaoMaximaCorrida(e.objetivo) / 60)) minutos).")
         linhas.append("No máximo \(RegrasPlano.maximoQualidade(e.nivel)) treinos de qualidade por semana, nunca em dias seguidos nem colados no longão, e até 20% do volume em qualidade.")
