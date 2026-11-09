@@ -4,16 +4,18 @@ O CI compila o app e roda os testes do motor, mas não sai para correr. Tudo aqu
 
 ## Fase 3: corrida livre com GPS
 
-### Antes de sair (em casa, 5 minutos)
+### Antes de sair (em casa, 10 minutos)
 
-1. Instale o build novo por cima (passo 5 do INSTALAR.md). As corridas de exemplo antigas continuam lá.
+1. Instale o build novo por cima (passo 5 do INSTALAR.md). As corridas que você já tem continuam lá.
 2. **Histórico:** ligue Ajustes > Modo de desenvolvimento e toque em "Gerar corrida de exemplo". Abra a corrida: deve ter mapa colorido pelo ritmo, parciais por km, gráfico de ritmo e de altitude. No menu "…", "Exportar GPX" abre o compartilhamento (salve em Arquivos para conferir).
-3. **Simulação:** em Ajustes, ligue "Simular GPS" (10x). Na aba Hoje, "Correr agora" > deslize para iniciar. Em uns 2 minutos a volta fictícia termina; no meio ela para 20 s (deve aparecer "Pausa automática" e depois "Retomando") e a cada km aparece "Km N · tempo". Pause, deslize para finalizar, dê uma nota de esforço e salve.
-4. **Desligue a simulação** antes de sair (Ajustes > Simular GPS).
+3. **Tela bloqueada (simulação):** em Ajustes, ligue "Simular GPS" e escolha **5x**. Na aba Hoje, "Correr agora". Na primeira vez o iPhone pede a localização: escolha **Permitir Durante o Uso** (na simulação o GPS de verdade liga só para o app continuar com a tela bloqueada). Deslize para iniciar, espere uns 20 s e **bloqueie a tela por 1 minuto**. Ao desbloquear, a distância tem que ter andado nesse minuto (a 5x, uns 800 m). No canto da tela aparece o indicador de localização.
+4. **App fechado no meio:** com a simulação ainda correndo, abra o seletor de apps (deslize de baixo para cima e segure) e **feche o CRUNNING**. Abra de novo: a tela de corrida volta sozinha com "Corrida recuperada", do ponto em que parou, e segue andando. Pause, deslize para finalizar, dê uma nota de esforço e salve.
+5. No Histórico, abra essa corrida e toque em **Sinal do GPS**: deve mostrar pontos "com a tela bloqueada ou o app em segundo plano" e "Vezes que o iOS fechou o app: 1".
+6. **Desligue a simulação** antes de sair (Ajustes > Simular GPS).
 
 ### Na rua (uma corrida de 20 a 40 minutos)
 
-1. Na aba Hoje, "Correr agora". Na primeira vez o iPhone pede a localização: escolha **Permitir Durante o Uso**. É o suficiente: com a corrida rodando, o app continua gravando com a tela bloqueada (aparece o indicador azul no canto).
+1. Na aba Hoje, "Correr agora". Se o iPhone pedir a localização, escolha **Permitir Durante o Uso**. É o suficiente: com a corrida rodando, o app continua gravando com a tela bloqueada (aparece o indicador de localização no canto).
 2. Espere o selo do GPS ficar verde ("GPS ótimo" ou "GPS bom") e deslize para iniciar.
 3. Corra os primeiros minutos olhando a tela: distância subindo, ritmo atual mudando, tempo correndo.
 4. **Bloqueie a tela** e corra pelo menos 10 minutos assim, com o celular no bolso. Pode ouvir música.
@@ -26,10 +28,13 @@ O CI compila o app e roda os testes do motor, mas não sai para correr. Tudo aqu
 - A distância bateu com o que você esperava (ou com outro app/relógio, se tiver)? Diferença de até 2% a 3% é normal de GPS.
 - Com a tela bloqueada a gravação **continuou**? (O mapa da corrida tem que ser contínuo, sem "linha reta" cortando caminho.)
 - A pausa automática disparou no semáforo? Disparou sem você parar?
+- O cartão **Sinal do GPS** da corrida (no Histórico): quantos pontos com a tela bloqueada, maior intervalo sem ponto e se o iOS fechou o app. Um print dele resolve quase tudo.
 - O ritmo atual fazia sentido ou pulava muito?
 - O mapa, as parciais e os gráficos no Histórico ficaram certos?
 - Algum travamento, tela branca ou corrida perdida.
 
 ### Se o iOS fechar o app no meio
 
-Se o app for encerrado durante a corrida (pouca memória, por exemplo), ao abrir de novo ele mostra "Corrida não terminada" com três opções: continuar (fica pausada no último ponto salvo), salvar como está ou descartar. O app salva a corrida em disco a cada 10 segundos, então perde no máximo esse tempo.
+O app salva a corrida em disco a cada 10 segundos. Se o iOS fechar o app durante a corrida (pouca memória, por exemplo), ele mesmo reabre o app em segundo plano quando chega localização nova, e a gravação continua sem você fazer nada. Se não reabrir, a corrida volta quando você abrir o app: a tela de corrida aparece sozinha, do jeito que estava (correndo ou pausada), e o trecho em que o app ficou fechado vira uma linha reta no mapa. Se ficou fechado por mais de 30 minutos, a corrida volta pausada no último ponto salvo: aí você retoma ou finaliza.
+
+Fechar o app de propósito pelo seletor de apps também cai nesse caso: o iOS não reabre sozinho (você mandou fechar), mas a corrida volta quando você abrir o app.

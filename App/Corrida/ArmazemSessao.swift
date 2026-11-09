@@ -2,13 +2,15 @@ import CrunningCore
 import Foundation
 
 /// Corrida em andamento salva em disco, para recuperar se o iOS fechar o app.
-struct SessaoSalva: Codable, Sendable, Identifiable {
+struct SessaoSalva: Codable, Sendable {
     var sessao: SessaoCorrida
     var simulada: Bool
     /// Último instante conhecido da gravação (relógio da corrida).
     var salvaEm: Date
-
-    var id: Date { salvaEm }
+    var diagnostico: DiagnosticoGPS? = nil
+    /// Velocidade e semente da simulação, para retomar a mesma rota no mesmo ritmo.
+    var multiplicador: Double? = nil
+    var sementeSimulacao: UInt64? = nil
 }
 
 /// Grava e lê a corrida em andamento. Tudo passa por uma fila serial, então um
@@ -52,11 +54,18 @@ enum Simulacao {
         FileManager.default.fileExists(atPath: arquivoGPX.path(percentEncoded: false))
     }
 
-    static func pontos() -> [PontoGPS] {
+    /// Semente nova para a rota de exemplo (cabe sem perda no JSON da cópia de segurança).
+    static func novaSemente() -> UInt64 {
+        UInt64.random(in: 1...UInt64(UInt32.max))
+    }
+
+    /// O .gpx importado, se houver; senão a rota de exemplo daquela semente
+    /// (a mesma semente dá a mesma rota, para retomar uma simulação interrompida).
+    static func pontos(semente: UInt64) -> [PontoGPS] {
         if let dados = try? Data(contentsOf: arquivoGPX), let pontos = try? GPX.ler(dados), pontos.count >= 2 {
             return pontos
         }
-        return RotaSimulada.gerar(inicio: .now, semente: UInt64.random(in: 1...UInt64.max))
+        return RotaSimulada.gerar(inicio: .now, semente: semente)
     }
 
     /// Valida e guarda o .gpx escolhido. Devolve quantos pontos ele tem.

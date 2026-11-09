@@ -3,6 +3,7 @@ import SwiftUI
 
 @main
 struct CrunningApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegado
     @AppStorage(Preferencias.tema) var tema: Tema = .escuro
 
     var body: some Scene {

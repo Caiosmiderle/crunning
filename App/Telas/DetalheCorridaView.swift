@@ -13,6 +13,7 @@ struct DadosCorrida {
     var subida: Double
     var esforco: Int?
     var simulada: Bool
+    var diagnostico: DiagnosticoGPS?
 
     init(_ corrida: Corrida) {
         titulo = corrida.titulo
@@ -23,6 +24,7 @@ struct DadosCorrida {
         subida = corrida.subidaMetros
         esforco = corrida.esforcoPercebido
         simulada = corrida.simulada
+        diagnostico = corrida.carregarDiagnostico()
     }
 }
 
@@ -98,6 +100,12 @@ struct DetalheCorridaView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .cartaoVidro()
                 }
+
+                if let diagnostico = dados.diagnostico {
+                    CartaoDiagnosticoGPS(diagnostico: diagnostico)
+                        .padding(20)
+                        .cartaoVidro()
+                }
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 32)
@@ -155,5 +163,81 @@ struct DetalheCorridaView: View {
             }
         }
         carregou = true
+    }
+}
+
+/// Como o GPS se comportou: prova (ou não) que a gravação seguiu com a tela bloqueada.
+struct CartaoDiagnosticoGPS: View {
+    let diagnostico: DiagnosticoGPS
+    @State var aberto = false
+
+    var body: some View {
+        DisclosureGroup(isExpanded: $aberto) {
+            VStack(alignment: .leading, spacing: 10) {
+                linha("Pontos com o app na tela", "\(diagnostico.pontosPrimeiroPlano)")
+                linha("Pontos com a tela bloqueada ou o app em segundo plano", "\(diagnostico.pontosSegundoPlano)")
+                linha("Maior intervalo sem ponto", maiorIntervalo)
+                linha("Intervalos de \(Int(DiagnosticoGPS.intervaloLongo)) s ou mais", "\(diagnostico.intervalosLongos)")
+                linha("Vezes que o iOS fechou o app", "\(diagnostico.quantas(.reaberto))")
+                if !diagnostico.eventos.isEmpty {
+                    Divider()
+                    ForEach(Array(diagnostico.eventos.suffix(30).enumerated()), id: \.offset) { _, evento in
+                        HStack(alignment: .firstTextBaseline) {
+                            Text(evento.instante.formatted(.dateTime.hour().minute().second().locale(.ptBR)))
+                                .monospacedDigit()
+                                .foregroundStyle(.secondary)
+                            Text(evento.tipo.descricao)
+                                .foregroundStyle(evento.tipo.ehProblema ? Paleta.foraForte : Color.primary)
+                        }
+                        .font(.footnote)
+                    }
+                    if diagnostico.eventos.count > 30 || diagnostico.eventosDescartados > 0 {
+                        Text("Mostrando os 30 últimos avisos.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .padding(.top, 12)
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: diagnostico.temProblema ? "exclamationmark.triangle.fill" : "checkmark.seal.fill")
+                    .foregroundStyle(diagnostico.temProblema ? Paleta.foraLeve : Paleta.verdeLogo)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Sinal do GPS")
+                        .font(.headline)
+                    Text(resumo)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .tint(.primary)
+        .accessibilityElement(children: .contain)
+    }
+
+    private var resumo: String {
+        if diagnostico.quantas(.reaberto) > 0 { return "O iOS fechou o app no meio; a corrida foi retomada." }
+        if diagnostico.maiorIntervalo >= DiagnosticoGPS.intervaloLongo { return "Ficou \(maiorIntervalo) sem ponto." }
+        if diagnostico.eventos.contains(where: { $0.tipo.ehProblema }) { return "O iOS avisou de problemas no GPS." }
+        return "Gravou sem falhas."
+    }
+
+    private var maiorIntervalo: String {
+        let segundos = diagnostico.maiorIntervalo
+        guard segundos >= 1 else { return "menos de 1 s" }
+        return segundos < 60 ? "\(Int(segundos.rounded())) s" : Formatador.duracao(segundos)
+    }
+
+    private func linha(_ titulo: String, _ valor: String) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(titulo)
+                .foregroundStyle(.secondary)
+            Spacer(minLength: 12)
+            Text(valor)
+                .monospacedDigit()
+                .multilineTextAlignment(.trailing)
+        }
+        .font(.subheadline)
     }
 }

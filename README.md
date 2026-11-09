@@ -4,7 +4,7 @@ App nativo de iPhone para planejar e executar treinos de corrida. Uso pessoal, u
 
 ## Situação
 
-Fase 3 (corrida livre com GPS): gravação em segundo plano com pausa manual e automática, tempo em movimento, ritmo atual, parciais, recuperação se o iOS fechar o app, histórico com mapa colorido pelo ritmo, gráficos de ritmo e altitude, esforço percebido e exportação em GPX. Simulação de GPS para testar em casa. Instalar: [docs/INSTALAR.md](docs/INSTALAR.md). Testar na rua: [docs/TESTES-NA-RUA.md](docs/TESTES-NA-RUA.md).
+Fase 3 (corrida livre com GPS): gravação com a tela bloqueada (`CLLocationUpdate` + sessões de segundo plano, com o app reaberto pelo iOS se ele o fechar no meio), pausa manual e automática, tempo em movimento, ritmo atual, parciais, corrida retomada sozinha depois de o app fechar, diagnóstico do sinal do GPS por corrida, histórico com mapa colorido pelo ritmo, gráficos de ritmo e altitude, esforço percebido e exportação em GPX. Simulação de GPS para testar em casa. Instalar: [docs/INSTALAR.md](docs/INSTALAR.md). Testar na rua: [docs/TESTES-NA-RUA.md](docs/TESTES-NA-RUA.md).
 
 ## Como é feito
 

@@ -1,59 +1,55 @@
 import CrunningCore
 import Foundation
 import Observation
-import SwiftData
 
-/// Estado do app inteiro: a corrida aberta e a corrida a recuperar.
+/// Estado do app inteiro: a corrida aberta. Existe um só, criado na abertura do
+/// processo e independente das telas, porque o iOS pode reabrir o app em segundo
+/// plano (sem tela nenhuma) para entregar localização no meio de uma corrida.
 @MainActor
 @Observable
 final class EstadoApp {
-    var gravadorAtivo: GravadorCorrida?
-    var sessaoParaRecuperar: SessaoSalva?
+    static let compartilhado = EstadoApp()
 
-    func abrirCorridaLivre(sessaoRecuperada: SessaoCorrida? = nil) {
+    var gravadorAtivo: GravadorCorrida?
+    @ObservationIgnored private var verificouPendente = false
+
+    private init() {}
+
+    func abrirCorridaLivre() {
         guard gravadorAtivo == nil else { return }
         let padroes = UserDefaults.standard
         let pausaAutomatica = padroes.object(forKey: Preferencias.pausaAutomatica) as? Bool ?? true
-        let telaAcesa = padroes.object(forKey: Preferencias.telaAcesa) as? Bool ?? true
         let simular = padroes.bool(forKey: Preferencias.modoDesenvolvimento) && padroes.bool(forKey: Preferencias.simularGPS)
         let multiplicador = padroes.object(forKey: Preferencias.velocidadeSimulacao) as? Double ?? 10
 
+        var simulacao: OrigemSimulada?
+        if simular {
+            let semente = Simulacao.novaSemente()
+            simulacao = OrigemSimulada(pontos: Simulacao.pontos(semente: semente), multiplicador: multiplicador, semente: semente)
+        }
         gravadorAtivo = GravadorCorrida(
             configuracao: ConfiguracaoCorrida(pausaAutomatica: pausaAutomatica),
-            pontosSimulados: simular && sessaoRecuperada == nil ? Simulacao.pontos() : nil,
-            multiplicadorSimulacao: multiplicador,
-            manterTelaAcesa: telaAcesa,
-            sessaoRecuperada: sessaoRecuperada
+            simulacao: simulacao,
+            manterTelaAcesa: Self.manterTelaAcesa
         )
     }
 
-    /// Ao abrir o app: há uma corrida que não chegou a ser salva?
-    func verificarSessaoPendente() {
-        guard gravadorAtivo == nil, sessaoParaRecuperar == nil,
-              let salva = ArmazemSessao.carregar(), salva.sessao.estado != .pronta else { return }
-        sessaoParaRecuperar = salva
+    /// Na abertura do processo: se havia uma corrida em andamento quando o iOS fechou
+    /// o app, ela volta na hora, com o GPS e as sessões de localização recriados
+    /// (é o que a Apple pede para a gravação continuar depois de o app ser reaberto
+    /// em segundo plano). A tela de corrida aparece assim que você abrir o app.
+    func restaurarCorridaPendente() {
+        guard !verificouPendente else { return }
+        verificouPendente = true
+        guard gravadorAtivo == nil,
+              let salva = ArmazemSessao.carregar(),
+              salva.sessao.estado != .pronta else { return }
+        let gravador = GravadorCorrida(recuperada: salva, manterTelaAcesa: Self.manterTelaAcesa)
+        gravadorAtivo = gravador
+        gravador.continuarDepoisDeReaberta()
     }
 
-    /// Continua de onde parou, pausada no último instante conhecido
-    /// (o tempo em que o app ficou fechado não conta como movimento).
-    func continuar(_ salva: SessaoSalva) {
-        var sessao = salva.sessao
-        sessao.pausar(em: salva.salvaEm)
-        sessaoParaRecuperar = nil
-        abrirCorridaLivre(sessaoRecuperada: sessao)
-    }
-
-    func salvarComoEsta(_ salva: SessaoSalva, em contexto: ModelContext) {
-        var sessao = salva.sessao
-        sessao.finalizar(em: salva.salvaEm)
-        contexto.insert(Corrida.de(sessao: sessao, simulada: salva.simulada, esforco: nil, agora: salva.salvaEm))
-        try? contexto.save()
-        ArmazemSessao.apagar()
-        sessaoParaRecuperar = nil
-    }
-
-    func descartarRecuperacao() {
-        ArmazemSessao.apagar()
-        sessaoParaRecuperar = nil
+    private static var manterTelaAcesa: Bool {
+        UserDefaults.standard.object(forKey: Preferencias.telaAcesa) as? Bool ?? true
     }
 }

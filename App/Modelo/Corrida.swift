@@ -4,7 +4,7 @@ import SwiftData
 
 /// Uma corrida gravada. Todo campo tem valor padrão para o SwiftData migrar
 /// sozinho quando surgirem campos novos (a fase 3 acrescentou trilha, subida,
-/// esforço e simulada sem perder as corridas antigas).
+/// esforço e simulada, e a 0.3.1 o diagnóstico, sem perder as corridas antigas).
 @Model
 final class Corrida {
     var inicio: Date = Date.now
@@ -21,6 +21,8 @@ final class Corrida {
     var esforcoPercebido: Int? = nil
     /// Gravada com o GPS simulado.
     var simulada: Bool = false
+    /// Como o GPS se comportou ([DiagnosticoGPS] em JSON; sem coordenadas).
+    var diagnostico: Data? = nil
 
     init(
         inicio: Date,
@@ -50,8 +52,13 @@ final class Corrida {
         return (try? JSONDecoder().decode([AmostraTrilha].self, from: trilha)) ?? []
     }
 
+    func carregarDiagnostico() -> DiagnosticoGPS? {
+        guard let diagnostico else { return nil }
+        return try? JSONDecoder().decode(DiagnosticoGPS.self, from: diagnostico)
+    }
+
     /// Monta a corrida a partir da gravação terminada.
-    static func de(sessao: SessaoCorrida, simulada: Bool, esforco: Int?, agora: Date) -> Corrida {
+    static func de(sessao: SessaoCorrida, simulada: Bool, esforco: Int?, agora: Date, diagnostico: DiagnosticoGPS? = nil) -> Corrida {
         let fim = sessao.fim ?? agora
         let corrida = Corrida(
             inicio: sessao.inicio ?? fim,
@@ -64,6 +71,7 @@ final class Corrida {
         corrida.esforcoPercebido = esforco
         corrida.simulada = simulada
         corrida.trilha = try? JSONEncoder().encode(sessao.amostras)
+        corrida.diagnostico = diagnostico.flatMap { try? JSONEncoder().encode($0) }
         return corrida
     }
 

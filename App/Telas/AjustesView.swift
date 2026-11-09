@@ -85,7 +85,7 @@ struct AjustesView: View {
                                     mensagemSimulacao = nil
                                 }
                             }
-                            Text(mensagemSimulacao ?? "Com a simulação ligada, \"Correr agora\" reproduz a rota como se fosse o GPS, para testar a tela de corrida sem sair de casa.")
+                            Text(mensagemSimulacao ?? "Com a simulação ligada, \"Correr agora\" reproduz a rota como se fosse o GPS, para testar a tela de corrida sem sair de casa. O GPS de verdade também liga (pede a permissão de localização), só para a simulação continuar com a tela bloqueada; os pontos dele não entram na corrida.")
                                 .font(.footnote)
                                 .foregroundStyle(.secondary)
                         }

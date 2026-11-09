@@ -2,13 +2,21 @@ import CoreLocation
 import CrunningCore
 import Foundation
 
+/// Uma entrega da fonte de localização: o ponto (se veio) e os avisos do iOS.
+struct LeituraGPS: Sendable {
+    var instante: Date
+    var ponto: PontoGPS?
+    var parado = false
+    var semSinal = false
+    var usoInsuficiente = false
+    var precisaoReduzida = false
+    var semPermissao = false
+}
+
 /// De onde vêm os pontos: GPS de verdade ou uma rota simulada.
 @MainActor
 protocol FonteLocalizacao: AnyObject {
-    var aoReceber: ((PontoGPS) -> Void)? { get set }
-    var aoMudarAutorizacao: ((CLAuthorizationStatus) -> Void)? { get set }
-    var autorizacao: CLAuthorizationStatus { get }
-    func pedirAutorizacao()
+    var aoLer: ((LeituraGPS) -> Void)? { get set }
     func iniciar()
     func parar()
 }
@@ -27,56 +35,80 @@ extension PontoGPS {
     }
 }
 
-/// GPS do iPhone, configurado para corrida e para continuar com a tela bloqueada
-/// (modo de segundo plano "location" no Info.plist + indicador azul).
+extension LeituraGPS {
+    init(_ atualizacao: CLLocationUpdate) {
+        let ponto = atualizacao.location.map(PontoGPS.init(local:))
+        self.init(
+            instante: ponto?.instante ?? .now,
+            ponto: ponto,
+            parado: atualizacao.stationary,
+            semSinal: atualizacao.locationUnavailable,
+            usoInsuficiente: atualizacao.insufficientlyInUse,
+            precisaoReduzida: atualizacao.accuracyLimited,
+            semPermissao: atualizacao.authorizationDenied || atualizacao.authorizationDeniedGlobally
+                || atualizacao.authorizationRestricted
+        )
+    }
+}
+
+/// GPS do iPhone pelo caminho que a Apple indica para treino com a tela bloqueada:
+/// `CLServiceSession` (permissão "durante o uso"), `CLBackgroundActivitySession`
+/// (mantém o app "em uso" em segundo plano, com o indicador azul) e
+/// `CLLocationUpdate.liveUpdates(.fitness)`. Se o iOS fechar o app no meio, ele o
+/// reabre em segundo plano quando há localização nova; aí o app recria as sessões
+/// logo na abertura (veja `EstadoApp.restaurarCorridaPendente`) e a gravação continua.
 @MainActor
 final class LocalizacaoReal: NSObject, FonteLocalizacao, CLLocationManagerDelegate {
-    var aoReceber: ((PontoGPS) -> Void)?
+    var aoLer: ((LeituraGPS) -> Void)?
     var aoMudarAutorizacao: ((CLAuthorizationStatus) -> Void)?
 
+    /// Só para ler e acompanhar a permissão; os pontos vêm do `liveUpdates`.
     private let gerente = CLLocationManager()
+    private var sessaoServico: CLServiceSession?
     private var sessaoFundo: CLBackgroundActivitySession?
-    private var ativo = false
+    private var tarefa: Task<Void, Never>?
 
     override init() {
         super.init()
         gerente.delegate = self
-        gerente.activityType = .fitness
-        gerente.desiredAccuracy = kCLLocationAccuracyBest
-        gerente.distanceFilter = kCLDistanceFilterNone
-        gerente.pausesLocationUpdatesAutomatically = false
-        gerente.showsBackgroundLocationIndicator = true
     }
 
     var autorizacao: CLAuthorizationStatus { gerente.authorizationStatus }
 
-    func pedirAutorizacao() {
-        gerente.requestWhenInUseAuthorization()
-    }
+    var ativo: Bool { tarefa != nil }
 
     func iniciar() {
-        ativo = true
-        guard autorizacao == .authorizedWhenInUse || autorizacao == .authorizedAlways else {
-            if autorizacao == .notDetermined { pedirAutorizacao() }
-            return
-        }
-        gerente.allowsBackgroundLocationUpdates = true
+        guard tarefa == nil else { return }
+        // As sessões vêm antes das atualizações. A de serviço pede a permissão "durante o uso"
+        // se ainda não foi dada; a de segundo plano mantém o app recebendo com a tela bloqueada.
+        if sessaoServico == nil { sessaoServico = CLServiceSession(authorization: .whenInUse) }
         if sessaoFundo == nil { sessaoFundo = CLBackgroundActivitySession() }
-        gerente.startUpdatingLocation()
+        let entregar: @MainActor @Sendable (LeituraGPS) -> Void = { [weak self] leitura in
+            self?.aoLer?(leitura)
+        }
+        tarefa = Task { await Self.escutar(entregar: entregar) }
     }
 
     func parar() {
-        ativo = false
-        gerente.stopUpdatingLocation()
-        gerente.allowsBackgroundLocationUpdates = false
+        tarefa?.cancel()
+        tarefa = nil
         sessaoFundo?.invalidate()
         sessaoFundo = nil
+        sessaoServico?.invalidate()
+        sessaoServico = nil
     }
 
-    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        let pontos = locations.map(PontoGPS.init(local:))
-        MainActor.assumeIsolated {
-            for ponto in pontos { aoReceber?(ponto) }
+    /// Lê as atualizações fora da thread principal e entrega cada uma já convertida.
+    nonisolated private static func escutar(entregar: @escaping @MainActor @Sendable (LeituraGPS) -> Void) async {
+        do {
+            for try await atualizacao in CLLocationUpdate.liveUpdates(.fitness) {
+                if Task.isCancelled { break }
+                let leitura = LeituraGPS(atualizacao)
+                await entregar(leitura)
+            }
+        } catch {
+            // A sequência só termina com erro em falha grave do serviço; a corrida
+            // continua com o que já tem e o diagnóstico mostra o buraco.
         }
     }
 
@@ -84,15 +116,7 @@ final class LocalizacaoReal: NSObject, FonteLocalizacao, CLLocationManagerDelega
         let status = manager.authorizationStatus
         MainActor.assumeIsolated {
             aoMudarAutorizacao?(status)
-            // Pediu para iniciar antes da permissão: começa assim que ela chega.
-            if ativo, status == .authorizedWhenInUse || status == .authorizedAlways {
-                iniciar()
-            }
         }
-    }
-
-    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
-        // Falhas temporárias (sem sinal) não param a corrida; o GPS volta sozinho.
     }
 }
 
@@ -110,14 +134,17 @@ final class RelogioReal: Relogio {
 @MainActor
 final class RelogioAcelerado: Relogio {
     private let inicioReal = Date.now
+    /// Onde o relógio da simulação começa (o instante salvo, quando a simulação é retomada).
+    private let inicioVirtual: Date
     let multiplicador: Double
 
-    init(multiplicador: Double) {
+    init(multiplicador: Double, comecandoEm inicioVirtual: Date? = nil) {
         self.multiplicador = max(1, multiplicador)
+        self.inicioVirtual = inicioVirtual ?? inicioReal
     }
 
     var agora: Date {
-        inicioReal.addingTimeInterval(Date.now.timeIntervalSince(inicioReal) * multiplicador)
+        inicioVirtual.addingTimeInterval(Date.now.timeIntervalSince(inicioReal) * multiplicador)
     }
 }
 
@@ -125,35 +152,37 @@ final class RelogioAcelerado: Relogio {
 /// no ritmo do relógio acelerado.
 @MainActor
 final class LocalizacaoSimulada: FonteLocalizacao {
-    var aoReceber: ((PontoGPS) -> Void)?
-    var aoMudarAutorizacao: ((CLAuthorizationStatus) -> Void)?
-    var autorizacao: CLAuthorizationStatus { .authorizedWhenInUse }
+    var aoLer: ((LeituraGPS) -> Void)?
 
     private let pontos: [PontoGPS]
     private let relogio: any Relogio
+    /// Início da corrida simulada, quando ela é retomada depois de o iOS fechar o app:
+    /// a rota continua do ponto em que parou em vez de recomeçar.
+    private let ancora: Date?
     private var tarefa: Task<Void, Never>?
 
-    init(pontos: [PontoGPS], relogio: any Relogio) {
+    init(pontos: [PontoGPS], relogio: any Relogio, ancora: Date? = nil) {
         self.pontos = pontos
         self.relogio = relogio
+        self.ancora = ancora
     }
-
-    func pedirAutorizacao() {}
 
     func iniciar() {
         guard tarefa == nil, let base = pontos.first?.instante else { return }
-        let inicioVirtual = relogio.agora
+        let inicioVirtual = ancora ?? relogio.agora
+        let jaPassou = ancora == nil ? nil : relogio.agora
         tarefa = Task { [weak self] in
             guard let self else { return }
             for ponto in self.pontos {
                 let alvo = inicioVirtual.addingTimeInterval(ponto.instante.timeIntervalSince(base))
+                if let jaPassou, alvo <= jaPassou { continue }
                 while self.relogio.agora < alvo {
                     try? await Task.sleep(for: .milliseconds(50))
                     if Task.isCancelled { return }
                 }
                 var reprogramado = ponto
                 reprogramado.instante = alvo
-                self.aoReceber?(reprogramado)
+                self.aoLer?(LeituraGPS(instante: alvo, ponto: reprogramado))
             }
         }
     }

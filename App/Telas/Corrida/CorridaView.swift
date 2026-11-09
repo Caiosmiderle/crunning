@@ -6,7 +6,6 @@ import SwiftUI
 struct CorridaView: View {
     let gravador: GravadorCorrida
     @Environment(EstadoApp.self) var estadoApp
-    @Environment(\.scenePhase) var fase
     @Environment(\.openURL) var abrirURL
     @AppStorage(Preferencias.unidade) var unidade: UnidadeDistancia = .quilometros
     @State var avisoVisivel: AvisoCorrida?
@@ -19,9 +18,9 @@ struct CorridaView: View {
                 painel
             }
         }
-        .onAppear { gravador.prepararGPS() }
-        .onChange(of: fase) { _, novaFase in
-            if novaFase != .active { gravador.salvarSessao(forcar: true) }
+        .onAppear {
+            gravador.prepararGPS()
+            avisoVisivel = gravador.ultimoAviso
         }
         .onChange(of: gravador.ultimoAviso) { _, novo in avisoVisivel = novo }
         .task(id: avisoVisivel?.id) {
