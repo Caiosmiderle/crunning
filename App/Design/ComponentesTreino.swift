@@ -170,7 +170,7 @@ struct LinhaDoTempoTreino: View {
     }
 
     /// "9 min", "1h05" (estimativa, sem segundos).
-    static func tempoCurto(_ segundos: TimeInterval) -> String {
+    nonisolated static func tempoCurto(_ segundos: TimeInterval) -> String {
         let m = max(1, Int((segundos / 60).rounded()))
         if m < 60 { return "\(m) min" }
         return "\(m / 60)h" + (m % 60 == 0 ? "" : String(format: "%02d", m % 60))
