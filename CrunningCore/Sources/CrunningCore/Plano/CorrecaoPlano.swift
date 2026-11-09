@@ -30,6 +30,9 @@ public enum CorrecaoPlano: Equatable, Sendable {
     case retomarAposPausa(semana: Int, dias: Int)
     /// Nova data de prova: a partir da semana, o plano passa a ter `semanasRestantes` semanas.
     case reajustarProva(aPartirDaSemana: Int, semanasRestantes: Int)
+    /// Prova secundária (de preparação) num dia do plano: véspera e dia seguinte leves e as
+    /// semanas seguintes refeitas a partir do volume que sobrou.
+    case provaSecundaria(semana: Int, dia: Int, distancia: Double)
 
     static let nomesDias = ["segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"]
 
@@ -59,6 +62,8 @@ public enum CorrecaoPlano: Equatable, Sendable {
             return "Voltar aos poucos a partir da semana \(semana), depois de \(dias) dias parado"
         case let .reajustarProva(semana, restantes):
             return "Refazer a partir da semana \(semana) com \(restantes) semanas até a prova"
+        case let .provaSecundaria(semana, dia, distancia):
+            return "Prova secundária de \(Formatador.numero(distancia / 1000, casas: distancia.truncatingRemainder(dividingBy: 1000) == 0 ? 0 : 1)) km na semana \(semana), \(Self.nomeDia(dia))"
         }
     }
 
@@ -100,9 +105,45 @@ public enum CorrecaoPlano: Equatable, Sendable {
                 return try OperacoesPlano.retomarAposPausa(plano, aPartirDaSemana: semana, diasParado: dias)
             case let .reajustarProva(semana, restantes):
                 return try OperacoesPlano.reajustar(plano, aPartirDaSemana: semana, semanasRestantes: restantes)
+            case let .provaSecundaria(semana, dia, distancia):
+                return try Self.inserirProvaSecundaria(plano, semana: semana, dia: dia, distancia: distancia)
             }
         } catch let erro as ErroOperacao {
             throw ErroCorrecao.operacao(erro)
+        }
+    }
+
+    static func inserirProvaSecundaria(_ plano: Plano, semana: Int, dia: Int, distancia: Double) throws -> Plano {
+        guard (1...plano.semanas.count).contains(semana), (0...6).contains(dia) else {
+            throw ErroCorrecao.foraDosLimites("Escolha uma semana e um dia do plano.")
+        }
+        guard plano.entrada.objetivo != .comecarACorrer else { throw ErroCorrecao.inviavel("No começar a correr, a prova fica para depois do plano.") }
+        guard plano.semanas[semana - 1].fase != .polimento else {
+            throw ErroCorrecao.inviavel("Nas semanas de polimento a prioridade é chegar descansado à prova principal. Escolha uma semana antes.")
+        }
+        let principal = plano.entrada.objetivo.distanciaProva ?? 42_195
+        guard distancia >= 1000, distancia <= principal else {
+            throw ErroCorrecao.foraDosLimites("A prova secundária tem que ter de 1 km até a distância da principal.")
+        }
+        guard !plano.semanas[semana - 1].temProva else { throw ErroCorrecao.inviavel("Esta semana já tem uma prova.") }
+        let zonas = plano.zonas
+        var novo = plano
+        var treino = Modelos.prova.treino(dose: distancia)
+        treino.nome = "Prova secundária"
+        novo.semanas[semana - 1].dias[dia] = SessaoPlanejada(treino: treino, zonas: zonas)
+        // Véspera e dia seguinte sem treino forte (escolha do app): viram recuperação curta.
+        func aliviar(_ s: Int, _ d: Int) {
+            guard (1...novo.semanas.count).contains(s), (0...6).contains(d), let outra = novo.semanas[s - 1].dias[d], outra.ehForte, !outra.ehProva else { return }
+            novo.semanas[s - 1].dias[d] = SessaoPlanejada(treino: Modelos.recuperacao.treino(dose: min(outra.distancia, 5000)), zonas: zonas)
+        }
+        aliviar(semana, dia - 1)
+        aliviar(semana, dia + 1)
+        if dia == 6 { aliviar(semana + 1, 0) }
+        if dia == 0 { aliviar(semana - 1, 6) }
+        do {
+            return try OperacoesPlano.refazer(novo, aPartirDaSemana: semana + 1)
+        } catch let ErroOperacao.violaria(erros) {
+            throw ErroCorrecao.inviavel("A prova não cabe nesta semana sem quebrar as travas (\(erros.prefix(2).map(\.description).joined(separator: "; "))). Tente outro dia ou semana.")
         }
     }
 

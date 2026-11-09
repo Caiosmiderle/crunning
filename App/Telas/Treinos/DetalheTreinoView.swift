@@ -18,6 +18,9 @@ struct DetalheTreinoView: View {
     @State var editando = false
     @State var confirmandoApagar = false
     @State var mensagem: String?
+    @State var calor = false
+    @State var temperatura = 28
+    @State var umidade = 60
 
     /// O salvo pode ter sido editado depois de a tela abrir.
     private var atual: Treino { salvo?.treino ?? treino }
@@ -75,6 +78,21 @@ struct DetalheTreinoView: View {
                 .padding(18)
                 .cartaoVidro(raio: 24)
 
+                VStack(alignment: .leading, spacing: 10) {
+                    Toggle("Ajustar ritmos pelo calor", isOn: $calor)
+                    if calor {
+                        Stepper("Temperatura: \(temperatura) °C", value: $temperatura, in: 0...45)
+                        Stepper("Umidade: \(umidade)%", value: $umidade, in: 10...100, step: 5)
+                        let wbgt = Calor.wbgtSimplificado(temperatura: Double(temperatura), umidade: Double(umidade))
+                        Text("WBGT aproximado: \(Formatador.numero(wbgt, casas: 1)) °C (sem sol e sem vento). " + Calor.texto(Calor.avaliar(wbgt: wbgt)))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .padding(18)
+                .cartaoVidro(raio: 24)
+
                 if let mensagem {
                     Label(mensagem, systemImage: "checkmark.circle.fill")
                         .font(.subheadline)
@@ -82,7 +100,8 @@ struct DetalheTreinoView: View {
                 }
 
                 Button {
-                    estadoApp.abrirTreino(treino, esteira: esteira, aquecimentoGuiado: rotina == nil ? false : (aquecimentoGuiado ?? aquecimentoPadrao))
+                    let ajuste = calor ? Calor.fracao(Calor.avaliar(wbgt: Calor.wbgtSimplificado(temperatura: Double(temperatura), umidade: Double(umidade)))) : 0
+                    estadoApp.abrirTreino(treino, esteira: esteira, aquecimentoGuiado: rotina == nil ? false : (aquecimentoGuiado ?? aquecimentoPadrao), ajusteCalor: ajuste)
                 } label: {
                     Label("Começar", systemImage: "play.fill")
                         .font(.title3.weight(.semibold))

@@ -105,11 +105,25 @@ Regras de quando a execução por blocos avisa e mede. Não há estudo sobre o m
 |---|---|---|---|
 | A IA só propõe correções de uma lista fechada (aliviar ou reduzir uma semana, mover ou trocar um treino, mudar semanas, dias ou teto de progressão). Cada uma roda no motor; se o plano novo quebrar qualquer trava, a correção é recusada com o motivo. O plano só muda quando você aplica, e dá para voltar ao anterior. | Mesmo princípio do resto do app: a IA escolhe dentro do motor, nunca escreve o plano. | — | `Plano/CorrecaoPlano.swift`, `CoachIA` (esquema `correcao`) |
 
+## Calor
+
+| Regra | Fonte | Evidência | Código |
+|---|---|---|---|
+| Com o ajuste ligado, você informa temperatura e umidade e o app estima o WBGT por 0,567·T + 0,393·e + 3,94 (e = pressão de vapor em hPa). A fórmula ignora sol e vento e tem viés conhecido. | WBGT simplificado do Bureau of Meteorology da Austrália, conferido em fontes secundárias (tabela em PMC7695704; implementação HeatStress, que cita a revisão de Lemke e Kjellstrom, 2012). | Moderada (aproximação) | `Calor.wbgtSimplificado` |
+| Os ritmos ficam 0,8%, 1,6% ou 2,8% mais lentos com WBGT de 10–15, 15–20 ou 20–25 °C. Abaixo de 10 °C, sem ajuste. Acima de 25 °C, o app não extrapola: mantém 2,8% e manda correr pelo esforço, encurtar o treino forte e parar com sinais de calor. | Em sete maratonas, os mais rápidos ficaram 1,7%, 2,5%, 3,3% e 4,5% acima do recorde do percurso nos quartis de WBGT (cerca de 5–10, 10–15, 15–20 e 20–25 °C); o ajuste é a diferença para o quartil mais frio. Corredores mais lentos perderam mais, então o ajuste é o mínimo (Ely e colegas, 2007, *Med Sci Sports Exerc* 39:487). Os limites dos quartis em °C vêm de um resumo do estudo. | Moderada (dados de prova, não de treino) | `Calor.avaliar`, `ExecucaoTreino` (`ajusteCalor`) |
+
+## Prova secundária
+
+| Regra | Fonte | Evidência | Código |
+|---|---|---|---|
+| Prova de preparação dentro do plano: fora das semanas de polimento, até a distância da principal; véspera e dia seguinte sem treino forte (viram recuperação curta) e as semanas seguintes refeitas pelo motor a partir do volume que sobrou. Se não couber nas travas, o app recusa e diz por quê. | Escolha do app, dentro das travas de progressão. | Prática de treinadores | `CorrecaoPlano.provaSecundaria` |
+
 ## Coach de IA
 
 | Regra | Fonte | Evidência | Código |
 |---|---|---|---|
 | A IA nunca escreve o plano. No chat (Haiku 5.5), na revisão semanal e no plano montado com o coach (Sonnet 5.5), ela devolve operações e parâmetros de uma lista fechada em JSON com esquema; o app aplica pelo motor e confere todas as travas. Se uma operação for recusada, a IA recebe o motivo e tenta uma vez de novo; se falhar de novo, nada muda (no plano novo, o app monta pelas regras e avisa). Toda mudança aparece com antes e depois e só vale depois de salvar; "Voltar ao anterior" desfaz. | Mesmo princípio do motor: regras com fonte, IA dentro delas. | — | `App/Servicos/CoachConversa.swift`, `CorrecaoPlano`, `AgendaPlano.voltarAoAnterior` |
+| Avaliação do coach: 4 casos fixos (5 km iniciante, meia em 16 semanas, volta de lesão, semana de viagem) rodam no app com a sua chave e mostram o resultado ao lado do esperado, para você julgar. | Pedido do projeto. | — | `AvaliacaoCoachView` |
 | Vai para a IA só o resumo agregado do plano e do que foi feito (sessões feitas e perdidas, esforço, se o ritmo dos treinos de qualidade ficou na faixa) e o que você escrever. Nunca rota, GPS, nome ou dados do Saúde. | Privacidade (pedido do projeto). | — | `ContextoAgendaIA` |
 
 ## Adaptação do plano

@@ -18,7 +18,7 @@ Fase 8 (plano no dia a dia): "Usar este plano" na prévia (com triagem de segura
 
 Fase 9 (Coach de IA completo): plano montado com o coach a partir de um questionário com cartões numerados (o Sonnet escolhe os parâmetros e o motor monta), chat de ajustes ("viajo semana que vem", "canela dolorida") com proposta, antes e depois, Salvar, Ajustar, Recusar e Voltar ao anterior (Haiku), revisão semanal do planejado x feito (sugerida no domingo à noite), modo simulado para testar sem gastar a API e sincronização do plano com um calendário "CRUNNING" no app Calendário.
 
-Pendente: ajuste de ritmo por calor (só com fonte científica confirmada), prova secundária dentro do plano e o script de avaliação do coach com casos fixos.
+Também: ajuste dos ritmos pelo calor (WBGT simplificado e Ely e colegas, 2007), prova secundária dentro do plano e avaliação do coach com 4 casos fixos (Ajustes > Desenvolvimento).
 
 ## Como é feito
 

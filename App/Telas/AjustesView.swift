@@ -129,6 +129,7 @@ struct AjustesView: View {
                         .foregroundStyle(.secondary)
                     if modoDesenvolvimento {
                         Toggle("Simular o coach (sem gastar a API)", isOn: $simularCoach)
+                        NavigationLink("Avaliar o coach (4 casos)") { AvaliacaoCoachView() }
                         Toggle("Simular GPS", isOn: $simularGPS)
                         if simularGPS {
                             Picker("Velocidade", selection: $velocidadeSimulacao) {

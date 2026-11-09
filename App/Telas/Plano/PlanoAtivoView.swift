@@ -17,6 +17,10 @@ struct PlanoAtivoView: View {
     @State var confirmandoEncerrar = false
     @State var arquivoPDF: URL?
     @AppStorage(Preferencias.sincronizarCalendario) var sincronizar = false
+    @State var adicionandoProva = false
+    @State var provaSemana = 1
+    @State var provaDia = 5
+    @State var provaKm = 5.0
 
     static let nomesDias = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]
 
@@ -98,6 +102,12 @@ struct PlanoAtivoView: View {
                 } else {
                     Button("Gerar PDF do plano", systemImage: "doc.richtext") { arquivoPDF = PlanoPDF.gerar(agenda, unidade: unidade) }
                 }
+                if agenda.plano.entrada.objetivo != .comecarACorrer {
+                    Button("Adicionar prova secundária", systemImage: "flag.2.crossed") {
+                        provaSemana = min(max(atual?.semana ?? 1, 1), agenda.plano.semanas.count)
+                        adicionandoProva = true
+                    }
+                }
                 if agenda.plano.entrada.objetivo.distanciaProva != nil {
                     Button("Mudar a data da prova", systemImage: "calendar.badge.clock") {
                         semanasRestantes = max(1, agenda.plano.semanas.count - (atual?.semana ?? 1) + 1)
@@ -137,6 +147,38 @@ struct PlanoAtivoView: View {
                         Button("Ver proposta") {
                             mudandoProva = false
                             propor(.reajustarProva(aPartirDaSemana: atual?.semana ?? 1, semanasRestantes: semanasRestantes), agenda)
+                        }
+                    }
+                }
+            }
+            .presentationDetents([.medium])
+        }
+        .sheet(isPresented: $adicionandoProva) {
+            NavigationStack {
+                Form {
+                    Section {
+                        Stepper("Semana \(provaSemana)", value: $provaSemana, in: 1...agenda.plano.semanas.count)
+                        Picker("Dia", selection: $provaDia) {
+                            ForEach(0..<7, id: \.self) { Text(Self.nomesDias[$0]).tag($0) }
+                        }
+                        Picker("Distância", selection: $provaKm) {
+                            Text("5 km").tag(5.0)
+                            Text("10 km").tag(10.0)
+                            Text("15 km").tag(15.0)
+                            Text("Meia maratona").tag(21.0975)
+                        }
+                    } footer: {
+                        Text("A véspera e o dia seguinte ficam leves e as semanas seguintes são refeitas a partir do volume que sobrar. Nas semanas de polimento não entra; se não couber nas travas, o motor diz por quê.")
+                    }
+                }
+                .navigationTitle("Prova secundária")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { adicionandoProva = false } }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Ver proposta") {
+                            adicionandoProva = false
+                            propor(.provaSecundaria(semana: provaSemana, dia: provaDia, distancia: provaKm * 1000), agenda)
                         }
                     }
                 }

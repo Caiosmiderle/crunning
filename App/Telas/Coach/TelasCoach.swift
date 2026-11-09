@@ -448,3 +448,94 @@ struct CriarPlanoCoachView: View {
         }
     }
 }
+
+// MARK: - Avaliação do coach (modo de desenvolvimento)
+
+/// Roda 4 casos fixos pelo coach de verdade (a sua chave) e mostra o resultado ao lado do que
+/// se espera, para julgar a qualidade. Os planos dos casos são fictícios.
+struct AvaliacaoCoachView: View {
+    struct Caso: Identifiable {
+        let id: Int
+        let nome: String
+        let esperado: String
+    }
+
+    static let casos = [
+        Caso(id: 0, nome: "5 km para iniciante", esperado: "Plano de 5 km nível iniciante, 3 dias, volume baixo, aumento de no máximo 10% por semana (ou menos)."),
+        Caso(id: 1, nome: "Meia maratona em 16 semanas", esperado: "16 semanas, 4 dias, longão no domingo, teto de 10%; explicação curta."),
+        Caso(id: 2, nome: "Volta de lesão", esperado: "Proposta de \"retomar_apos_pausa\" com 21 dias parado, sem treino por cima de dor; orientação de procurar profissional se doer."),
+        Caso(id: 3, nome: "Semana de viagem", esperado: "Alívio ou redução da semana que vem; nada nas semanas passadas."),
+    ]
+
+    @State var resultados: [Int: String] = [:]
+    @State var rodando = false
+    @State var confirmando = false
+
+    var body: some View {
+        Form {
+            Section {
+                Text("Usa a sua chave: 2 chamadas ao Sonnet e 2 ao Haiku, alguns centavos de dólar. Com \"Simular o coach\" ligado, roda sem gastar.")
+                    .font(.footnote)
+                Button(rodando ? "Rodando..." : "Rodar os 4 casos") { confirmando = true }
+                    .disabled(rodando || (!Chaveiro.temChave && !ClienteClaude.simulado))
+            }
+            ForEach(Self.casos) { caso in
+                Section(caso.nome) {
+                    Text("Esperado: " + caso.esperado).font(.footnote).foregroundStyle(.secondary)
+                    Text(resultados[caso.id] ?? "—").font(.subheadline)
+                }
+            }
+        }
+        .navigationTitle("Avaliar o coach")
+        .navigationBarTitleDisplayMode(.inline)
+        .confirmationDialog("Rodar os 4 casos com a sua chave?", isPresented: $confirmando, titleVisibility: .visible) {
+            Button("Rodar") { Task { await rodar() } }
+        } message: {
+            Text("Custa alguns centavos na sua conta da Anthropic.")
+        }
+    }
+
+    private func rodar() async {
+        rodando = true
+        defer { rodando = false }
+        resultados = [:]
+        let questionarios = [
+            QuestionarioPlano(objetivo: "5 km", semanas: 10, nivel: Nivel.iniciante.nome, dias: [1, 3, 6], diaLongao: 6, volumeAtualKm: 8,
+                              maiorCorridaRecenteKm: 3, terreno: "Plano", lesoesELimitacoes: "", temProvaDeReferencia: false),
+            QuestionarioPlano(objetivo: "Meia maratona", semanas: 16, nivel: Nivel.intermediario.nome, dias: [1, 3, 5, 6], diaLongao: 6, volumeAtualKm: 30,
+                              maiorCorridaRecenteKm: 12, terreno: "Misto", lesoesELimitacoes: "", temProvaDeReferencia: true),
+        ]
+        for (i, q) in questionarios.enumerated() {
+            do {
+                let r = try await CriadorPlanoCoach.montar(q, vdot: 45)
+                let semanas = r.plano.semanas.count
+                let pico = r.plano.semanas.map(\.volumeTreino).max() ?? 0
+                resultados[i] = r.explicacao + "\n\n\(semanas) semanas, \(r.plano.entrada.nivel.nome), teto \(Int((r.plano.entrada.tetoProgressao * 100).rounded()))%, pico " + Formatador.distancia(pico, casas: 0) + "."
+            } catch {
+                resultados[i] = "Erro: " + ((error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
+            }
+        }
+        let plano = GeradorPlano.gerar(EntradaPlano(objetivo: .dezK, semanas: 12, nivel: .intermediario, diasDisponiveis: [1, 3, 5, 6],
+                                                    diaLongao: 6, volumeAtual: 30_000, longaoAtual: 10_000, vdot: 45))
+        let agenda = AgendaPlano(plano: plano, inicio: CalendarioTreino.inicioDaSemana(Calendar.current.date(byAdding: .day, value: -21, to: .now) ?? .now))
+        let contexto = ContextoAgendaIA(agenda: agenda, ladosRecentes: [])
+        let pedidos = [
+            "Fiquei 3 semanas parado com canelite. Já estou sem dor e quero voltar.",
+            "Viajo na semana que vem e só vou conseguir correr duas vezes.",
+        ]
+        for (k, pedido) in pedidos.enumerated() {
+            do {
+                let r = try await CoachChat.responder([ClienteClaude.Mensagem(papel: "user", texto: pedido)], contexto: contexto)
+                let acoes = r.acoes.compactMap(\.correcao)
+                var plano2 = plano
+                var situacao = acoes.isEmpty ? "sem ações" : "aceitas pelo motor"
+                for a in acoes {
+                    do { plano2 = try a.aplicar(plano2) } catch { situacao = "recusada: " + PreviaPlanoView.explicar(error); break }
+                }
+                resultados[2 + k] = r.mensagem + "\n\nAções: " + (acoes.isEmpty ? "nenhuma" : acoes.map(\.descricao).joined(separator: "; ")) + " (\(situacao))."
+            } catch {
+                resultados[2 + k] = "Erro: " + ((error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
+            }
+        }
+    }
+}

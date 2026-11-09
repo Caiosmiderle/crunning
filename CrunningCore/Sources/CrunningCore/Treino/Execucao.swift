@@ -232,6 +232,8 @@ public struct ExecucaoTreino: Codable, Sendable {
 
     public let treino: Treino
     public let esteira: Bool
+    /// Fração aplicada às faixas de ritmo pelo calor (`Calor`); nil = sem ajuste.
+    public let ajusteCalor: Double?
     public private(set) var etapas: [EtapaExecucao]
     public private(set) var atual = 0
     public private(set) var comecou = false
@@ -252,9 +254,10 @@ public struct ExecucaoTreino: Codable, Sendable {
     ///   - zonas: ritmos do usuário; sem elas, não há faixa-alvo (vale o esforço) e as estimativas usam um VDOT médio.
     ///   - aquecimentoGuiado: insere a rotina de `Aquecimento` quando o treino pede (veja `rotinaIndicada`).
     ///   - esteira: sem GPS; trechos por distância viram tempo pelo ritmo-alvo e não há aviso de ritmo.
-    public init(treino: Treino, zonas: Zonas?, aquecimentoGuiado: Bool, esteira: Bool) {
+    public init(treino: Treino, zonas: Zonas?, aquecimentoGuiado: Bool, esteira: Bool, ajusteCalor: Double = 0) {
         self.treino = treino
         self.esteira = esteira
+        self.ajusteCalor = ajusteCalor > 0 ? ajusteCalor : nil
         let estimativa = zonas ?? Zonas.estimativaSemReferencia(.intermediario)
 
         struct Rascunho {
@@ -307,7 +310,8 @@ public struct ExecucaoTreino: Codable, Sendable {
             case let .corrida(p):
                 let distanciaProva: Double?
                 if case let .distancia(d) = p.medida { distanciaProva = d } else { distanciaProva = nil }
-                let faixa = (p.intensidade == .caminhada) ? nil : zonas.map { $0.faixa(p.intensidade, distanciaProva: distanciaProva) }
+                let faixa = (p.intensidade == .caminhada) ? nil
+                    : zonas.map { Calor.ajustar($0.faixa(p.intensidade, distanciaProva: distanciaProva), fracao: ajusteCalor) }
                 let est = p.estimativa(zonas: estimativa)
                 var medida = p.medida
                 if esteira, case let .distancia(d) = p.medida {

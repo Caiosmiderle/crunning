@@ -125,3 +125,9 @@ Para testar sem gastar: Ajustes > Modo de desenvolvimento > "Simular o coach". D
 
 O que me contar: se as respostas do coach fizeram sentido, quanto custou na sua conta (painel da Anthropic) e se o calendário ficou certo.
 
+## Pendências fechadas (0.9.5)
+
+1. **Calor:** abra um treino em Treinos, ligue "Ajustar ritmos pelo calor" e informe temperatura e umidade. Confira o WBGT e o texto; no treino, as faixas de ritmo ficam um pouco mais lentas.
+2. **Prova secundária:** Plano > Opções do plano > "Adicionar prova secundária". Escolha semana, dia e distância: vem a proposta com antes e depois (ou a recusa explicada, por exemplo no polimento).
+3. **Avaliar o coach:** Ajustes > Modo de desenvolvimento > "Avaliar o coach (4 casos)". Com a chave, custa centavos; com "Simular o coach", roda de graça.
+
