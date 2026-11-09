@@ -9,25 +9,27 @@ import Foundation
 final class AtividadeAoVivo {
     static let intervaloMinimo: TimeInterval = 10
 
-    private var atividade: Activity<TreinoAtividadeAtributos>?
+    /// Só o id: o objeto `Activity` não é Sendable, então cada tarefa o busca de novo pelo id.
+    private var atividadeID: String?
     private var ultimoEnvio = Date.distantPast
     private var ultimaChave = ""
 
-    var ativa: Bool { atividade != nil }
+    var ativa: Bool { atividadeID != nil }
 
     func iniciar(titulo: String, esteira: Bool, estado: TreinoAtividadeAtributos.ContentState) {
-        guard atividade == nil else { return }
-        if let existente = Activity<TreinoAtividadeAtributos>.activities.first {
-            atividade = existente
+        guard atividadeID == nil else { return }
+        if let existente = Activity<TreinoAtividadeAtributos>.activities.first?.id {
+            atividadeID = existente
             atualizar(estado, forcar: true)
             return
         }
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
         do {
-            atividade = try Activity.request(
+            let nova = try Activity.request(
                 attributes: TreinoAtividadeAtributos(tituloTreino: titulo, esteira: esteira),
                 content: ActivityContent(state: estado, staleDate: nil)
             )
+            atividadeID = nova.id
             ultimoEnvio = .now
             ultimaChave = Self.chave(estado)
         } catch {
@@ -36,21 +38,25 @@ final class AtividadeAoVivo {
     }
 
     func atualizar(_ estado: TreinoAtividadeAtributos.ContentState, forcar: Bool = false) {
-        guard let atividade else { return }
+        guard let id = atividadeID else { return }
         let chave = Self.chave(estado)
         let agora = Date.now
         guard forcar || chave != ultimaChave || agora.timeIntervalSince(ultimoEnvio) >= Self.intervaloMinimo else { return }
         ultimoEnvio = agora
         ultimaChave = chave
-        let conteudo = ActivityContent(state: estado, staleDate: nil)
-        Task { await atividade.update(conteudo) }
+        Task.detached {
+            for a in Activity<TreinoAtividadeAtributos>.activities where a.id == id {
+                await a.update(ActivityContent(state: estado, staleDate: nil))
+            }
+        }
     }
 
     func encerrar() {
-        let todas = Activity<TreinoAtividadeAtributos>.activities
-        atividade = nil
-        for a in todas {
-            Task { await a.end(nil, dismissalPolicy: .immediate) }
+        atividadeID = nil
+        Task.detached {
+            for a in Activity<TreinoAtividadeAtributos>.activities {
+                await a.end(nil, dismissalPolicy: .immediate)
+            }
         }
     }
 
