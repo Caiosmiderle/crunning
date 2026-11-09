@@ -8,7 +8,9 @@ Fase 3 (corrida livre com GPS): gravação com a tela bloqueada (`CLLocationUpda
 
 Fase 4 (motor de treino): zonas de ritmo pelo VDOT, previsão de prova, biblioteca de modelos de treino, gerador de plano com fases, alívio e polimento, operações de mudança e regras de adaptação, tudo com fonte em [docs/CIENCIA.md](docs/CIENCIA.md) e testes por propriedade. No app: Ajustes > Meus ritmos, Plano > Prévia do motor (com viabilidade, alertas e análise opcional pelo Coach de IA, com a sua chave da Anthropic no Keychain).
 
-Próximas fases: 5 (criar e executar treino por blocos, com voz, vibração e aquecimento guiado antes dos treinos fortes), 6 (Live Activity), 7 (Apple Saúde), 8 (planos no calendário, Hoje e adaptação), 9 (Coach de IA completo).
+Fase 5 (criar e executar treino): construtor com texto rápido ("10min fácil + 6x(400m forte / 90s trote)"), linha do tempo e editor de blocos, biblioteca com treinos prontos nos seus ritmos, execução por blocos com barra segmentada, medidor de ritmo, contagem regressiva, voz em português (abaixa a música) e vibração, aquecimento guiado antes dos treinos fortes, volta manual, pular etapa, modo esteira, teste de referência que atualiza os ritmos e resumo planejado x feito por bloco. Na prévia do plano, as sugestões do Coach de IA viram correções com antes e depois, aplicadas pelo motor e com desfazer.
+
+Próximas fases: 6 (Live Activity), 7 (Apple Saúde), 8 (planos no calendário, Hoje e adaptação), 9 (Coach de IA completo).
 
 ## Como é feito
 

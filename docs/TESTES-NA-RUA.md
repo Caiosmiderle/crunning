@@ -48,5 +48,38 @@ Fechar o app de propósito pelo seletor de apps também cai nesse caso: o iOS n�
    - em cada semana, nenhum treino de qualidade em dias seguidos ou colado no longão, e a prova no dia do longão da última semana.
 3. Teste combinações estranhas (2 dias por semana, volume 0, maratona em 4 semanas, começar a correr). Se faltar tempo para a prova, a prévia diz o mínimo de semanas e oferece "Usar N semanas"; nos outros casos o plano sai, com as travas conferidas e os avisos em "Atenção".
 4. **Coach de IA (0.4.1):** em Ajustes > Coach de IA, cole a sua chave da Anthropic e salve (fica só no Keychain). Na prévia, toque em "Analisar com o coach de IA". Cada análise custa poucos centavos de dólar na sua conta.
+5. **Corrigir depois da análise (0.5.0):** nos pontos com "Ver correção", toque e confira o antes e o depois semana a semana. "Aplicar" muda o plano; "Voltar ao anterior" desfaz. Teste também à mão: dentro de uma semana, "Aliviar semana" e "Reduzir 10%"; toque e segure um dia para "Trocar por equivalente" ou "Mover para". Uma correção que quebraria as travas aparece recusada, com o motivo.
 
 O que me contar: algum plano que pareça sem sentido para você como corredor (volume, longão, ordem dos treinos), mesmo com as travas conferidas.
+
+## Fase 5: treino por blocos, voz e aquecimento guiado (0.5.0)
+
+### Em casa (10 minutos, com a simulação)
+
+1. **Construtor:** aba Treinos > Novo treino. No texto rápido, escreva `10min fácil + 6x(400m forte / 90s trote) + 10min fácil`: a linha do tempo aparece na hora, com "×6" em cima da repetição e os totais estimados. Teste variações (`10' leve`, `6 x 400 m tiro / 1:30 trote`, `1,5km limiar`) e um erro de propósito (`400 forte`): a mensagem diz o que corrigir. Toque num trecho da linha do tempo para editar; segure e arraste um bloco (ou use "Editar") para mudar a ordem; use os atalhos de "Adicionar". Salve.
+2. **Biblioteca:** o treino aparece em "Meus treinos". No menu "…" do treino: Duplicar, Salvar como modelo, Editar, Apagar. Em "Prontos", abra "6 × 400 m": os alvos aparecem nos seus ritmos (ou por esforço, sem prova em Meus ritmos).
+3. **Execução simulada:** ligue Ajustes > Modo de desenvolvimento > Simular GPS a **10x**. Abra "6 × 400 m" > Começar. Confira: barra segmentada no topo, a etapa atual com o restante em número grande, "Repetição 2 de 6", o medidor de ritmo com a faixa verde, a lista "A seguir" e as feitas com ✓. Nos últimos 3 segundos de cada etapa: número grande na tela, bipe e voz "3, 2, 1".
+4. **Aquecimento guiado:** depois do trote de aquecimento entram os exercícios (balanço de perna, afundo, educativos, acelerações), cada um com o como fazer, o cronômetro e o botão "Próximo". A voz lê o nome e o como fazer.
+5. **Controles:** "Volta" fala o tempo da volta; "Pular" pede confirmação (nos exercícios, não); pausar e retomar; deslize para finalizar. No resumo: "Por bloco: planejado x feito" com o ritmo de cada tiro e o ✓ quando ficou na faixa.
+6. **Voz com música:** toque uma música no iPhone e use Ajustes > Testar a voz: a música abaixa enquanto a voz fala e volta depois. Desligue a simulação antes de sair.
+
+### Na rua (um treino com tiros, 30 a 45 minutos)
+
+1. Escolha "6 × 400 m" ou "5 × 1.000 m" e toque em Começar. Com música, se quiser.
+2. **Bloqueie a tela** logo no começo e faça o treino com o celular no bolso: as trocas de etapa têm que vir pela voz e pela vibração, a contagem 3, 2, 1 também.
+3. Num tiro, corra devagar de propósito por meio minuto: deve vir "Acelere um pouco" (depois de uns 15 s fora da faixa). No trote fácil, correr devagar não gera aviso.
+4. Na recuperação, fique parado uns segundos: o relógio da recuperação continua correndo mesmo com a pausa automática.
+5. No fim, confira o planejado x feito por bloco e salve. Abra no Histórico: a tabela por bloco tem que estar lá.
+
+### Esteira e teste de ritmo
+
+- **Esteira:** Hoje > "Na esteira" (ou um treino com "Na esteira" ligado). Sem GPS, os trechos por distância viram tempo. No fim, digite a distância do painel da esteira.
+- **Teste de referência:** Treinos > Prontos > "Teste de 3 km" (ou 5 km), num percurso plano e descansado. No resumo, "Usar como prova de referência" atualiza Meus ritmos.
+
+### O que me contar
+
+- Se a voz falou com a tela bloqueada e se a música voltou ao volume depois.
+- **Se a vibração veio com a tela bloqueada** (o iOS pode não vibrar com o app em segundo plano; se não vibrar, eu troco por outro aviso).
+- Se o aviso de ritmo veio no momento certo ou incomodou (dá para desligar em Ajustes > Avisos durante a corrida).
+- Se algum trecho do texto rápido que você tentou não foi entendido.
+

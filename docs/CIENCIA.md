@@ -68,9 +68,23 @@ Toda citação foi conferida na web antes de entrar aqui (links no fim). O que n
 
 | Regra no motor | Fonte | Evidência | Código |
 |---|---|---|---|
-| Antes de intervalado, repetições, subidas e prova: aquecimento completo (cerca de 20 min: trote leve, mobilidade dinâmica, educativos e 3 acelerações progressivas). Antes de limiar, ritmo de prova e fartlek: versão curta (cerca de 15 min). Nos treinos leves, o trote do começo basta. | Aquecer melhorou o desempenho em 79% das medidas de 32 estudos de boa qualidade (Fradkin, Zazryn e Smoliga, 2010, *J Strength Cond Res* 24:140). | Moderada | `Treino/Aquecimento.swift` (execução guiada na fase 5) |
+| Antes de intervalado, repetições, subidas e prova: aquecimento completo (cerca de 20 min: trote leve, mobilidade dinâmica, educativos e 3 acelerações progressivas). Antes de limiar, ritmo de prova e fartlek: versão curta (cerca de 15 min). Nos treinos leves, o trote do começo basta. | Aquecer melhorou o desempenho em 79% das medidas de 32 estudos de boa qualidade (Fradkin, Zazryn e Smoliga, 2010, *J Strength Cond Res* 24:140). | Moderada | `Treino/Aquecimento.swift`; execução guiada em `ExecucaoTreino` (entra depois do trote do treino, ou no começo quando o treino não tem trote; não entra quando o primeiro trecho de trabalho é leve, como no progressivo) |
 | Só movimentos dinâmicos antes de correr; nada de alongamento estático longo. | Alongamento dinâmico logo antes da atividade melhorou o desempenho; o estático e o PNF deram pequenas perdas quando feitos logo antes (Behm e colegas, 2016, *Appl Physiol Nutr Metab* 41:1). | Moderada | `Aquecimento` |
 | O app não promete que o aquecimento evita lesão. | Em 421 corredores recreativos, um programa de aquecimento, desaquecimento e alongamento não reduziu lesões em 16 semanas (van Mechelen e colegas, 1993, *Am J Sports Med* 21:711). | Moderada (um ensaio, qualidade limitada) | `Aquecimento.porque` |
+
+## Execução do treino
+
+Regras de quando a execução por blocos avisa e mede. Não há estudo sobre o momento exato de um aviso de voz: são escolhas do app, pensadas para não atrapalhar o treino.
+
+| Regra no motor | Fonte | Evidência | Código |
+|---|---|---|---|
+| Faixa-alvo de cada trecho = a faixa de ritmo das zonas (acima). Sem prova de referência, não há faixa: o alvo é o esforço e o teste da fala. | Ver "Ritmos e previsão de prova". | Ver acima | `ExecucaoTreino` |
+| Aviso de ritmo só depois de 20 s de trecho (o ritmo ainda está mudando), com 15 s seguidos fora da faixa, e no máximo um por minuto. "Forte" = mais de 5% fora. | Escolha do app (o ritmo do GPS já é média de 20 s; avisar antes disso seria ruído). | — | `ExecucaoTreino.avisoRitmo`, `SituacaoRitmo` |
+| No fácil, na recuperação e no aquecimento só existe aviso de rápido demais: devagar não é erro. | A zona fácil existe para somar volume com pouco desgaste (ver "Distribuição de intensidade"); ficar abaixo da faixa nela não atrapalha o objetivo do treino. Escolha do app. | Prática de treinadores | `ExecucaoTreino.avisoRitmo` |
+| Recuperação, caminhada e exercícios do aquecimento contam o relógio mesmo parado; os trechos de trabalho por tempo contam o tempo em movimento (a pausa automática no semáforo segura o tiro). | Escolha do app: ficar em pé entre tiros é normal, e a pausa não pode congelar a recuperação. | — | `EtapaExecucao.contaTempoAtivo` |
+| Fim de trecho por distância interpolado no metro exato entre duas leituras do GPS (o ritmo de cada tiro não depende do intervalo entre pontos). | Engenharia. | — | `ExecucaoTreino.concluirAtual` |
+| Na esteira, trecho por distância vira tempo pelo ritmo-alvo da zona; sem aviso de ritmo (sem GPS). | Escolha do app. | — | `ExecucaoTreino` (`esteira`) |
+| Teste de referência: 3 km ou 5 km no máximo constante, depois do aquecimento completo; o tempo vira a prova de referência do VDOT. | O VDOT sai do tempo de um esforço máximo numa distância conhecida (equações de Daniels e Gilbert, ver "Ritmos e previsão de prova"). Distâncias e formato do teste: prática de treinadores. | Prática de treinadores | `Modelos.teste`, `ExecucaoTreino.resultadoTeste` |
 
 ## Iniciante
 
@@ -84,6 +98,12 @@ Toda citação foi conferida na web antes de entrar aqui (links no fim). O que n
 |---|---|---|---|
 | Esforço percebido de 0 a 10 depois de cada corrida é o dado principal. Carga da sessão = esforço × minutos. | Método de esforço da sessão (Foster e colegas, 2001, *J Strength Cond Res* 15:109), com a escala CR10 de Borg. | Forte | `CargaTreino` |
 | **A razão carga aguda/crônica (ACWR) não é usada.** | Problemas estatísticos e falta de base causal (Impellizzeri e colegas, 2020, *Int J Sports Physiol Perform* 15:907). Na coorte de 5.205 corredores, a ACWR teve relação inversa com lesão (Schuster Brandt Frandsen e colegas, 2025). A regra de pico por corrida, acima, cobre o risco com evidência melhor. | Controversa | — (decisão de não usar) |
+
+## Correções depois da análise da IA
+
+| Regra | Fonte | Evidência | Código |
+|---|---|---|---|
+| A IA só propõe correções de uma lista fechada (aliviar ou reduzir uma semana, mover ou trocar um treino, mudar semanas, dias ou teto de progressão). Cada uma roda no motor; se o plano novo quebrar qualquer trava, a correção é recusada com o motivo. O plano só muda quando você aplica, e dá para voltar ao anterior. | Mesmo princípio do resto do app: a IA escolhe dentro do motor, nunca escreve o plano. | — | `Plano/CorrecaoPlano.swift`, `CoachIA` (esquema `correcao`) |
 
 ## Adaptação do plano
 
