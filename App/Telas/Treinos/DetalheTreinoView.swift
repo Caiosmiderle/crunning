@@ -14,7 +14,6 @@ struct DetalheTreinoView: View {
     @AppStorage(Preferencias.unidade) var unidade: UnidadeDistancia = .quilometros
     @AppStorage(Preferencias.aquecimentoGuiado) var aquecimentoPadrao = true
     @State var esteira = false
-    @State var aquecimentoGuiado: Bool?
     @State var editando = false
     @State var confirmandoApagar = false
     @State var mensagem: String?
@@ -64,19 +63,16 @@ struct DetalheTreinoView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    if let rotina {
-                        Toggle("Aquecimento guiado", isOn: Binding(
-                            get: { aquecimentoGuiado ?? aquecimentoPadrao },
-                            set: { aquecimentoGuiado = $0 }
-                        ))
-                        Text("\(rotina.nome), cerca de \(Int((rotina.duracaoEstimada / 60).rounded())) min: mobilidade dinâmica, educativos e acelerações depois do trote, com voz e cronômetro. \(Aquecimento.completa.porque)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
                 }
                 .padding(18)
                 .cartaoVidro(raio: 24)
+
+                if let rotina, aquecimentoPadrao {
+                    SugestaoAquecimento(rotina: rotina)
+                        .padding(18)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .cartaoVidro(raio: 24)
+                }
 
                 VStack(alignment: .leading, spacing: 10) {
                     Toggle("Ajustar ritmos pelo calor", isOn: $calor)
@@ -101,7 +97,7 @@ struct DetalheTreinoView: View {
 
                 Button {
                     let ajuste = calor ? Calor.fracao(Calor.avaliar(wbgt: Calor.wbgtSimplificado(temperatura: Double(temperatura), umidade: Double(umidade)))) : 0
-                    estadoApp.abrirTreino(treino, esteira: esteira, aquecimentoGuiado: rotina == nil ? false : (aquecimentoGuiado ?? aquecimentoPadrao), ajusteCalor: ajuste)
+                    estadoApp.abrirTreino(treino, esteira: esteira, ajusteCalor: ajuste)
                 } label: {
                     Label("Começar", systemImage: "play.fill")
                         .font(.title3.weight(.semibold))

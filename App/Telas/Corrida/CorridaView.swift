@@ -12,6 +12,7 @@ struct CorridaView: View {
     @State var avisoVisivel: AvisoCorrida?
     @State var confirmandoPulo = false
     @State var ajustando = false
+    @AppStorage(Preferencias.aquecimentoGuiado) var sugerirAquecimento = true
 
     var body: some View {
         Group {
@@ -117,6 +118,12 @@ struct CorridaView: View {
                     VStack(spacing: 14) {
                         if sessao.estado == .pronta {
                             visaoGeral(execucao)
+                            if sugerirAquecimento, let rotina = ExecucaoTreino.rotinaIndicada(para: execucao.treino) {
+                                SugestaoAquecimento(rotina: rotina)
+                                    .padding(20)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .cartaoVidro(raio: 26, opaco: true)
+                            }
                         } else if let etapa = execucao.etapaAtual {
                             Group {
                                 if let exercicio = etapa.exercicio {

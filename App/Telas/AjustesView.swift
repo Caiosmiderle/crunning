@@ -41,7 +41,7 @@ struct AjustesView: View {
 
                 Section {
                     ControlesAvisos()
-                    Toggle("Aquecimento guiado antes dos treinos fortes", isOn: $aquecimentoGuiado)
+                    Toggle("Sugerir aquecimento antes dos treinos fortes", isOn: $aquecimentoGuiado)
                     Button("Testar a voz", systemImage: "speaker.wave.2") {
                         Locutor.compartilhado.falar("Tiro 1 de 6. 400 metros, ritmo 4 e 15 por quilômetro.")
                     }
