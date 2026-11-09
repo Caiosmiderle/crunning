@@ -24,6 +24,9 @@ enum Preferencias {
     static let telaAcesa = "telaAcesa"
     static let simularGPS = "simularGPS"
     static let velocidadeSimulacao = "velocidadeSimulacao"
+    /// Prova de referência para os ritmos (metros e segundos; tempo 0 = sem prova).
+    static let provaDistancia = "provaDistancia"
+    static let provaTempo = "provaTempo"
 }
 
 enum Tema: String, CaseIterable, Identifiable {

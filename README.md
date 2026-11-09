@@ -6,6 +6,8 @@ App nativo de iPhone para planejar e executar treinos de corrida. Uso pessoal, u
 
 Fase 3 (corrida livre com GPS): gravação com a tela bloqueada (`CLLocationUpdate` + sessões de segundo plano, com o app reaberto pelo iOS se ele o fechar no meio), pausa manual e automática, tempo em movimento, ritmo atual, parciais, corrida retomada sozinha depois de o app fechar, diagnóstico do sinal do GPS por corrida, histórico com mapa colorido pelo ritmo, gráficos de ritmo e altitude, esforço percebido e exportação em GPX. Simulação de GPS para testar em casa. Instalar: [docs/INSTALAR.md](docs/INSTALAR.md). Testar na rua: [docs/TESTES-NA-RUA.md](docs/TESTES-NA-RUA.md).
 
+Fase 4 (motor de treino): zonas de ritmo pelo VDOT, previsão de prova, biblioteca de modelos de treino, gerador de plano com fases, alívio e polimento, operações de mudança e regras de adaptação, tudo com fonte em [docs/CIENCIA.md](docs/CIENCIA.md) e testes por propriedade. No app: Ajustes > Meus ritmos e Plano > Prévia do motor.
+
 ## Como é feito
 
 - SwiftUI, Swift 6, SwiftData, iOS 26 (Liquid Glass nativo), sem dependências de terceiros.

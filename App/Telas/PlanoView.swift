@@ -9,6 +9,13 @@ struct PlanoView: View {
                     .entradaCascata(2)
                 cartaoExplicacao
                     .entradaCascata(3)
+                NavigationLink {
+                    PreviaPlanoView()
+                } label: {
+                    cartaoPrevia
+                }
+                .buttonStyle(.plain)
+                .entradaCascata(3)
                 legendaDeCores
                     .entradaCascata(4)
             }
@@ -53,7 +60,7 @@ struct PlanoView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Seu plano aparece aqui")
                 .font(.title3.weight(.semibold))
-            Text("Numa próxima versão você monta o plano até a prova, com fases, semana de alívio e polimento, e arrasta treinos entre os dias.")
+            Text("O calendário com o plano até a prova chega numa próxima versão. O motor que monta o plano já está pronto: veja uma prévia abaixo.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -61,6 +68,29 @@ struct PlanoView: View {
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .cartaoVidro()
+    }
+
+    private var cartaoPrevia: some View {
+        HStack(spacing: 14) {
+            Image(systemName: "wand.and.stars")
+                .font(.title2)
+                .foregroundStyle(Paleta.verdeLogo)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Prévia do motor de treino")
+                    .font(.headline)
+                Text("Monte um plano de teste e veja as fases, os treinos e as travas.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.right")
+                .foregroundStyle(.tertiary)
+        }
+        .padding(20)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .cartaoVidro()
+        .contentShape(Rectangle())
     }
 
     private var legendaDeCores: some View {

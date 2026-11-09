@@ -32,9 +32,11 @@ extension TipoTreino {
         case .recuperacao: Color(hex: 0x8FA3B8)
         case .facil: Color(hex: 0x4DA3FF)
         case .longao: Color(hex: 0x7B7CFF)
+        case .ritmoProva: Color(hex: 0x2EC4B6)
         case .limiar: Color(hex: 0xFFC53D)
         case .intervalado: Color(hex: 0xFF7A3D)
         case .repeticoes: Color(hex: 0xFF3D6E)
+        case .prova: Paleta.verdeLogo
         }
     }
 }

@@ -63,6 +63,18 @@ struct AjustesView: View {
                 }
 
                 Section {
+                    NavigationLink {
+                        MeusRitmosView()
+                    } label: {
+                        Label("Meus ritmos", systemImage: "speedometer")
+                    }
+                } header: {
+                    Text("Treino")
+                } footer: {
+                    Text("Informe uma prova recente para calcular seus ritmos de treino e os tempos previstos.")
+                }
+
+                Section {
                     Toggle("Modo de desenvolvimento", isOn: $modoDesenvolvimento)
                     Text("Mostra ferramentas de teste: gerar corridas de exemplo no Histórico e simular o GPS.")
                         .font(.footnote)

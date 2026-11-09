@@ -38,3 +38,14 @@ O CI compila o app e roda os testes do motor, mas não sai para correr. Tudo aqu
 O app salva a corrida em disco a cada 10 segundos. Se o iOS fechar o app durante a corrida (pouca memória, por exemplo), ele mesmo reabre o app em segundo plano quando chega localização nova, e a gravação continua sem você fazer nada. Se não reabrir, a corrida volta quando você abrir o app: a tela de corrida aparece sozinha, do jeito que estava (correndo ou pausada), e o trecho em que o app ficou fechado vira uma linha reta no mapa. Se ficou fechado por mais de 30 minutos, a corrida volta pausada no último ponto salvo: aí você retoma ou finaliza.
 
 Fechar o app de propósito pelo seletor de apps também cai nesse caso: o iOS não reabre sozinho (você mandou fechar), mas a corrida volta quando você abrir o app.
+
+## Fase 4: motor de treino (em casa, 5 minutos)
+
+1. **Meus ritmos:** Ajustes > Meus ritmos. Escolha a distância e o tempo de uma prova ou teste recente. Aparecem o VDOT, as faixas de ritmo (fácil, maratona, limiar, intervalado, repetições) e os tempos previstos com a comparação de Riegel. Sem prova, a tela mostra as intensidades pelo esforço e pelo teste da fala.
+2. **Prévia do motor:** aba Plano > Prévia do motor de treino. Escolha objetivo, semanas, nível, dias, dia do longão, volume atual e maior corrida recente, e toque em Gerar prévia. Confira:
+   - "Por que este plano?" explica as fases e as travas;
+   - "Travas" mostra "Todas as travas conferidas";
+   - em cada semana, nenhum treino de qualidade em dias seguidos ou colado no longão, e a prova no dia do longão da última semana.
+3. Teste combinações estranhas (2 dias por semana, volume 0, maratona em 4 semanas, começar a correr): o plano tem que sair sempre, e as travas sempre conferidas.
+
+O que me contar: algum plano que pareça sem sentido para você como corredor (volume, longão, ordem dos treinos), mesmo com as travas conferidas.
