@@ -109,7 +109,7 @@ struct CartaoTreino: View {
             Text(TextoTreino.totais(treino, zonas: zonas, unidade: unidade))
                 .font(.subheadline.monospacedDigit())
                 .foregroundStyle(.secondary)
-            LinhaDoTempoTreino(blocos: treino.blocos, zonas: zonas, altura: 28)
+            LinhaDoTempoTreino(blocos: treino.blocos, zonas: zonas)
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -50,36 +50,48 @@ enum TextoTreino {
 
 // MARK: - Linha do tempo
 
-/// Perfil do treino: um segmento por passo (repetições abertas), altura e cor pela intensidade,
-/// todos na mesma base, como um perfil de altimetria. A largura cresce com a raiz quadrada da
-/// duração: aquecimento e desaquecimento longos encolhem, e tiros e recuperações ficam legíveis.
-/// É a estrutura do treino, não uma escala de tempo; os tempos exatos estão na lista de blocos.
-/// Com trabalho forte no treino, os trechos leves ficam mais apagados para ele se destacar.
-/// Toque num segmento devolve (bloco, passo da repetição).
+/// Estrutura do treino em cápsulas (no estilo do StatusBar do beUI, MIT; só o desenho, sem código):
+/// uma cápsula por passo, com as repetições abertas, todas da mesma espessura, com espaço entre
+/// elas. A cor é a do tipo; recuperação fica neutra e os trechos leves ficam apagados quando há
+/// trabalho forte. A largura cresce com a raiz quadrada da duração (aquecimento longo encolhe,
+/// tiro curto não vira ponto). É a estrutura, não uma escala de tempo. Embaixo, uma legenda com o
+/// tempo de cada tipo, para a cor não ser a única pista. Toque devolve (bloco, passo da repetição).
 struct LinhaDoTempoTreino: View {
     let blocos: [Bloco]
     var zonas: Zonas?
-    var altura: CGFloat = 44
+    /// Espessura das cápsulas.
+    var espessura: CGFloat = 12
+    /// Altura da área de toque (no construtor, 44); sem ela, a da cápsula.
+    var alturaToque: CGFloat? = nil
+    var legenda = true
     var aoTocar: ((Int, Int?) -> Void)? = nil
+
+    private enum Papel { case trabalho, recuperacao, leve }
 
     private struct Segmento: Identifiable {
         let id: Int
         let bloco: Int
         let passo: Int?
         let duracao: TimeInterval
+        let tipo: TipoTreino
+        let papel: Papel
+    }
+
+    private struct ItemLegenda: Identifiable {
+        let id: String
         let cor: Color
-        let fracaoAltura: CGFloat
-        let leve: Bool
+        let texto: String
     }
 
     private var segmentos: [Segmento] {
         let z = zonas ?? Zonas.estimativaSemReferencia(.intermediario)
         var lista: [Segmento] = []
         func adicionar(_ p: Passo, bloco: Int, passo: Int?) {
+            let papel: Papel = p.funcao == .recuperacao ? .recuperacao
+                : (p.intensidade == .facil || p.intensidade == .caminhada ? .leve : .trabalho)
             lista.append(Segmento(
                 id: lista.count, bloco: bloco, passo: passo, duracao: p.estimativa(zonas: z).duracao,
-                cor: p.tipoParaCor.cor, fracaoAltura: Self.fracaoAltura(p.intensidade),
-                leve: p.intensidade == .facil || p.intensidade == .caminhada
+                tipo: p.tipoParaCor, papel: papel
             ))
         }
         for (b, bloco) in blocos.enumerated() {
@@ -95,15 +107,60 @@ struct LinhaDoTempoTreino: View {
         return lista
     }
 
-    static func fracaoAltura(_ i: Intensidade) -> CGFloat {
-        switch i {
-        case .caminhada: 0.3
-        case .facil: 0.42
-        case .maratona: 0.6
-        case .limiar: 0.74
-        case .prova: 0.84
-        case .intervalado: 0.93
-        case .repeticoes: 1
+    private func cor(_ s: Segmento, comTrabalho: Bool) -> Color {
+        switch s.papel {
+        case .trabalho: s.tipo.cor
+        case .recuperacao: comTrabalho ? Color.primary.opacity(0.2) : s.tipo.cor
+        case .leve: comTrabalho ? s.tipo.cor.opacity(0.38) : s.tipo.cor
+        }
+    }
+
+    /// Tempo por tipo, na ordem: trabalho, recuperação, leve.
+    private func itensLegenda(_ lista: [Segmento], comTrabalho: Bool) -> [ItemLegenda] {
+        var itens: [ItemLegenda] = []
+        for papel in [Papel.trabalho, .recuperacao, .leve] {
+            var ordem: [String] = []
+            var total: [String: TimeInterval] = [:]
+            var exemplo: [String: Segmento] = [:]
+            for s in lista where s.papel == papel {
+                let chave = papel == .recuperacao ? "recuperacao" : s.tipo.rawValue
+                if total[chave] == nil {
+                    ordem.append(chave)
+                    exemplo[chave] = s
+                }
+                total[chave, default: 0] += s.duracao
+            }
+            for chave in ordem {
+                guard let s = exemplo[chave] else { continue }
+                let nome = papel == .recuperacao ? "Recuperação" : s.tipo.nome
+                itens.append(ItemLegenda(id: chave, cor: cor(s, comTrabalho: comTrabalho),
+                                         texto: nome + " " + Self.tempoCurto(total[chave] ?? 0)))
+            }
+        }
+        return itens
+    }
+
+    /// "9 min", "1h05" (estimativa, sem segundos).
+    static func tempoCurto(_ segundos: TimeInterval) -> String {
+        let m = max(1, Int((segundos / 60).rounded()))
+        if m < 60 { return "\(m) min" }
+        return "\(m / 60)h" + (m % 60 == 0 ? "" : String(format: "%02d", m % 60))
+    }
+
+    private func filaLegenda(_ itens: [ItemLegenda]) -> some View {
+        HStack(spacing: 14) {
+            ForEach(itens) { item in
+                HStack(spacing: 6) {
+                    Capsule(style: .continuous)
+                        .fill(item.cor)
+                        .frame(width: 6, height: 12)
+                    Text(item.texto)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .fixedSize()
+                }
+            }
         }
     }
 
@@ -131,30 +188,37 @@ struct LinhaDoTempoTreino: View {
 
     var body: some View {
         let lista = segmentos
-        let comTrabalho = lista.contains { !$0.leve }
-        GeometryReader { geo in
-            let espaco: CGFloat = lista.count > 48 ? 1 : (lista.count > 24 ? 1.5 : 2)
-            let disponivel = max(geo.size.width - espaco * CGFloat(max(lista.count - 1, 0)), 1)
-            let larguras = Self.larguras(lista.map(\.duracao), disponivel: disponivel)
-            HStack(alignment: .bottom, spacing: espaco) {
-                ForEach(lista) { s in
-                    let largura = larguras[s.id]
-                    let raio = min(4, altura * 0.14, largura / 2)
-                    UnevenRoundedRectangle(
-                        topLeadingRadius: raio, bottomLeadingRadius: min(raio, 1.5),
-                        bottomTrailingRadius: min(raio, 1.5), topTrailingRadius: raio, style: .continuous
-                    )
-                    .fill(s.cor.opacity(s.leve && comTrabalho ? 0.62 : 1))
-                    .frame(width: largura, height: max(5, altura * s.fracaoAltura))
-                    // Toque na altura inteira da barra, não só no segmento (os leves são baixos).
-                    .frame(height: altura, alignment: .bottom)
-                    .contentShape(Rectangle())
-                    .onTapGesture { aoTocar?(s.bloco, s.passo) }
+        let comTrabalho = lista.contains { $0.papel == .trabalho }
+        let area = max(alturaToque ?? espessura, espessura)
+        VStack(alignment: .leading, spacing: 8) {
+            GeometryReader { geo in
+                let espaco: CGFloat = lista.count > 48 ? 1 : (lista.count > 24 ? 2 : 3)
+                let disponivel = max(geo.size.width - espaco * CGFloat(max(lista.count - 1, 0)), 1)
+                let larguras = Self.larguras(lista.map(\.duracao), disponivel: disponivel, minimo: min(10, espessura))
+                HStack(spacing: espaco) {
+                    ForEach(lista) { s in
+                        Capsule(style: .continuous)
+                            .fill(cor(s, comTrabalho: comTrabalho))
+                            .frame(width: larguras[s.id], height: espessura)
+                            // Toque na área inteira, não só na cápsula.
+                            .frame(height: area)
+                            .contentShape(Rectangle())
+                            .onTapGesture { aoTocar?(s.bloco, s.passo) }
+                    }
+                }
+                .frame(width: geo.size.width, height: area, alignment: .leading)
+            }
+            .frame(height: area)
+
+            if legenda {
+                let itens = itensLegenda(lista, comTrabalho: comTrabalho)
+                ViewThatFits(in: .horizontal) {
+                    filaLegenda(itens)
+                    filaLegenda(Array(itens.prefix(2)))
+                    filaLegenda(Array(itens.prefix(1)))
                 }
             }
-            .frame(width: geo.size.width, height: altura, alignment: .bottomLeading)
         }
-        .frame(height: altura)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Estrutura do treino")
         .accessibilityValue(TextoRapido.texto(blocos))

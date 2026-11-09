@@ -53,7 +53,7 @@ struct ConstrutorTreinoView: View {
             if !blocos.isEmpty {
                 Section {
                     VStack(alignment: .leading, spacing: 10) {
-                        LinhaDoTempoTreino(blocos: blocos, zonas: zonas) { bloco, passo in
+                        LinhaDoTempoTreino(blocos: blocos, zonas: zonas, espessura: 16, alturaToque: 44) { bloco, passo in
                             abrirEditor(bloco: bloco, passo: passo)
                         }
                         Text(TextoTreino.totais(treinoAtual, zonas: zonas, unidade: unidade))

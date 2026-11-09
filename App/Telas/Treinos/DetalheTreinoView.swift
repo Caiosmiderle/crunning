@@ -39,7 +39,7 @@ struct DetalheTreinoView: View {
                     .font(.title3.monospacedDigit())
                     .foregroundStyle(.secondary)
 
-                LinhaDoTempoTreino(blocos: treino.blocos, zonas: zonas)
+                LinhaDoTempoTreino(blocos: treino.blocos, zonas: zonas, espessura: 16)
                     .padding(18)
                     .cartaoVidro(raio: 24)
 

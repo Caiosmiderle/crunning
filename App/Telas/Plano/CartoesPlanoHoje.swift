@@ -63,7 +63,7 @@ struct CartoesPlanoHoje: View {
                     Text(Formatador.distancia(sessao.distancia, unidade: unidade, casas: 1) + " · " + Formatador.duracao(sessao.duracao) + " · semana \(p.semana)")
                         .font(.subheadline.monospacedDigit())
                         .foregroundStyle(.secondary)
-                    LinhaDoTempoTreino(blocos: sessao.treino.blocos, zonas: ZonasDoUsuario.atuais(), altura: 28)
+                    LinhaDoTempoTreino(blocos: sessao.treino.blocos, zonas: ZonasDoUsuario.atuais(), legenda: false)
                     if let porque = sessao.treino.modeloID.flatMap({ Modelos.modelo(id: $0)?.porque }) {
                         Text(porque).font(.footnote).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                     }
