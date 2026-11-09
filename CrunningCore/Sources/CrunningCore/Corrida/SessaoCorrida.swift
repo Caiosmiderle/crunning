@@ -167,18 +167,36 @@ public struct SessaoCorrida: Codable, Sendable {
 
     // MARK: Pontos
 
+    /// O GPS avisou que o aparelho está parado (o iOS deixa de mandar pontos até
+    /// ele voltar a se mover): pausa já, sem esperar a janela de parada.
+    @discardableResult
+    public mutating func marcarParado(em instante: Date) -> [EventoCorrida] {
+        guard configuracao.pausaAutomatica, estado == .correndo else { return [] }
+        let marco = marcoMovimento ?? instante
+        acumularMovimento(ate: max(marco, instante))
+        estado = .pausadaAuto
+        return [.pausouSozinha]
+    }
+
     @discardableResult
     public mutating func receber(_ ponto: PontoGPS) -> [EventoCorrida] {
         guard estado == .correndo || estado == .pausadaAuto else { return [] }
         guard filtro.avaliar(ponto) == .aceito else { return [] }
 
+        let anterior = recentes.last
         recentes.append(ponto)
         let horizonte = max(configuracao.janelaParada, configuracao.janelaRetomada) + 5
         recentes.removeAll { ponto.instante.timeIntervalSince($0.instante) > horizonte }
 
         var eventos: [EventoCorrida] = []
         if configuracao.pausaAutomatica {
-            if estado == .correndo, let inicioParada = inicioDaParada(ate: ponto) {
+            if estado == .correndo, let anterior, ficouParadoSemPontos(de: anterior, ate: ponto) {
+                // Buraco sem pontos com o aparelho no mesmo lugar: a pausa vale desde o último ponto.
+                let marco = marcoMovimento ?? anterior.instante
+                acumularMovimento(ate: max(marco, anterior.instante))
+                estado = .pausadaAuto
+                eventos.append(.pausouSozinha)
+            } else if estado == .correndo, let inicioParada = inicioDaParada(ate: ponto) {
                 // A pausa vale desde o começo da parada, não só desde a detecção.
                 let marco = marcoMovimento ?? inicioParada
                 acumularMovimento(ate: max(marco, inicioParada))
@@ -186,7 +204,7 @@ public struct SessaoCorrida: Codable, Sendable {
                 return [.pausouSozinha]
             }
             if estado == .pausadaAuto {
-                guard voltouAoMovimento(ate: ponto) else { return [] }
+                guard voltouAoMovimento(ate: ponto) else { return eventos }
                 estado = .correndo
                 marcoMovimento = ponto.instante
                 eventos.append(.retomouSozinha)
@@ -266,6 +284,15 @@ public struct SessaoCorrida: Codable, Sendable {
         } else if referencia - altitude >= configuracao.limiarSubida {
             altitudeReferencia = altitude
         }
+    }
+
+    /// Passaram `janelaParada` segundos ou mais sem pontos e, nesse tempo, o aparelho
+    /// quase não saiu do lugar (velocidade média abaixo da de parada). Um buraco com
+    /// deslocamento grande (túnel, sinal perdido correndo) não é parada.
+    func ficouParadoSemPontos(de anterior: PontoGPS, ate ponto: PontoGPS) -> Bool {
+        let intervalo = ponto.instante.timeIntervalSince(anterior.instante)
+        guard intervalo >= configuracao.janelaParada else { return false }
+        return Geo.distancia(anterior, ponto) / intervalo < configuracao.velocidadeParada
     }
 
     /// Se os últimos `janelaParada` segundos foram parados, devolve quando a parada começou.
