@@ -44,7 +44,8 @@ enum TextoTreino {
         let z = zonas ?? Zonas.estimativaSemReferencia(.intermediario)
         let d = treino.distanciaEstimada(zonas: z)
         let t = treino.duracaoEstimada(zonas: z)
-        return "≈ " + Formatador.distancia(d, unidade: unidade, casas: 1) + " · " + Formatador.duracao(t)
+        // Estimativa: sem segundos ("≈ 7,1 km · 49 min").
+        return "≈ " + Formatador.distancia(d, unidade: unidade, casas: 1) + " · " + LinhaDoTempoTreino.tempoCurto(t)
     }
 }
 

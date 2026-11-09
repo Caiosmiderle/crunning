@@ -96,24 +96,54 @@ struct CartaoTreino: View {
     let unidade: UnidadeDistancia
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack {
-                Circle().fill(treino.tipo.cor).frame(width: 10, height: 10)
-                Text(treino.nome)
-                    .font(.headline)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.footnote)
-                    .foregroundStyle(.tertiary)
+        let totais = TextoTreino.totais(treino, zonas: zonas, unidade: unidade)
+        VStack(alignment: .leading, spacing: 12) {
+            // Nome e totais numa linha só; se não couber, em duas.
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    nome
+                    Spacer(minLength: 8)
+                    textoTotais(totais)
+                    seta
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        nome
+                        Spacer(minLength: 8)
+                        seta
+                    }
+                    textoTotais(totais)
+                }
             }
-            Text(TextoTreino.totais(treino, zonas: zonas, unidade: unidade))
-                .font(.subheadline.monospacedDigit())
-                .foregroundStyle(.secondary)
             LinhaDoTempoTreino(blocos: treino.blocos, zonas: zonas)
         }
-        .padding(18)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .cartaoVidro(raio: 24)
         .contentShape(Rectangle())
+    }
+
+    private var nome: some View {
+        HStack(spacing: 8) {
+            Circle().fill(treino.tipo.cor).frame(width: 9, height: 9)
+            Text(treino.nome)
+                .font(.headline)
+                .lineLimit(1)
+                .fixedSize()
+        }
+    }
+
+    private func textoTotais(_ texto: String) -> some View {
+        Text(texto)
+            .font(.subheadline.monospacedDigit())
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+            .fixedSize()
+    }
+
+    private var seta: some View {
+        Image(systemName: "chevron.right")
+            .font(.footnote)
+            .foregroundStyle(.tertiary)
     }
 }

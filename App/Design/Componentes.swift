@@ -123,6 +123,16 @@ struct Tela<Conteudo: View>: View {
         }
         .scrollIndicators(.hidden)
         .background { FundoView() }
+        .overlay(alignment: .top) {
+            // Vidro atrás da barra de status: o que rola não passa por cima do relógio.
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .mask(LinearGradient(colors: [.black, .black, .black.opacity(0)], startPoint: .top, endPoint: .bottom))
+                .frame(height: 0)
+                .ignoresSafeArea(edges: .top)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
     }
 }
 
