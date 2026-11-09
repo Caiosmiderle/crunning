@@ -23,6 +23,10 @@ final class Corrida {
     var simulada: Bool = false
     /// Como o GPS se comportou ([DiagnosticoGPS] em JSON; sem coordenadas).
     var diagnostico: Data? = nil
+    /// Treino executado por blocos: planejado x realizado ([ResultadoEtapa] em JSON).
+    var blocos: Data? = nil
+    /// Corrida na esteira: sem rota, distância digitada no fim.
+    var esteira: Bool = false
 
     init(
         inicio: Date,
@@ -52,21 +56,32 @@ final class Corrida {
         return (try? JSONDecoder().decode([AmostraTrilha].self, from: trilha)) ?? []
     }
 
+    func carregarResultados() -> [ResultadoEtapa] {
+        guard let blocos else { return [] }
+        return (try? JSONDecoder().decode([ResultadoEtapa].self, from: blocos)) ?? []
+    }
+
     func carregarDiagnostico() -> DiagnosticoGPS? {
         guard let diagnostico else { return nil }
         return try? JSONDecoder().decode(DiagnosticoGPS.self, from: diagnostico)
     }
 
     /// Monta a corrida a partir da gravação terminada.
-    static func de(sessao: SessaoCorrida, simulada: Bool, esforco: Int?, agora: Date, diagnostico: DiagnosticoGPS? = nil) -> Corrida {
+    static func de(
+        sessao: SessaoCorrida, simulada: Bool, esforco: Int?, agora: Date, diagnostico: DiagnosticoGPS? = nil,
+        execucao: ExecucaoTreino? = nil, esteira: Bool = false, distanciaEsteira: Double? = nil
+    ) -> Corrida {
         let fim = sessao.fim ?? agora
+        let titulo = execucao?.treino.nome ?? (esteira ? "Corrida na esteira" : simulada ? "Corrida simulada" : "Corrida livre")
         let corrida = Corrida(
             inicio: sessao.inicio ?? fim,
             duracaoTotal: sessao.tempoTotal(em: fim),
             duracaoEmMovimento: sessao.tempoEmMovimento(em: fim),
-            distanciaMetros: sessao.distancia,
-            titulo: simulada ? "Corrida simulada" : "Corrida livre"
+            distanciaMetros: esteira ? max(0, distanciaEsteira ?? 0) : sessao.distancia,
+            titulo: titulo
         )
+        corrida.esteira = esteira
+        corrida.blocos = execucao.flatMap { try? JSONEncoder().encode($0.resultados) }
         corrida.subidaMetros = sessao.subida
         corrida.esforcoPercebido = esforco
         corrida.simulada = simulada

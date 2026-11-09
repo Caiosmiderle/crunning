@@ -6,6 +6,7 @@ struct HojeView: View {
     @Query(sort: \Corrida.inicio, order: .reverse) var corridas: [Corrida]
     @AppStorage(Preferencias.unidade) var unidade: UnidadeDistancia = .quilometros
     @Environment(EstadoApp.self) var estadoApp
+    @Binding var aba: Aba
 
     var body: some View {
         NavigationStack {
@@ -33,6 +34,26 @@ struct HojeView: View {
                 .accessibilityHint("Abre a tela de corrida livre com GPS")
                 .padding(.top, 8)
                 .entradaCascata(4)
+                HStack(spacing: 12) {
+                    Button {
+                        aba = .treinos
+                    } label: {
+                        Label("Treinos", systemImage: "square.stack.3d.up")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 50)
+                    }
+                    .buttonStyle(.glass)
+                    Button {
+                        estadoApp.abrirCorridaLivre(esteira: true)
+                    } label: {
+                        Label("Na esteira", systemImage: "figure.run.treadmill")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 50)
+                    }
+                    .buttonStyle(.glass)
+                    .accessibilityHint("Corrida sem GPS; a distância você digita no fim")
+                }
+                .entradaCascata(4)
             }
             .toolbar(.hidden, for: .navigationBar)
         }
@@ -45,7 +66,7 @@ struct HojeView: View {
                 .foregroundStyle(.secondary)
             Text("Nada planejado")
                 .font(.title2.weight(.semibold))
-            Text("Os planos de treino chegam numa próxima versão. Enquanto isso, faça uma corrida livre: o app mede distância, ritmo, parciais e o trajeto.")
+            Text("O plano no calendário chega numa próxima versão. Enquanto isso, monte ou escolha um treino em Treinos (com voz e aquecimento guiado), ou faça uma corrida livre.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

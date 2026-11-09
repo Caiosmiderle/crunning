@@ -12,6 +12,7 @@ enum QualidadeGPS: Equatable {
     case bom
     case otimo
     case simulado
+    case esteira
 
     init(precisao: Double) {
         switch precisao {
@@ -29,6 +30,14 @@ struct AvisoCorrida: Equatable, Identifiable {
     let id = UUID()
     let texto: String
     let icone: String
+}
+
+/// Sem fonte de pontos: corrida na esteira (o GPS liga só para manter o app vivo com a tela bloqueada).
+@MainActor
+final class FonteNenhuma: FonteLocalizacao {
+    var aoLer: ((LeituraGPS) -> Void)?
+    func iniciar() {}
+    func parar() {}
 }
 
 /// Rota e velocidade da simulação. A semente refaz a mesma rota se a corrida for retomada.
@@ -56,8 +65,16 @@ final class GravadorCorrida: Identifiable {
     private(set) var ultimoAviso: AvisoCorrida?
     private(set) var autorizacao: CLAuthorizationStatus
     private(set) var diagnostico: DiagnosticoGPS
+    /// Treino por blocos em andamento (nil na corrida livre).
+    private(set) var execucao: ExecucaoTreino?
+    /// Sobe a cada troca de etapa (anima a tela).
+    private(set) var transicoes = 0
+    /// Número da contagem regressiva na tela (3, 2, 1), ou nil.
+    private(set) var contagemVisivel: Int?
 
     let simulada: Bool
+    let esteira: Bool
+    let avisos: AvisosCorrida
     let manterTelaAcesa: Bool
     private let multiplicadorSimulacao: Double?
     private let sementeSimulacao: UInt64?
@@ -74,13 +91,19 @@ final class GravadorCorrida: Identifiable {
     @ObservationIgnored private var ultimoSalvamento = Date.distantPast
     @ObservationIgnored private var observadores: [any NSObjectProtocol] = []
     @ObservationIgnored private var avisosAtivos: Set<DiagnosticoGPS.Tipo> = []
+    private let locutor = Locutor.compartilhado
+    @ObservationIgnored private var contagemEm: Date?
 
     /// Corrida nova.
-    init(configuracao: ConfiguracaoCorrida, simulacao: OrigemSimulada?, manterTelaAcesa: Bool) {
+    init(configuracao: ConfiguracaoCorrida, simulacao: OrigemSimulada?, manterTelaAcesa: Bool,
+         execucao: ExecucaoTreino? = nil, esteira: Bool = false) {
         let gps = LocalizacaoReal()
         let relogio: any Relogio
         let fonte: any FonteLocalizacao
-        if let simulacao {
+        if esteira {
+            relogio = RelogioReal()
+            fonte = FonteNenhuma()
+        } else if let simulacao {
             let acelerado = RelogioAcelerado(multiplicador: simulacao.multiplicador)
             relogio = acelerado
             fonte = LocalizacaoSimulada(pontos: simulacao.pontos, relogio: acelerado)
@@ -98,6 +121,9 @@ final class GravadorCorrida: Identifiable {
         self.manterTelaAcesa = manterTelaAcesa
         self.sessao = SessaoCorrida(configuracao: configuracao)
         self.diagnostico = DiagnosticoGPS()
+        self.execucao = execucao
+        self.esteira = esteira
+        self.avisos = AvisosCorrida.atuais()
         self.agora = relogio.agora
         self.autorizacao = gps.autorizacao
         ligarFontes()
@@ -108,7 +134,13 @@ final class GravadorCorrida: Identifiable {
         let gps = LocalizacaoReal()
         let relogio: any Relogio
         let fonte: any FonteLocalizacao
-        if salva.simulada {
+        let esteira = salva.esteira ?? false
+        if esteira {
+            relogio = RelogioReal()
+            fonte = FonteNenhuma()
+            self.multiplicadorSimulacao = nil
+            self.sementeSimulacao = nil
+        } else if salva.simulada {
             let multiplicador = salva.multiplicador ?? 10
             let semente = salva.sementeSimulacao ?? 1
             // O relógio da simulação continua do instante salvo: o tempo fechado não existe para ela.
@@ -131,13 +163,16 @@ final class GravadorCorrida: Identifiable {
         self.manterTelaAcesa = manterTelaAcesa
         self.sessao = salva.sessao
         self.diagnostico = salva.diagnostico ?? DiagnosticoGPS()
+        self.execucao = salva.execucao
+        self.esteira = esteira
+        self.avisos = AvisosCorrida.atuais()
         self.agora = relogio.agora
         self.autorizacao = gps.autorizacao
         ligarFontes()
     }
 
     var permissaoNegada: Bool {
-        !simulada && (autorizacao == .denied || autorizacao == .restricted)
+        !simulada && !esteira && (autorizacao == .denied || autorizacao == .restricted)
     }
 
     // MARK: Comandos
@@ -155,8 +190,41 @@ final class GravadorCorrida: Identifiable {
     func iniciar() {
         guard sessao.estado == .pronta else { return }
         sessao.iniciar(em: relogio.agora)
+        agora = relogio.agora
+        if let nome = execucao?.treino.nome, avisos.voz { locutor.falar(Fala.inicioTreino(nome)) }
+        let eventos = execucao?.iniciar(leitura()) ?? []
+        tratarExecucao(eventos, interromperFala: false)
         ligarGravacao()
         salvarSessao(forcar: true)
+    }
+
+    /// Pula a etapa atual do treino (a tela confirma antes, menos nos exercícios do aquecimento).
+    func pularEtapa() {
+        guard execucao != nil, sessao.estado != .pronta, sessao.estado != .finalizada else { return }
+        agora = relogio.agora
+        let eventos = execucao?.pular(leitura()) ?? []
+        tratarExecucao(eventos)
+        salvarSessao(forcar: true)
+    }
+
+    /// Volta manual: anuncia o tempo e a distância desde a volta anterior.
+    func marcarVolta() {
+        guard execucao != nil, sessao.estado != .pronta, sessao.estado != .finalizada else { return }
+        agora = relogio.agora
+        let eventos = execucao?.marcarVolta(leitura()) ?? []
+        tratarExecucao(eventos)
+        salvarSessao(forcar: true)
+    }
+
+    /// Leitura da gravação para o motor de blocos.
+    func leitura() -> LeituraExecucao {
+        LeituraExecucao(
+            instante: agora,
+            distancia: sessao.distancia,
+            tempoMovimento: sessao.tempoEmMovimento(em: agora),
+            ritmoAtual: esteira ? nil : sessao.ritmoAtual(em: agora),
+            pausadaManual: sessao.estado == .pausadaManual
+        )
     }
 
     func pausar() {
@@ -173,6 +241,10 @@ final class GravadorCorrida: Identifiable {
     }
 
     func finalizar() {
+        agora = relogio.agora
+        execucao?.encerrar(leitura())
+        contagemVisivel = nil
+        locutor.calar()
         sessao.finalizar(em: relogio.agora)
         pararTudo()
         atualizarRelogio()
@@ -187,9 +259,12 @@ final class GravadorCorrida: Identifiable {
 
     /// Grava no histórico e apaga a cópia de segurança.
     @discardableResult
-    func salvar(em contexto: ModelContext, esforco: Int?) -> Corrida {
+    func salvar(em contexto: ModelContext, esforco: Int?, distanciaEsteira: Double? = nil) -> Corrida {
         if sessao.estado != .finalizada { finalizar() }
-        let corrida = Corrida.de(sessao: sessao, simulada: simulada, esforco: esforco, agora: relogio.agora, diagnostico: diagnostico)
+        let corrida = Corrida.de(
+            sessao: sessao, simulada: simulada, esforco: esforco, agora: relogio.agora,
+            diagnostico: esteira ? nil : diagnostico, execucao: execucao, esteira: esteira, distanciaEsteira: distanciaEsteira
+        )
         contexto.insert(corrida)
         try? contexto.save()
         ArmazemSessao.apagar()
@@ -226,7 +301,9 @@ final class GravadorCorrida: Identifiable {
             salvaEm: relogio.agora,
             diagnostico: diagnostico,
             multiplicador: multiplicadorSimulacao,
-            sementeSimulacao: sementeSimulacao
+            sementeSimulacao: sementeSimulacao,
+            execucao: execucao,
+            esteira: esteira
         ))
     }
 
@@ -234,8 +311,9 @@ final class GravadorCorrida: Identifiable {
 
     private func ligarFontes() {
         if simulada { qualidade = .simulado }
+        if esteira { qualidade = .esteira }
         fonte.aoLer = { [weak self] leitura in self?.receberDaCorrida(leitura) }
-        if simulada {
+        if simulada || esteira {
             gps.aoLer = { [weak self] leitura in self?.anotar(leitura) }
         }
         gps.aoMudarAutorizacao = { [weak self] status in self?.autorizacao = status }
@@ -293,10 +371,15 @@ final class GravadorCorrida: Identifiable {
             switch evento {
             case .pausouSozinha:
                 ultimoAviso = AvisoCorrida(texto: "Pausa automática", icone: "pause.circle.fill")
+                if avisos.voz { locutor.falar("Pausa automática.") }
             case .retomouSozinha:
                 ultimoAviso = AvisoCorrida(texto: "Retomando", icone: "play.circle.fill")
+                if avisos.voz { locutor.falar(Fala.retomada) }
             case let .parcial(numero, duracao):
                 ultimoAviso = AvisoCorrida(texto: "Km \(numero) · \(Formatador.duracao(duracao))", icone: "flag.fill")
+                if avisos.voz, avisos.parciaisKm > 0, numero % avisos.parciaisKm == 0 {
+                    locutor.falar(Fala.parcial(numero: numero, duracao: duracao))
+                }
             }
         }
     }
@@ -333,6 +416,63 @@ final class GravadorCorrida: Identifiable {
 
     private func atualizarRelogio() {
         agora = relogio.agora
+        avancarExecucao()
+    }
+
+    // MARK: Treino por blocos
+
+    private func avancarExecucao() {
+        guard execucao != nil, sessao.estado != .pronta, sessao.estado != .finalizada else { return }
+        let eventos = execucao?.atualizar(leitura()) ?? []
+        tratarExecucao(eventos)
+    }
+
+    private var unidade: UnidadeDistancia {
+        UnidadeDistancia(rawValue: UserDefaults.standard.string(forKey: Preferencias.unidade) ?? "") ?? .quilometros
+    }
+
+    private func tratarExecucao(_ eventos: [EventoExecucao], interromperFala: Bool = true) {
+        guard let execucao else { return }
+        for evento in eventos {
+            switch evento {
+            case let .comecouEtapa(i):
+                transicoes += 1
+                contagemVisivel = nil
+                if avisos.vibracao { locutor.vibrar() }
+                if avisos.contagem { locutor.bipe(longo: true) }
+                if avisos.voz { locutor.falar(Fala.etapa(execucao.etapas[i], unidade: unidade), interromper: interromperFala) }
+                salvarSessao(forcar: true)
+            case let .contagem(n):
+                contagemVisivel = n
+                contagemEm = agora
+                if avisos.contagem {
+                    locutor.bipe(longo: false)
+                    if avisos.voz { locutor.falar(Fala.contagem(n)) }
+                }
+            case let .ritmo(aviso):
+                guard avisos.ritmo else { continue }
+                switch aviso {
+                case .acelerar: ultimoAviso = AvisoCorrida(texto: "Acelere um pouco", icone: "hare.fill")
+                case .reduzir: ultimoAviso = AvisoCorrida(texto: "Reduza um pouco", icone: "tortoise.fill")
+                case .voltouAoRitmo: ultimoAviso = AvisoCorrida(texto: "No ritmo", icone: "checkmark.circle.fill")
+                }
+                if avisos.voz { locutor.falar(Fala.ritmo(aviso)) }
+            case let .volta(numero, duracao, distancia):
+                ultimoAviso = AvisoCorrida(texto: "Volta \(numero) · \(Formatador.duracao(duracao))", icone: "flag.2.crossed.fill")
+                if avisos.voz { locutor.falar(Fala.volta(numero: numero, duracao: duracao, distancia: distancia)) }
+            case .terminouTreino:
+                transicoes += 1
+                contagemVisivel = nil
+                ultimoAviso = AvisoCorrida(texto: "Treino concluído", icone: "checkmark.seal.fill")
+                if avisos.vibracao { locutor.vibrar() }
+                if avisos.voz { locutor.falar(Fala.fimTreino, interromper: true) }
+                salvarSessao(forcar: true)
+            }
+        }
+        // A contagem some da tela se a etapa não acabou logo depois (ritmo caiu numa etapa por distância, pausa).
+        if contagemVisivel != nil, let em = contagemEm, agora.timeIntervalSince(em) > 1.5 {
+            contagemVisivel = nil
+        }
     }
 
     private func pararTudo() {

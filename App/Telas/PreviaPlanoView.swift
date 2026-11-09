@@ -47,6 +47,15 @@ struct PreviaPlanoView: View {
     @State var analise: AnaliseIA?
     @State var analisando = false
     @State var erroAnalise: String?
+    @State var tetoPercentual = 10
+    /// Planos antes de cada correção aplicada (para voltar ao anterior).
+    @State var historico: [Plano] = []
+    @State var proposta: PropostaCorrecao?
+    /// Pontos da análise cuja correção já foi aplicada.
+    @State var aplicadas: Set<String> = []
+    @State var mensagemCorrecao: String?
+    @Environment(EstadoApp.self) var estadoApp
+    @Environment(\.modelContext) var contexto
 
     var body: some View {
         Form {
@@ -87,6 +96,7 @@ struct PreviaPlanoView: View {
             Section {
                 Stepper("Volume atual: \(volumeKm) km por semana", value: $volumeKm, in: 0...160)
                 Stepper("Maior corrida recente: \(longaoKm) km", value: $longaoKm, in: 0...45)
+                Stepper("Aumento máximo por semana: \(tetoPercentual)%", value: $tetoPercentual, in: 5...20)
             } header: {
                 Text("Hoje")
             } footer: {
@@ -159,14 +169,47 @@ struct PreviaPlanoView: View {
                 } header: {
                     Text("Coach de IA")
                 } footer: {
-                    Text("Parecer de um treinador virtual (Claude) sobre o plano. Vai só o resumo do plano; quem muda o plano continua sendo o motor, com as travas.")
+                    Text("Parecer de um treinador virtual (Claude) sobre o plano. Vai só o resumo do plano. As correções que ele propõe passam pelo motor e pelas travas, e só entram no plano se você aplicar.")
+                }
+                if mensagemCorrecao != nil || !historico.isEmpty {
+                    Section {
+                        if let mensagemCorrecao {
+                            Text(mensagemCorrecao).font(.subheadline)
+                        }
+                        if !historico.isEmpty {
+                            Button("Voltar ao anterior", systemImage: "arrow.uturn.backward") { desfazer() }
+                            if analise != nil {
+                                Text("O plano mudou depois da análise. Peça uma nova análise para o coach conferir a versão nova.")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    } header: {
+                        Text("Correções")
+                    }
                 }
                 Section("Semanas") {
                     ForEach(plano.semanas, id: \.numero) { semana in
                         DisclosureGroup {
                             ForEach(0..<7, id: \.self) { dia in
                                 linhaDia(dia, semana.dias[dia])
+                                    .contextMenu { menuDia(semana, dia: dia) }
                             }
+                            if semana.fase != .polimento, plano.entrada.objetivo != .comecarACorrer {
+                                HStack(spacing: 16) {
+                                    Button("Aliviar semana", systemImage: "leaf") {
+                                        propor(.aliviarSemana(semana: semana.numero), motivo: nil, chave: nil)
+                                    }
+                                    Button("Reduzir 10%", systemImage: "minus.circle") {
+                                        propor(.reduzirSemana(semana: semana.numero, fator: 0.9), motivo: nil, chave: nil)
+                                    }
+                                }
+                                .font(.subheadline)
+                                .buttonStyle(.borderless)
+                            }
+                            Text("Toque e segure um dia para correr, salvar, trocar ou mover o treino.")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
                         } label: {
                             HStack {
                                 Text("Semana \(semana.numero)").font(.body.weight(.medium))
@@ -184,19 +227,26 @@ struct PreviaPlanoView: View {
         }
         .navigationTitle("Prévia do motor")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(item: $proposta) { p in
+            PropostaCorrecaoView(proposta: p, unidade: unidade) { aplicar(p) }
+        }
     }
 
     private var entradaAtual: EntradaPlano {
         let vdot = tempoReferencia > 0 ? Daniels.vdot(distanciaMetros: distanciaReferencia, tempoSegundos: tempoReferencia) : nil
         return EntradaPlano(
             objetivo: opcao.objetivo, semanas: semanas, nivel: nivel, diasDisponiveis: dias, diaLongao: diaLongao,
-            volumeAtual: Double(volumeKm) * 1000, longaoAtual: Double(longaoKm) * 1000, vdot: vdot
+            volumeAtual: Double(volumeKm) * 1000, longaoAtual: Double(longaoKm) * 1000, vdot: vdot,
+            tetoProgressao: Double(tetoPercentual) / 100
         )
     }
 
     private func gerar() {
         analise = nil
         erroAnalise = nil
+        historico = []
+        aplicadas = []
+        mensagemCorrecao = nil
         withAnimation { plano = GeradorPlano.gerar(entradaAtual) }
     }
 
@@ -246,10 +296,113 @@ struct PreviaPlanoView: View {
                 }
                 Text(ponto.problema).font(.subheadline)
                 Text("Sugestão: " + ponto.sugestao).font(.subheadline).foregroundStyle(.secondary)
+                if let correcao = ponto.correcao?.correcao {
+                    if aplicadas.contains(ponto.problema) {
+                        Label("Correção aplicada", systemImage: "checkmark.circle.fill")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Paleta.verdeLogo)
+                    } else {
+                        Button {
+                            propor(correcao, motivo: ponto.problema, chave: ponto.problema)
+                        } label: {
+                            Label("Ver correção: " + correcao.descricao, systemImage: "wand.and.stars")
+                                .font(.subheadline.weight(.semibold))
+                        }
+                        .buttonStyle(.borderless)
+                    }
+                }
             }
         }
         ForEach(analise.positivos, id: \.self) {
             Label($0, systemImage: "hand.thumbsup").font(.subheadline)
+        }
+    }
+
+    // MARK: Correções
+
+    private func propor(_ correcao: CorrecaoPlano, motivo: String?, chave: String?) {
+        guard let plano else { return }
+        do {
+            let novo = try correcao.aplicar(plano)
+            let comparacao = ComparacaoPlano(antes: plano, depois: novo)
+            guard comparacao.mudouAlgo else {
+                mensagemCorrecao = "Essa correção não muda nada no plano."
+                return
+            }
+            proposta = PropostaCorrecao(correcao: correcao, novo: novo, comparacao: comparacao, motivo: motivo, chave: chave)
+        } catch {
+            mensagemCorrecao = "O motor recusou \"\(correcao.descricao)\": " + Self.explicar(error)
+        }
+    }
+
+    private func aplicar(_ p: PropostaCorrecao) {
+        guard let atual = plano else { return }
+        historico.append(atual)
+        withAnimation { plano = p.novo }
+        sincronizarFormulario(p.novo.entrada)
+        if let chave = p.chave { aplicadas.insert(chave) }
+        mensagemCorrecao = "Aplicado: " + p.correcao.descricao + "."
+        proposta = nil
+    }
+
+    private func desfazer() {
+        guard let anterior = historico.popLast() else { return }
+        withAnimation { plano = anterior }
+        sincronizarFormulario(anterior.entrada)
+        mensagemCorrecao = "Voltou ao plano anterior."
+    }
+
+    private func sincronizarFormulario(_ e: EntradaPlano) {
+        semanas = e.semanas
+        nivel = e.nivel
+        dias = e.diasDisponiveis
+        diaLongao = e.diaLongao
+        tetoPercentual = Int((e.tetoProgressao * 100).rounded())
+    }
+
+    static func explicar(_ erro: any Error) -> String {
+        guard let correcao = erro as? ErroCorrecao else { return erro.localizedDescription }
+        switch correcao {
+        case let .inviavel(motivo), let .foraDosLimites(motivo):
+            return motivo
+        case let .operacao(operacao):
+            switch operacao {
+            case .semanaInvalida: return "essa semana não existe no plano."
+            case .diaInvalido: return "dia inválido."
+            case .semSessao: return "não há treino nesse dia."
+            case .semEquivalente: return "não há treino equivalente que caiba nas travas."
+            case .naoSeAplica: return "não se aplica a este plano."
+            case let .violaria(violacoes):
+                return "quebraria as travas (" + violacoes.prefix(2).map(\.description).joined(separator: "; ") + ")."
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func menuDia(_ semana: SemanaPlano, dia: Int) -> some View {
+        if let sessao = semana.dias[dia] {
+            Button("Correr este treino", systemImage: "play.fill") {
+                estadoApp.abrirTreino(sessao.treino)
+            }
+            Button("Salvar nos meus treinos", systemImage: "square.and.arrow.down") {
+                contexto.insert(TreinoSalvo(treino: sessao.treino))
+                try? contexto.save()
+                mensagemCorrecao = "\(sessao.treino.nome) salvo em Treinos."
+            }
+            if sessao.treino.modeloID != nil, !sessao.ehProva {
+                Button("Trocar por equivalente", systemImage: "arrow.triangle.2.circlepath") {
+                    propor(.trocarTreino(semana: semana.numero, dia: dia), motivo: nil, chave: nil)
+                }
+            }
+            Menu("Mover para", systemImage: "arrow.left.arrow.right") {
+                ForEach(0..<7, id: \.self) { outro in
+                    if outro != dia {
+                        Button(Self.nomesDias[outro] + (semana.dias[outro] == nil ? "" : " (troca)")) {
+                            propor(.moverTreino(semana: semana.numero, de: dia, para: outro), motivo: nil, chave: nil)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -282,5 +435,78 @@ struct PreviaPlanoView: View {
             }
         }
         .accessibilityElement(children: .combine)
+    }
+}
+
+
+// MARK: - Proposta de correção
+
+struct PropostaCorrecao: Identifiable {
+    let id = UUID()
+    let correcao: CorrecaoPlano
+    let novo: Plano
+    let comparacao: ComparacaoPlano
+    let motivo: String?
+    let chave: String?
+}
+
+/// Antes e depois de uma correção, semana a semana, com Aplicar e Recusar.
+struct PropostaCorrecaoView: View {
+    let proposta: PropostaCorrecao
+    let unidade: UnidadeDistancia
+    var aoAplicar: () -> Void
+    @Environment(\.dismiss) var fechar
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Text(proposta.correcao.descricao).font(.headline)
+                    if let motivo = proposta.motivo {
+                        Text(motivo).font(.subheadline).foregroundStyle(.secondary)
+                    }
+                }
+                if proposta.comparacao.semanasAntes != proposta.comparacao.semanasDepois {
+                    Section {
+                        LabeledContent("Semanas", value: "\(proposta.comparacao.semanasAntes) → \(proposta.comparacao.semanasDepois)")
+                    }
+                }
+                Section {
+                    ForEach(proposta.comparacao.linhas) { linha in
+                        HStack {
+                            Text("Semana \(linha.semana)")
+                            Spacer()
+                            VStack(alignment: .trailing, spacing: 2) {
+                                Text(km(linha.volumeAntes) + " → " + km(linha.volumeDepois))
+                                    .font(.subheadline.monospacedDigit())
+                                Text("maior corrida " + km(linha.longaoAntes) + " → " + km(linha.longaoDepois))
+                                    .font(.caption.monospacedDigit())
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .accessibilityElement(children: .combine)
+                    }
+                } header: {
+                    Text("Antes e depois")
+                } footer: {
+                    Text("O plano novo passou em todas as travas do motor. Depois de aplicar, dá para voltar ao anterior.")
+                }
+            }
+            .navigationTitle("Correção proposta")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Recusar") { fechar() } }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Aplicar") {
+                        aoAplicar()
+                        fechar()
+                    }
+                }
+            }
+        }
+    }
+
+    private func km(_ metros: Double?) -> String {
+        metros.map { Formatador.distancia($0, unidade: unidade, casas: 1) } ?? "—"
     }
 }

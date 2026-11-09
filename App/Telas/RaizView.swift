@@ -2,6 +2,7 @@ import SwiftUI
 
 enum Aba: Hashable {
     case hoje
+    case treinos
     case plano
     case historico
     case ajustes
@@ -15,7 +16,10 @@ struct RaizView: View {
         ZStack {
             TabView(selection: $aba) {
                 Tab("Hoje", systemImage: "figure.run", value: Aba.hoje) {
-                    HojeView()
+                    HojeView(aba: $aba)
+                }
+                Tab("Treinos", systemImage: "square.stack.3d.up", value: Aba.treinos) {
+                    TreinosView()
                 }
                 Tab("Plano", systemImage: "calendar", value: Aba.plano) {
                     PlanoView()

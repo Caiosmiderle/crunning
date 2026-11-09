@@ -11,7 +11,7 @@ struct CrunningApp: App {
             RaizView()
                 .preferredColorScheme(tema.esquema)
         }
-        .modelContainer(for: [Corrida.self])
+        .modelContainer(for: [Corrida.self, TreinoSalvo.self])
     }
 }
 
@@ -27,6 +27,13 @@ enum Preferencias {
     /// Prova de referência para os ritmos (metros e segundos; tempo 0 = sem prova).
     static let provaDistancia = "provaDistancia"
     static let provaTempo = "provaTempo"
+    /// Avisos durante a corrida (fase 5).
+    static let avisoVoz = "avisoVoz"
+    static let avisoContagem = "avisoContagem"
+    static let avisoRitmo = "avisoRitmo"
+    static let avisoVibracao = "avisoVibracao"
+    static let avisoParciais = "avisoParciais"
+    static let aquecimentoGuiado = "aquecimentoGuiado"
 }
 
 enum Tema: String, CaseIterable, Identifiable {

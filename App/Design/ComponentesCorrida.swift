@@ -37,6 +37,7 @@ extension QualidadeGPS {
         case .bom: "GPS bom"
         case .otimo: "GPS ótimo"
         case .simulado: "GPS simulado"
+        case .esteira: "Esteira"
         }
     }
 
@@ -45,7 +46,7 @@ extension QualidadeGPS {
         case .procurando: .secondary
         case .fraco: Paleta.foraForte
         case .bom: Paleta.foraLeve
-        case .otimo, .simulado: Paleta.dentroDaFaixa
+        case .otimo, .simulado, .esteira: Paleta.dentroDaFaixa
         }
     }
 }
@@ -54,7 +55,7 @@ struct IndicadorGPS: View {
     let qualidade: QualidadeGPS
 
     var body: some View {
-        Label(qualidade.texto, systemImage: qualidade == .simulado ? "location.circle" : "location.fill")
+        Label(qualidade.texto, systemImage: qualidade == .esteira ? "figure.run.treadmill" : qualidade == .simulado ? "location.circle" : "location.fill")
             .font(.caption.weight(.semibold))
             .foregroundStyle(qualidade.cor)
             .padding(.vertical, 6)

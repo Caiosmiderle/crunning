@@ -8,12 +8,53 @@ struct AnaliseIA: Decodable, Equatable {
         let semanas: [Int]
         let problema: String
         let sugestao: String
+        /// Correção que o motor sabe aplicar (nil quando a sugestão é só texto).
+        let correcao: CorrecaoIA?
     }
 
     let avaliacao: String
     let resumo: String
     let pontos: [Ponto]
     let positivos: [String]
+}
+
+/// Correção sugerida pela IA, no formato do esquema. O app converte em `CorrecaoPlano`,
+/// que passa pelo motor e pelas travas antes de aparecer como proposta.
+struct CorrecaoIA: Decodable, Equatable, Hashable {
+    let tipo: String
+    let semana: Int?
+    let dia: Int?
+    let paraDia: Int?
+    let fatorPercentual: Int?
+    let semanas: Int?
+    let tetoPercentual: Int?
+    let dias: [Int]?
+    let diaLongao: Int?
+
+    var correcao: CorrecaoPlano? {
+        switch tipo {
+        case "aliviar_semana":
+            return semana.map { .aliviarSemana(semana: $0) }
+        case "reduzir_semana":
+            guard let semana, let fatorPercentual else { return nil }
+            return .reduzirSemana(semana: semana, fator: Double(fatorPercentual) / 100)
+        case "mover_treino":
+            guard let semana, let dia, let paraDia else { return nil }
+            return .moverTreino(semana: semana, de: dia, para: paraDia)
+        case "trocar_treino":
+            guard let semana, let dia else { return nil }
+            return .trocarTreino(semana: semana, dia: dia)
+        case "mudar_semanas":
+            return semanas.map { .mudarSemanas($0) }
+        case "mudar_teto":
+            return tetoPercentual.map { .mudarTeto(Double($0) / 100) }
+        case "mudar_dias":
+            guard let dias, let diaLongao else { return nil }
+            return .mudarDias(Set(dias), longao: diaLongao)
+        default:
+            return nil
+        }
+    }
 }
 
 enum ErroCoachIA: LocalizedError {
@@ -105,6 +146,32 @@ enum CoachIA {
         return try JSONSerialization.data(withJSONObject: corpo)
     }
 
+    static func anulavel(_ tipo: [String: Any]) -> [String: Any] {
+        ["anyOf": [tipo, ["type": "null"]]]
+    }
+
+    static var esquemaCorrecao: [String: Any] {
+        let inteiro: [String: Any] = ["type": "integer"]
+        return anulavel([
+            "type": "object",
+            "properties": [
+                "tipo": ["type": "string", "enum": [
+                    "aliviar_semana", "reduzir_semana", "mover_treino", "trocar_treino", "mudar_semanas", "mudar_teto", "mudar_dias",
+                ]],
+                "semana": anulavel(inteiro),
+                "dia": anulavel(inteiro),
+                "paraDia": anulavel(inteiro),
+                "fatorPercentual": anulavel(inteiro),
+                "semanas": anulavel(inteiro),
+                "tetoPercentual": anulavel(inteiro),
+                "dias": anulavel(["type": "array", "items": inteiro]),
+                "diaLongao": anulavel(inteiro),
+            ],
+            "required": ["tipo", "semana", "dia", "paraDia", "fatorPercentual", "semanas", "tetoPercentual", "dias", "diaLongao"],
+            "additionalProperties": false,
+        ])
+    }
+
     static var esquema: [String: Any] {
         [
             "type": "object",
@@ -120,8 +187,9 @@ enum CoachIA {
                             "semanas": ["type": "array", "items": ["type": "integer"]],
                             "problema": ["type": "string"],
                             "sugestao": ["type": "string"],
+                            "correcao": esquemaCorrecao,
                         ],
-                        "required": ["gravidade", "semanas", "problema", "sugestao"],
+                        "required": ["gravidade", "semanas", "problema", "sugestao", "correcao"],
                         "additionalProperties": false,
                     ],
                 ],
@@ -151,6 +219,18 @@ enum CoachIA {
     - Se o plano estiver bom, diga isso e liste poucos pontos.
     - Não dê conselho médico.
     - Escreva em português do Brasil, de forma direta, como um treinador falando com o atleta.
+
+    Correções que o app sabe aplicar (campo "correcao" de cada ponto):
+    - Quando uma destas operações resolve o problema, preencha "correcao"; quando não resolve, use null e deixe a sugestão só no texto. O corredor vê a correção como proposta, com o antes e o depois, e decide se aplica. O motor confere todas as travas e recusa o que não couber.
+    - Semanas começam em 1. Dias: 0 = segunda, 1 = terça, 2 = quarta, 3 = quinta, 4 = sexta, 5 = sábado, 6 = domingo (o campo "indiceDia" de cada sessão).
+    - "aliviar_semana" (semana): a semana vira alívio, com 20% menos volume; as seguintes são refeitas.
+    - "reduzir_semana" (semana, fatorPercentual de 50 a 95): a semana fica com essa porcentagem do volume; as seguintes são refeitas.
+    - "mover_treino" (semana, dia, paraDia): troca o conteúdo de dois dias da mesma semana.
+    - "trocar_treino" (semana, dia): troca o treino do dia por outro com o mesmo estímulo e a mesma dose.
+    - "mudar_semanas" (semanas, de 1 a 30): refaz o plano com esse número de semanas.
+    - "mudar_teto" (tetoPercentual, de 5 a 20): refaz o plano com esse aumento máximo de volume por semana.
+    - "mudar_dias" (dias, diaLongao): refaz o plano com esses dias de corrida (pelo menos 2) e o longão num deles.
+    - Preencha só os campos da operação escolhida; os outros vão como null.
     """
 
     // MARK: Resposta
@@ -201,6 +281,7 @@ enum CoachIA {
 struct ResumoPlanoIA: Encodable {
     struct Sessao: Encodable {
         let dia: String
+        let indiceDia: Int
         let tipo: String
         let treino: String
         let km: Double
@@ -249,7 +330,7 @@ struct ResumoPlanoIA: Encodable {
                 numero: s.numero, fase: s.fase.nome, alivio: s.alivio, volumeDeTreinoKm: km(s.volumeTreino), temProva: s.temProva,
                 sessoes: s.dias.enumerated().compactMap { dia, sessao in
                     sessao.map {
-                        Sessao(dia: Self.dias[dia], tipo: $0.tipo.nome, treino: $0.treino.nome, km: km($0.distancia),
+                        Sessao(dia: Self.dias[dia], indiceDia: dia, tipo: $0.tipo.nome, treino: $0.treino.nome, km: km($0.distancia),
                                minutos: Int(($0.duracao / 60).rounded()),
                                trabalhoDeQualidadeKm: $0.trabalhoDeQualidade > 0 ? km($0.trabalhoDeQualidade) : nil)
                     }

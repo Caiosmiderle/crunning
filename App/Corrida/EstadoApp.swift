@@ -15,11 +15,23 @@ final class EstadoApp {
 
     private init() {}
 
-    func abrirCorridaLivre() {
+    /// Corrida livre, com GPS ou na esteira.
+    func abrirCorridaLivre(esteira: Bool = false) {
+        abrir(execucao: nil, esteira: esteira)
+    }
+
+    /// Treino por blocos. O aquecimento guiado segue Ajustes, a não ser que a tela diga outra coisa.
+    func abrirTreino(_ treino: Treino, esteira: Bool = false, aquecimentoGuiado: Bool? = nil) {
+        let guiado = aquecimentoGuiado ?? (UserDefaults.standard.object(forKey: Preferencias.aquecimentoGuiado) as? Bool ?? true)
+        let execucao = ExecucaoTreino(treino: treino, zonas: ZonasDoUsuario.atuais(), aquecimentoGuiado: guiado, esteira: esteira)
+        abrir(execucao: execucao, esteira: esteira)
+    }
+
+    private func abrir(execucao: ExecucaoTreino?, esteira: Bool) {
         guard gravadorAtivo == nil else { return }
         let padroes = UserDefaults.standard
         let pausaAutomatica = padroes.object(forKey: Preferencias.pausaAutomatica) as? Bool ?? true
-        let simular = padroes.bool(forKey: Preferencias.modoDesenvolvimento) && padroes.bool(forKey: Preferencias.simularGPS)
+        let simular = !esteira && padroes.bool(forKey: Preferencias.modoDesenvolvimento) && padroes.bool(forKey: Preferencias.simularGPS)
         let multiplicador = padroes.object(forKey: Preferencias.velocidadeSimulacao) as? Double ?? 10
 
         var simulacao: OrigemSimulada?
@@ -28,9 +40,11 @@ final class EstadoApp {
             simulacao = OrigemSimulada(pontos: Simulacao.pontos(semente: semente), multiplicador: multiplicador, semente: semente)
         }
         gravadorAtivo = GravadorCorrida(
-            configuracao: ConfiguracaoCorrida(pausaAutomatica: pausaAutomatica),
+            configuracao: ConfiguracaoCorrida(pausaAutomatica: pausaAutomatica && !esteira),
             simulacao: simulacao,
-            manterTelaAcesa: Self.manterTelaAcesa
+            manterTelaAcesa: Self.manterTelaAcesa,
+            execucao: execucao,
+            esteira: esteira
         )
     }
 

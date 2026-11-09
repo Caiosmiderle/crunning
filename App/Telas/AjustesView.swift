@@ -10,6 +10,12 @@ struct AjustesView: View {
     @AppStorage(Preferencias.telaAcesa) var telaAcesa = true
     @AppStorage(Preferencias.simularGPS) var simularGPS = false
     @AppStorage(Preferencias.velocidadeSimulacao) var velocidadeSimulacao = 10.0
+    @AppStorage(Preferencias.avisoVoz) var avisoVoz = true
+    @AppStorage(Preferencias.avisoContagem) var avisoContagem = true
+    @AppStorage(Preferencias.avisoRitmo) var avisoRitmo = true
+    @AppStorage(Preferencias.avisoVibracao) var avisoVibracao = true
+    @AppStorage(Preferencias.avisoParciais) var avisoParciais = 1
+    @AppStorage(Preferencias.aquecimentoGuiado) var aquecimentoGuiado = true
     @State var importandoGPX = false
     @State var temGPXImportado = Simulacao.temGPXImportado
     @State var mensagemSimulacao: String?
@@ -34,6 +40,27 @@ struct AjustesView: View {
                         .foregroundStyle(.secondary)
                 } header: {
                     Text("Corrida")
+                }
+
+                Section {
+                    Toggle("Voz", isOn: $avisoVoz)
+                    Toggle("Contagem regressiva (3, 2, 1)", isOn: $avisoContagem)
+                    Toggle("Avisar ritmo fora da faixa", isOn: $avisoRitmo)
+                    Toggle("Vibração na troca de bloco", isOn: $avisoVibracao)
+                    Picker("Parcial falada", selection: $avisoParciais) {
+                        Text("Desligada").tag(0)
+                        Text("A cada km").tag(1)
+                        Text("A cada 2 km").tag(2)
+                        Text("A cada 5 km").tag(5)
+                    }
+                    Toggle("Aquecimento guiado antes dos treinos fortes", isOn: $aquecimentoGuiado)
+                    Button("Testar a voz", systemImage: "speaker.wave.2") {
+                        Locutor.compartilhado.falar("Tiro 1 de 6. 400 metros, ritmo 4 e 15 por quilômetro.")
+                    }
+                } header: {
+                    Text("Avisos durante a corrida")
+                } footer: {
+                    Text("A voz abaixa a música enquanto fala e funciona com a tela bloqueada. O aviso de ritmo espera 15 segundos fora da faixa e repete no máximo uma vez por minuto; no fácil, só avisa quando está rápido demais.")
                 }
 
                 Section("Aparência") {

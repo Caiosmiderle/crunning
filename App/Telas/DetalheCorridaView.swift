@@ -14,6 +14,8 @@ struct DadosCorrida {
     var esforco: Int?
     var simulada: Bool
     var diagnostico: DiagnosticoGPS?
+    var resultados: [ResultadoEtapa]
+    var esteira: Bool
 
     init(_ corrida: Corrida) {
         titulo = corrida.titulo
@@ -25,6 +27,8 @@ struct DadosCorrida {
         esforco = corrida.esforcoPercebido
         simulada = corrida.simulada
         diagnostico = corrida.carregarDiagnostico()
+        resultados = corrida.carregarResultados()
+        esteira = corrida.esteira
     }
 }
 
@@ -71,6 +75,12 @@ struct DetalheCorridaView: View {
                 .padding(20)
                 .cartaoVidro()
 
+                if !dados.resultados.isEmpty {
+                    TabelaBlocos(resultados: dados.resultados, unidade: unidade)
+                        .padding(20)
+                        .cartaoVidro()
+                }
+
                 if amostras.count >= 2 {
                     MapaTrilha(amostras: amostras)
                         .frame(height: 280)
@@ -93,7 +103,7 @@ struct DetalheCorridaView: View {
                             .cartaoVidro()
                     }
                 } else if carregou {
-                    Text("Esta corrida não tem rota gravada.")
+                    Text(dados.esteira ? "Corrida na esteira: sem rota." : "Esta corrida não tem rota gravada.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .padding(20)

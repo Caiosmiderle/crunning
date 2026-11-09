@@ -11,6 +11,9 @@ struct SessaoSalva: Codable, Sendable {
     /// Velocidade e semente da simulação, para retomar a mesma rota no mesmo ritmo.
     var multiplicador: Double? = nil
     var sementeSimulacao: UInt64? = nil
+    /// Treino por blocos em andamento (nil na corrida livre).
+    var execucao: ExecucaoTreino? = nil
+    var esteira: Bool? = nil
 }
 
 /// Grava e lê a corrida em andamento. Tudo passa por uma fila serial, então um
