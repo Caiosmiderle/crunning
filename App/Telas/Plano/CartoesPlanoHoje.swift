@@ -228,25 +228,62 @@ struct CartoesPlanoHoje: View {
         return momento && agora.timeIntervalSince1970 - ultimaRevisao > 3 * 86_400
     }
 
+    /// O que saiu do plano na semana a revisar (corridas fora do plano e ritmo vêm do histórico).
+    private func desvioDaSemana(_ agenda: AgendaPlano) -> DesvioSemana? {
+        let hoje = Date.now
+        guard let semana = agenda.semanaParaRevisar(hoje: hoje) else { return nil }
+        let inicio = agenda.data(semana: semana, dia: 0)
+        let fim = inicio.addingTimeInterval(7 * 86_400)
+        let daSemana = corridas.filter { $0.inicio >= inicio && $0.inicio < fim && !$0.simulada && !$0.exemplo }
+        let fora = daSemana.filter { $0.planoSemana == nil }.count
+        let lados = daSemana.filter { $0.planoSemana == semana }.map { Adaptacao.ladoDoRitmo($0.carregarResultados()) }
+        return agenda.desvios(semana: semana, hoje: hoje, corridasForaDoPlano: fora, ladosDoRitmo: lados)
+    }
+
+    /// Com desvio, o coach revisa; sem desvio, só um aviso de que a semana foi dentro do plano
+    /// (sem chamar a IA). O chat continua a um toque na aba Plano.
+    @ViewBuilder
     private var cartaoRevisao: some View {
-        NavigationLink {
-            RevisaoCoachView(ativo: ativo)
-        } label: {
-            HStack(spacing: 12) {
-                Image(systemName: "checklist").font(.title2).foregroundStyle(Paleta.verdeLogo)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Hora de revisar a semana").font(.headline)
-                    Text("O coach compara o planejado com o feito e propõe ajustes.").font(.subheadline).foregroundStyle(.secondary)
+        if let agenda = ativo.agenda, let desvio = desvioDaSemana(agenda) {
+            if desvio.temDesvio {
+                NavigationLink {
+                    RevisaoCoachView(ativo: ativo)
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "checklist").font(.title2).foregroundStyle(Paleta.verdeLogo)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Vale revisar a semana").font(.headline)
+                            Text(desvio.motivos.joined(separator: " · ").capitalizandoPrimeira + ". O coach compara o planejado com o feito e propõe ajustes.")
+                                .font(.subheadline).foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                    }
+                    .padding(20)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .cartaoVidro()
+                    .contentShape(Rectangle())
                 }
-                Spacer(minLength: 0)
-                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                .buttonStyle(.plain)
+            } else {
+                HStack(spacing: 12) {
+                    Image(systemName: "checkmark.seal.fill").font(.title2).foregroundStyle(Paleta.verdeLogo)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Semana dentro do plano").font(.headline)
+                        Text("Treinos feitos, esforço e ritmo dentro do esperado. Nada para ajustar; siga o plano.")
+                            .font(.subheadline).foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 0)
+                    Button("OK") { ultimaRevisao = Date.now.timeIntervalSince1970 }
+                        .buttonStyle(.glass)
+                }
+                .padding(20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .cartaoVidro()
             }
-            .padding(20)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .cartaoVidro()
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
     }
 
     // MARK: Adaptação
