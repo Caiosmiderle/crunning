@@ -13,7 +13,7 @@ enum CalendarioSync {
     }
 
     /// Versão do formato dos eventos; ao mudar, os eventos são refeitos na abertura do app.
-    static let versaoEventos = 3
+    static let versaoEventos = 4
 
     static var precisaRefazer: Bool {
         ligado && UserDefaults.standard.integer(forKey: "versaoEventosCalendario") < versaoEventos
@@ -71,7 +71,7 @@ enum CalendarioSync {
                 evento.endDate = inicio
                 evento.title = "\(sessao.treino.nome) · " + Formatador.distancia(sessao.distancia, casas: 1)
                 var notas = "Semana \(semana.numero) (\(semana.fase.nome)).\n\n"
-                    + TextoTreino.trechos(sessao.treino, zonas: ZonasDoUsuario.atuais(), unidade: unidade)
+                    + Planilha.texto(sessao.treino, zonas: ZonasDoUsuario.atuais(), unidade: unidade)
                 if let porque = sessao.treino.modeloID.flatMap({ Modelos.modelo(id: $0)?.porque }) { notas += "\n\n" + porque }
                 evento.notes = notas
                 if (try? loja.save(evento, span: .thisEvent, commit: false)) != nil { criados += 1 }

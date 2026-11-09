@@ -57,27 +57,6 @@ enum TextoTreino {
         return partes.isEmpty ? nil : partes.joined(separator: " · ")
     }
 
-    /// Um trecho por linha, para as notas do Calendário e o PDF:
-    /// "Aquecimento: 10 min · pace entre 6:10 e 6:50 /km · ≈ 1,6 km · tente ficar na Z2".
-    static func trechos(_ treino: Treino, zonas: Zonas?, unidade: UnidadeDistancia) -> String {
-        func linha(_ p: Passo, recuo: String) -> String {
-            var partes = [medida(p.medida, unidade: unidade), alvo(p, zonas: zonas, unidade: unidade)]
-            if let c = complemento(p, zonas: zonas, unidade: unidade) { partes.append(c) }
-            return recuo + "• " + EtapaExecucao.nome(p) + ": " + partes.joined(separator: " · ")
-        }
-        var linhas: [String] = []
-        for bloco in treino.blocos {
-            switch bloco {
-            case let .passo(p):
-                linhas.append(linha(p, recuo: ""))
-            case let .repetir(vezes, passos):
-                linhas.append("• \(vezes) vezes:")
-                linhas.append(contentsOf: passos.map { linha($0, recuo: "   ") })
-            }
-        }
-        return linhas.joined(separator: "\n")
-    }
-
     /// "pace entre 3:55 e 4:05 /km".
     static func pace(_ f: FaixaRitmo, unidade: UnidadeDistancia) -> String {
         "pace entre " + Formatador.ritmo(segundosPorKm: f.rapido, unidade: unidade) + " e "

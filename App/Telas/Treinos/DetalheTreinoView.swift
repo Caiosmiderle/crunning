@@ -51,7 +51,7 @@ struct DetalheTreinoView: View {
                     .cartaoVidro(raio: 24)
 
                 VStack(alignment: .leading, spacing: 12) {
-                    ListaBlocos(blocos: treino.blocos, zonas: zonas, unidade: unidade)
+                    PlanilhaTreino(treino: treino, zonas: zonas, unidade: unidade)
                     if ZonasDoUsuario.fcMaxima() == nil {
                         Text("Para ver a zona de batimento de cada trecho, informe sua idade em Ajustes > Meus ritmos.")
                             .font(.caption)

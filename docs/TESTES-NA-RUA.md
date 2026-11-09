@@ -167,6 +167,12 @@ O que me contar: se as respostas do coach fizeram sentido, quanto custou na sua 
 7. **Revisão semanal:** no domingo à noite ou na segunda, com a semana cumprida, o Hoje mostra só "Semana dentro do plano". Com treino perdido, corrida fora do plano, esforço alto nas fáceis ou ritmo fora da faixa, aparece "Vale revisar a semana" com os motivos.
 8. **Lista de treinos:** cartões mais baixos, barras em cápsulas com legenda de tempo por tipo, tempos sem segundos ("≈ 7,1 km · 49 min") e o título "Prontos" não passa mais por cima do relógio.
 
+## Planilha do treino (0.10.3)
+
+1. Abra um treino (aba Treinos ou um dia do Plano). Os trechos aparecem como planilha: AQUECIMENTO, PARTE PRINCIPAL e DESAQUECIMENTO, com minutos em aspas (10', 1'30") e os tiros numa linha só: "6 × 400 m forte", embaixo o pace, o tempo estimado e "com 1'30" de trote entre eles". No fim, o total.
+2. Rodagem e longão aparecem como "TREINO", numa linha.
+3. As notas dos eventos no Calendário seguem o mesmo formato (refeitas sozinhas na abertura).
+
 ## Detalhe dos treinos e zonas de batimento (0.10.1)
 
 1. **Zonas:** Ajustes > Meus ritmos > Frequência cardíaca. Informe a idade (e a FC máxima, se souber). Aparecem as zonas Z1 a Z5 em bpm.

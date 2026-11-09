@@ -204,7 +204,7 @@ struct CorridaView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-            ListaBlocos(blocos: execucao.treino.blocos, zonas: ZonasDoUsuario.atuais(), unidade: unidade)
+            PlanilhaTreino(treino: execucao.treino, zonas: ZonasDoUsuario.atuais(), unidade: unidade)
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
