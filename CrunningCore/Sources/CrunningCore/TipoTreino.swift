@@ -3,15 +3,17 @@ import Foundation
 /// Tipo de treino ou de bloco, do mais leve ao mais intenso. A cor de cada um
 /// é a mesma no app inteiro (linha do tempo, execução, calendário); a cor em si
 /// fica no app, aqui só a identidade e a ordem.
-/// Os detalhes fisiológicos (zonas, limites) chegam na fase 4, com fontes em docs/CIENCIA.md.
+/// Zonas e limites de cada um: `Zonas`, `RegrasPlano` e docs/CIENCIA.md.
 public enum TipoTreino: String, CaseIterable, Codable, Sendable, Identifiable {
     case caminhada
     case recuperacao
     case facil
     case longao
+    case ritmoProva
     case limiar
     case intervalado
     case repeticoes
+    case prova
 
     public var id: String { rawValue }
 
@@ -21,9 +23,11 @@ public enum TipoTreino: String, CaseIterable, Codable, Sendable, Identifiable {
         case .recuperacao: "Recuperação"
         case .facil: "Fácil"
         case .longao: "Longão"
+        case .ritmoProva: "Ritmo de prova"
         case .limiar: "Limiar"
         case .intervalado: "Intervalado"
         case .repeticoes: "Repetições"
+        case .prova: "Prova"
         }
     }
 
@@ -35,9 +39,11 @@ public enum TipoTreino: String, CaseIterable, Codable, Sendable, Identifiable {
         case .recuperacao: 1
         case .facil: 2
         case .longao: 2
+        case .ritmoProva: 3
         case .limiar: 3
         case .intervalado: 4
         case .repeticoes: 5
+        case .prova: 6
         }
     }
 

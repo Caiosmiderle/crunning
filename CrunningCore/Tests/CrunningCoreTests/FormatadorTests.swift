@@ -47,7 +47,7 @@ struct FormatadorTests {
 struct TipoTreinoTests {
     @Test func qualidadeSoNosFortes() {
         let fortes = TipoTreino.allCases.filter(\.ehQualidade)
-        #expect(Set(fortes) == [.limiar, .intervalado, .repeticoes])
+        #expect(Set(fortes) == [.ritmoProva, .limiar, .intervalado, .repeticoes, .prova])
     }
 
     @Test func todosTemNome() {
