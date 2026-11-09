@@ -64,18 +64,29 @@ public enum RegrasPlano {
     public static func fracaoLongaoAlvo(corridas: Int) -> Double {
         switch corridas {
         case ...2: 0.50
-        case 3: 0.37
+        case 3: 0.39
         case 4: 0.31
         case 5: 0.27
         default: 0.24
         }
     }
 
-    /// As outras corridas da semana ficam abaixo do longão: fáceis até 75% dele, qualidade até 85%.
-    public static let fracaoFacilDoLongao = 0.75
+    /// As outras corridas da semana ficam abaixo do longão: fáceis até 80% dele, qualidade até 85%.
+    /// Com 3 corridas, 80% é o que deixa o longão dentro do teto de 40% do volume sem a semana encolher.
+    public static let fracaoFacilDoLongao = 0.80
     public static let fracaoQualidadeDoLongao = 0.85
     /// Folga do validador para "nenhuma corrida maior que o longão" (arredondamento de 100 m).
     public static let fracaoMaximaDoLongao = 0.90
+
+    // MARK: Corridas fáceis (escolha do app, prática de treinadores)
+
+    /// Corrida fácil mais curta que o gerador marca quando sobra volume (os dias livres são todos usados).
+    public static let duracaoMinimaFacil: TimeInterval = 20 * 60
+    /// A recuperação depois de um dia forte é curta e leve.
+    public static let duracaoMaximaRecuperacao: TimeInterval = 50 * 60
+    public static let pesoRecuperacao = 0.80
+    /// Trote a mais que o aquecimento e o desaquecimento de um treino de qualidade podem ganhar, cada um.
+    public static let aquecimentoExtraMaximo = 1_500.0
 
     public static func tetoLongao(_ objetivo: Objetivo) -> Double {
         switch objetivo {

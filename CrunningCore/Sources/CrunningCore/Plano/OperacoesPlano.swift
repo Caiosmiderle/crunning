@@ -32,9 +32,13 @@ public enum OperacoesPlano {
             throw ErroOperacao.semEquivalente
         }
         let zonas = plano.zonas
+        // Trote a mais no aquecimento e no desaquecimento (semanas curtas) passa para o treino novo.
+        let extra = GeradorPlano.abaixo100(sessao.distancia - SessaoPlanejada(treino: modelo.treino(dose: dose), zonas: zonas).distancia)
         for alternativa in Modelos.equivalentes(a: modelo) {
             var novo = plano
-            novo.semanas[i].dias[dia] = SessaoPlanejada(treino: alternativa.treino(dose: dose), zonas: zonas)
+            var troca = SessaoPlanejada(treino: alternativa.treino(dose: dose), zonas: zonas)
+            if extra >= 200 { troca = GeradorPlano.estenderAquecimento(troca, metros: extra, zonas: zonas) }
+            novo.semanas[i].dias[dia] = troca
             if ValidadorPlano.validar(novo).isEmpty { return novo }
         }
         throw ErroOperacao.semEquivalente
