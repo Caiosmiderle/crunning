@@ -44,6 +44,9 @@ struct PreviaPlanoView: View {
     @State var volumeKm = 25
     @State var longaoKm = 8
     @State var plano: Plano?
+    @State var analise: AnaliseIA?
+    @State var analisando = false
+    @State var erroAnalise: String?
 
     var body: some View {
         Form {
@@ -130,6 +133,34 @@ struct PreviaPlanoView: View {
                         ForEach(erros.map(\.description), id: \.self) { Text($0).foregroundStyle(Paleta.foraForte) }
                     }
                 }
+                Section {
+                    if analisando {
+                        HStack(spacing: 10) {
+                            ProgressView()
+                            Text("O coach está lendo o plano...").foregroundStyle(.secondary)
+                        }
+                    } else if let analise {
+                        visaoAnalise(analise)
+                    }
+                    if !analisando {
+                        if Chaveiro.temChave {
+                            Button(analise == nil ? "Analisar com o coach de IA" : "Analisar de novo") {
+                                Task { await analisar(plano) }
+                            }
+                        } else {
+                            Text("Para pedir a análise, salve a sua chave em Ajustes > Coach de IA.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    if let erroAnalise {
+                        Text(erroAnalise).font(.subheadline).foregroundStyle(Paleta.foraForte)
+                    }
+                } header: {
+                    Text("Coach de IA")
+                } footer: {
+                    Text("Parecer de um treinador virtual (Claude) sobre o plano. Vai só o resumo do plano; quem muda o plano continua sendo o motor, com as travas.")
+                }
                 Section("Semanas") {
                     ForEach(plano.semanas, id: \.numero) { semana in
                         DisclosureGroup {
@@ -164,7 +195,62 @@ struct PreviaPlanoView: View {
     }
 
     private func gerar() {
+        analise = nil
+        erroAnalise = nil
         withAnimation { plano = GeradorPlano.gerar(entradaAtual) }
+    }
+
+    private func analisar(_ plano: Plano) async {
+        analisando = true
+        erroAnalise = nil
+        defer { analisando = false }
+        do {
+            analise = try await CoachIA.analisar(plano, alertas: GeradorPlano.alertas(plano))
+        } catch {
+            erroAnalise = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        }
+    }
+
+    private func rotulo(_ avaliacao: String) -> (texto: String, cor: Color) {
+        switch avaliacao {
+        case "boa": ("Plano bom", Paleta.verdeLogo)
+        case "aceitavel": ("Plano aceitável", Paleta.foraLeve)
+        default: ("Plano com problemas", Paleta.foraForte)
+        }
+    }
+
+    private func corGravidade(_ gravidade: String) -> Color {
+        switch gravidade {
+        case "alta": Paleta.foraForte
+        case "media": Paleta.foraLeve
+        default: Color.secondary
+        }
+    }
+
+    @ViewBuilder
+    private func visaoAnalise(_ analise: AnaliseIA) -> some View {
+        let r = rotulo(analise.avaliacao)
+        Label(r.texto, systemImage: "figure.run.circle").font(.headline).foregroundStyle(r.cor)
+        Text(analise.resumo).font(.subheadline)
+        ForEach(analise.pontos, id: \.self) { ponto in
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
+                    Text(ponto.gravidade == "media" ? "Média" : ponto.gravidade.capitalized)
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(corGravidade(ponto.gravidade))
+                    if !ponto.semanas.isEmpty {
+                        Text("semana" + (ponto.semanas.count > 1 ? "s " : " ") + ponto.semanas.map(String.init).joined(separator: ", "))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                Text(ponto.problema).font(.subheadline)
+                Text("Sugestão: " + ponto.sugestao).font(.subheadline).foregroundStyle(.secondary)
+            }
+        }
+        ForEach(analise.positivos, id: \.self) {
+            Label($0, systemImage: "hand.thumbsup").font(.subheadline)
+        }
     }
 
     @ViewBuilder

@@ -169,3 +169,27 @@ struct TreinoTests {
         #expect(ValidadorPlano.minutosCorrendo(SessaoPlanejada(treino: continua, zonas: Zonas.estimativaSemReferencia(.iniciante))) == 30)
     }
 }
+
+@Suite("Aquecimento")
+struct AquecimentoTests {
+    @Test func rotinaPorTipo() {
+        #expect(Aquecimento.rotina(para: .intervalado) == Aquecimento.completa)
+        #expect(Aquecimento.rotina(para: .prova) == Aquecimento.completa)
+        #expect(Aquecimento.rotina(para: .limiar) == Aquecimento.curta)
+        #expect(Aquecimento.rotina(para: .facil) == nil)
+        #expect(Aquecimento.rotina(para: .longao) == nil)
+    }
+
+    @Test func rotinasCurtasEDinamicas() {
+        for rotina in [Aquecimento.completa, Aquecimento.curta] {
+            #expect(rotina.duracaoEstimada >= 10 * 60 && rotina.duracaoEstimada <= 25 * 60, "\(rotina.nome): \(rotina.duracaoEstimada)")
+            #expect(!rotina.porque.isEmpty && rotina.fontes.count == 3)
+            for exercicio in rotina.etapas.flatMap(\.exercicios) {
+                #expect(!exercicio.comoFazer.isEmpty)
+                // Antes de correr, só movimentos dinâmicos (nada de alongamento estático).
+                #expect(!exercicio.nome.lowercased().contains("alongamento"))
+            }
+        }
+        #expect(Aquecimento.curta.duracaoEstimada < Aquecimento.completa.duracaoEstimada)
+    }
+}

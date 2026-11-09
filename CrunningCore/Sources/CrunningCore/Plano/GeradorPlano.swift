@@ -183,7 +183,8 @@ public enum GeradorPlano {
             * (h.maiores.suffix(RegrasPlano.janelaPico).max() ?? RegrasPlano.pisoLongaoReferencia)
         let tetoLongao = min(
             picoCorrida,
-            RegrasPlano.fracaoMaximaCorrida(corridas: corridas, volume: alvo, objetivo: e.objetivo) * alvo,
+            // Margem de 3%: o volume real fecha um pouco abaixo do alvo pelo arredondamento.
+            RegrasPlano.fracaoMaximaCorrida(corridas: corridas, volume: alvo, objetivo: e.objetivo) * alvo * 0.97,
             distanciaParaDuracao(RegrasPlano.duracaoMaximaCorrida(e.objetivo), zonas: zonas),
             RegrasPlano.tetoLongao(e.objetivo)
         )
@@ -226,30 +227,36 @@ public enum GeradorPlano {
             }
         }
 
-        // Corridas fáceis com o que sobra do volume, até 75% do longão. Se não couber o volume
-        // todo, a semana fica menor: o volume cresce junto com o longão.
-        var faceis = diasCorrida.filter { dias[$0] == nil }
+        // Corridas fáceis com o que sobra do volume: poucas e de bom tamanho (perto de 70% do
+        // longão, nunca acima de 75%), somando o volume que falta. A recuperação depois de um dia
+        // forte é um pouco mais curta (85%) e a diferença vai para as outras. Se o volume não
+        // couber, a semana fica menor e cresce junto com o longão.
+        let livres = diasCorrida.filter { dias[$0] == nil }
         let usado = dias.compactMap { $0 }.filter { !$0.ehProva }.reduce(0) { $0 + $1.distancia }
         let restante = alvo - usado
-        while !faceis.isEmpty && restante / Double(faceis.count) < RegrasPlano.corridaMinima {
-            faceis.removeLast()
-        }
-        if !faceis.isEmpty {
-            let cada = abaixo100(min(restante / Double(faceis.count), tetoFacil))
-            if cada >= RegrasPlano.corridaMinima {
-                var colocouAceleracoes = false
-                for dia in faceis {
-                    let depoisDeForte = dias[(dia + 6) % 7]?.ehForte ?? false
-                    let doseAceleracoes = abaixo100(cada - extraAceleracoes)
-                    if aceleracoes && !colocouAceleracoes && !depoisDeForte && doseAceleracoes >= RegrasPlano.corridaMinima {
-                        dias[dia] = sessao(Modelos.aceleracoes, dose: doseAceleracoes, zonas: zonas)
-                        colocouAceleracoes = true
-                    } else if depoisDeForte {
-                        // Depois de um dia forte, uma corrida um pouco mais curta para recuperar.
-                        dias[dia] = sessao(Modelos.recuperacao, dose: max(RegrasPlano.corridaMinima, abaixo100(cada * 0.85)), zonas: zonas)
-                    } else {
-                        dias[dia] = sessao(Modelos.facil, dose: cada, zonas: zonas)
-                    }
+        let depoisDeForte: (Int) -> Bool = { dia in dias[(dia + 6) % 7]?.ehForte ?? false }
+        if restante >= RegrasPlano.corridaMinima, !livres.isEmpty, tetoFacil >= RegrasPlano.corridaMinima {
+            let tamanhoPreferido = max(RegrasPlano.corridaMinima, longao * 0.70)
+            var quantidade = Int((restante / tamanhoPreferido).rounded(.up))
+            quantidade = min(quantidade, livres.count, Int(restante / RegrasPlano.corridaMinima))
+            quantidade = max(1, quantidade)
+            // Prefere dias que não vêm logo depois de um dia forte, mantendo a ordem da semana.
+            let escolhidos = livres
+                .sorted { (depoisDeForte($0) ? 1 : 0, $0) < (depoisDeForte($1) ? 1 : 0, $1) }
+                .prefix(quantidade)
+                .sorted()
+            let pesos = escolhidos.map { depoisDeForte($0) ? 0.85 : 1.0 }
+            let base = restante / pesos.reduce(0, +)
+            var colocouAceleracoes = false
+            for (dia, peso) in zip(escolhidos, pesos) {
+                let distancia = min(abaixo100(base * peso), tetoFacil)
+                guard distancia >= RegrasPlano.corridaMinima else { continue }
+                let doseAceleracoes = abaixo100(distancia - extraAceleracoes)
+                if aceleracoes && !colocouAceleracoes && !depoisDeForte(dia) && doseAceleracoes >= RegrasPlano.corridaMinima {
+                    dias[dia] = sessao(Modelos.aceleracoes, dose: doseAceleracoes, zonas: zonas)
+                    colocouAceleracoes = true
+                } else {
+                    dias[dia] = sessao(depoisDeForte(dia) ? Modelos.recuperacao : Modelos.facil, dose: distancia, zonas: zonas)
                 }
             }
         }

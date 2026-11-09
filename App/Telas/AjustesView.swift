@@ -54,12 +54,15 @@ struct AjustesView: View {
                 }
 
                 Section {
-                    LabeledContent("Chave da API", value: "Numa próxima versão")
-                    Text("A chave fica só no Keychain do iPhone. O Coach recebe apenas dados agregados (volume, ritmos médios, esforço), nunca rota, GPS ou dados do Saúde.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                    NavigationLink {
+                        CoachIAView()
+                    } label: {
+                        Label("Chave da API da Anthropic", systemImage: "key")
+                    }
                 } header: {
                     Text("Coach de IA")
+                } footer: {
+                    Text("A chave fica só no Keychain do iPhone. O Coach recebe apenas dados agregados do plano, nunca rota, GPS ou dados do Saúde.")
                 }
 
                 Section {

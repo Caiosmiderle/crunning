@@ -6,7 +6,9 @@ App nativo de iPhone para planejar e executar treinos de corrida. Uso pessoal, u
 
 Fase 3 (corrida livre com GPS): gravação com a tela bloqueada (`CLLocationUpdate` + sessões de segundo plano, com o app reaberto pelo iOS se ele o fechar no meio), pausa manual e automática, tempo em movimento, ritmo atual, parciais, corrida retomada sozinha depois de o app fechar, diagnóstico do sinal do GPS por corrida, histórico com mapa colorido pelo ritmo, gráficos de ritmo e altitude, esforço percebido e exportação em GPX. Simulação de GPS para testar em casa. Instalar: [docs/INSTALAR.md](docs/INSTALAR.md). Testar na rua: [docs/TESTES-NA-RUA.md](docs/TESTES-NA-RUA.md).
 
-Fase 4 (motor de treino): zonas de ritmo pelo VDOT, previsão de prova, biblioteca de modelos de treino, gerador de plano com fases, alívio e polimento, operações de mudança e regras de adaptação, tudo com fonte em [docs/CIENCIA.md](docs/CIENCIA.md) e testes por propriedade. No app: Ajustes > Meus ritmos e Plano > Prévia do motor.
+Fase 4 (motor de treino): zonas de ritmo pelo VDOT, previsão de prova, biblioteca de modelos de treino, gerador de plano com fases, alívio e polimento, operações de mudança e regras de adaptação, tudo com fonte em [docs/CIENCIA.md](docs/CIENCIA.md) e testes por propriedade. No app: Ajustes > Meus ritmos, Plano > Prévia do motor (com viabilidade, alertas e análise opcional pelo Coach de IA, com a sua chave da Anthropic no Keychain).
+
+Próximas fases: 5 (criar e executar treino por blocos, com voz, vibração e aquecimento guiado antes dos treinos fortes), 6 (Live Activity), 7 (Apple Saúde), 8 (planos no calendário, Hoje e adaptação), 9 (Coach de IA completo).
 
 ## Como é feito
 
