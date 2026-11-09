@@ -130,7 +130,7 @@ São regras explícitas que devolvem uma recomendação. O app pergunta antes de
 
 | Regra | Fonte | Evidência | Código |
 |---|---|---|---|
-| Energia = MET × peso (kg) × horas, com o MET da corrida ou da caminhada pela velocidade média (interpolado entre as linhas da tabela). | *2024 Adult Compendium of Physical Activities* (Herrmann e colegas, 2024, *J Sport Health Sci* 13:6), tabelas oficiais de corrida (códigos 12xxx) e caminhada (17xxx) em pacompendium.com. Valores médios: o gasto real varia de pessoa para pessoa. | Moderada | `Treino/Calorias.swift` |
+| Energia = MET × peso (kg) × horas, com o MET da corrida ou da caminhada pela velocidade média (interpolado entre as linhas da tabela). | *2024 Adult Compendium of Physical Activities* (Herrmann e colegas, 2024, *J Sport Health Sci* 13:6), tabelas oficiais de corrida (códigos 12xxx) e caminhada (17xxx) em pacompendium.com. Valores médios: o gasto real varia de pessoa para pessoa. | Moderada | `Treino/Calorias.swift`; usado no detalhe da corrida e no TCX exportado (`App/Servicos/Exportacao.swift`), com o peso informado em Ajustes |
 
 ## Por que cada modelo de treino existe
 

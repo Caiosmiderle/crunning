@@ -43,6 +43,7 @@ struct DetalheCorridaView: View {
     @State var serieRitmo: [PontoSerie] = []
     @State var serieAltitude: [PontoSerie] = []
     @State var arquivoGPX: URL?
+    @State var arquivoTCX: URL?
     @State var carregou = false
     @State var confirmandoApagar = false
 
@@ -70,6 +71,12 @@ struct DetalheCorridaView: View {
                     GridRow {
                         Metrica(titulo: "Subida", valor: "\(Int(dados.subida.rounded())) m")
                         Metrica(titulo: "Esforço", valor: dados.esforco.map { "\($0) de 10" } ?? "—")
+                    }
+                    if let energia = Exportacao.calorias(distancia: dados.distancia, duracaoEmMovimento: dados.duracaoEmMovimento) {
+                        GridRow {
+                            Metrica(titulo: "Energia (estimada)", valor: "\(Int(energia.rounded())) kcal")
+                            Color.clear.frame(height: 1)
+                        }
                     }
                 }
                 .padding(20)
@@ -127,9 +134,14 @@ struct DetalheCorridaView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    if let arquivoTCX {
+                        ShareLink(item: arquivoTCX) {
+                            Label("Exportar TCX (para o Saúde)", systemImage: "square.and.arrow.up")
+                        }
+                    }
                     if let arquivoGPX {
                         ShareLink(item: arquivoGPX) {
-                            Label("Exportar GPX", systemImage: "square.and.arrow.up")
+                            Label("Exportar GPX", systemImage: "map")
                         }
                     }
                     Button("Apagar corrida", systemImage: "trash", role: .destructive) {
@@ -164,14 +176,9 @@ struct DetalheCorridaView: View {
         amostras = corrida.carregarAmostras()
         serieRitmo = Series.ritmo(amostras)
         serieAltitude = Series.altitude(amostras)
-        if amostras.count >= 2 {
-            let xml = GPX.gerar(nome: dados.titulo, inicio: dados.inicio, amostras: amostras)
-            let nome = "crunning-" + dados.inicio.formatted(.iso8601.year().month().day().dateSeparator(.dash)) + ".gpx"
-            let url = FileManager.default.temporaryDirectory.appending(path: nome)
-            if (try? xml.write(to: url, atomically: true, encoding: .utf8)) != nil {
-                arquivoGPX = url
-            }
-        }
+        let arquivos = Exportacao.arquivos(de: corrida, amostras: amostras)
+        arquivoTCX = arquivos.tcx
+        arquivoGPX = arquivos.gpx
         carregou = true
     }
 }

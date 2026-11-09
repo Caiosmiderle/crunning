@@ -7,6 +7,7 @@ struct HistoricoView: View {
     @Environment(\.modelContext) var contexto
     @AppStorage(Preferencias.unidade) var unidade: UnidadeDistancia = .quilometros
     @AppStorage(Preferencias.modoDesenvolvimento) var modoDesenvolvimento = false
+    @State var arquivosExportados: [URL] = []
 
     var body: some View {
         NavigationStack {
@@ -30,6 +31,23 @@ struct HistoricoView: View {
                                 try? contexto.save()
                             }
                         }
+                    }
+                }
+                if !corridas.isEmpty {
+                    if arquivosExportados.isEmpty {
+                        Button("Preparar exportação de todas (TCX)", systemImage: "square.and.arrow.up.on.square") {
+                            arquivosExportados = Exportacao.todas(corridas)
+                        }
+                        .buttonStyle(.glass)
+                        .padding(.top, 8)
+                    } else {
+                        ShareLink(items: arquivosExportados) {
+                            Label("Exportar \(arquivosExportados.count) arquivos TCX", systemImage: "square.and.arrow.up")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity, minHeight: 48)
+                        }
+                        .buttonStyle(.glass)
+                        .padding(.top, 8)
                     }
                 }
                 if modoDesenvolvimento {

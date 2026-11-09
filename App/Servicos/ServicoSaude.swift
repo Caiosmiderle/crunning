@@ -13,7 +13,7 @@ enum DisponibilidadeSaude: Equatable, Sendable {
     var titulo: String {
         switch self {
         case .ativa: "Gravando no Apple Saúde"
-        case .semPermissaoNaInstalacao: "Histórico local + GPX"
+        case .semPermissaoNaInstalacao: "Histórico local + TCX/GPX"
         case .aparelhoSemSaude: "Saúde indisponível"
         }
     }
@@ -23,7 +23,7 @@ enum DisponibilidadeSaude: Equatable, Sendable {
         case .ativa:
             "Cada corrida concluída vira um treino no Apple Saúde, com distância, duração, energia e rota."
         case .semPermissaoNaInstalacao:
-            "Com Apple ID gratuito, a Apple não libera o Saúde para apps instalados por fora. As corridas ficam no histórico do app e poderão ser exportadas em GPX para outro app."
+            "Com Apple ID gratuito, a Apple não libera o Saúde para apps instalados por fora. As corridas ficam no histórico do app e saem em TCX (distância, tempo, energia e rota; também na esteira) ou GPX para outro app."
         case .aparelhoSemSaude:
             "Este aparelho não tem o app Saúde. As corridas ficam no histórico do app."
         }

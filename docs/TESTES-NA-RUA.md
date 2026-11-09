@@ -94,3 +94,13 @@ O que me contar: algum plano que pareça sem sentido para você como corredor (v
 
 O que me contar: se o cartão aparece com o app instalado pelo Sideloadly, se atualiza na troca de bloco com a tela bloqueada e se algum texto fica cortado na Dynamic Island.
 
+## Fase 7: Apple Saúde pelo plano B (0.7.0)
+
+1. Ajustes > Apple Saúde: o modo aparece como "Histórico local + TCX/GPX". Informe o peso (opcional; serve só para a energia).
+2. Histórico > abra uma corrida > menu … > "Exportar TCX (para o Saúde)". Salve em Arquivos ou abra direto num app que importa TCX. Uma corrida na esteira também exporta (sem rota, com distância e tempo).
+3. No detalhe da corrida aparece "Energia (estimada)" quando há peso.
+4. No fim do Histórico, "Preparar exportação de todas (TCX)" e depois "Exportar N arquivos TCX".
+5. Se você usar um app que importa TCX e grava no Saúde (o HealthFit, por exemplo, que é pago), importe um arquivo e confira no app Saúde: treino de corrida com distância, duração e rota.
+
+O que me contar: se algum app recusou o arquivo (e qual), e se a energia ficou parecida com a que você costuma ver.
+

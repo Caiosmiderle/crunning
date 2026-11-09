@@ -34,6 +34,8 @@ enum Preferencias {
     static let avisoVibracao = "avisoVibracao"
     static let avisoParciais = "avisoParciais"
     static let aquecimentoGuiado = "aquecimentoGuiado"
+    /// Peso (kg) só para estimar a energia no TCX e no detalhe; fica no iPhone.
+    static let pesoKg = "pesoKg"
 }
 
 enum Tema: String, CaseIterable, Identifiable {

@@ -16,6 +16,7 @@ struct AjustesView: View {
     @AppStorage(Preferencias.avisoVibracao) var avisoVibracao = true
     @AppStorage(Preferencias.avisoParciais) var avisoParciais = 1
     @AppStorage(Preferencias.aquecimentoGuiado) var aquecimentoGuiado = true
+    @AppStorage(Preferencias.pesoKg) var pesoKg = 0.0
     @State var importandoGPX = false
     @State var temGPXImportado = Simulacao.temGPXImportado
     @State var mensagemSimulacao: String?
@@ -74,6 +75,17 @@ struct AjustesView: View {
                 Section {
                     LabeledContent("Modo", value: saude.titulo)
                     Text(saude.detalhe)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                    HStack {
+                        Text("Peso (kg)")
+                        Spacer()
+                        TextField("não informado", value: $pesoKg, format: .number)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: 140)
+                    }
+                    Text("Para levar uma corrida ao Saúde: no Histórico, abra a corrida > menu … > Exportar TCX, e abra o arquivo num app que importa TCX e grava no Saúde (o HealthFit, por exemplo, que é pago). No Histórico também dá para exportar todas de uma vez. O peso fica só no iPhone e serve para estimar a energia.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 } header: {

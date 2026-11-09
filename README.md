@@ -12,7 +12,9 @@ Fase 5 (criar e executar treino): construtor com texto rápido ("10min fácil + 
 
 Fase 6 (Live Activity): na tela de bloqueio e na Dynamic Island, o bloco atual com a cor dele, o que falta (cronômetro que roda sozinho ou distância), distância, ritmo e o progresso do treino; na corrida livre, o tempo em movimento. Atualiza na troca de bloco, na pausa e no máximo a cada 10 s, e some ao finalizar ou descartar.
 
-Próximas fases: 7 (Apple Saúde), 8 (planos no calendário, Hoje e adaptação), 9 (Coach de IA completo).
+Fase 7 (Apple Saúde, plano B sem conta paga): com Apple ID gratuito a Apple não libera o HealthKit, então cada corrida sai em TCX (distância, tempo em movimento, energia estimada pelo peso informado e rota; também na esteira) ou GPX, uma por vez ou todas de uma vez, para importar num app que grava no Saúde. Ajustes mostra o modo ativo.
+
+Próximas fases:, 8 (planos no calendário, Hoje e adaptação), 9 (Coach de IA completo).
 
 ## Como é feito
 
