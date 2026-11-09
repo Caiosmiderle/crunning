@@ -207,12 +207,15 @@ public enum GeradorPlano {
         let referenciaAceleracoes = SessaoPlanejada(treino: Modelos.aceleracoes.treino(dose: 3000), zonas: zonas)
         let trabalhoAceleracoes = referenciaAceleracoes.trabalho[.repeticoes] ?? 0
         let extraAceleracoes = max(0, referenciaAceleracoes.distancia - 3000)
+        // Os limites de qualidade dependem do volume real, que fecha um pouco abaixo do alvo pelo
+        // arredondamento: com 3% de margem, um treino no limite não é cortado depois em cascata.
+        let alvoQualidade = alvo * 0.97
         let aceleracoes = querAceleracoes && (e.nivel != .iniciante || fase != .base)
-            && trabalhoAceleracoes <= RegrasPlano.limiteTrabalho(.repeticoes, volumeSemana: alvo)
+            && trabalhoAceleracoes <= RegrasPlano.limiteTrabalho(.repeticoes, volumeSemana: alvoQualidade)
 
         // Qualidade, sempre menor que o longão.
         let quantidade = semanaDaProva ? 0 : qualidadeDesejada(fase, nivel: e.nivel, corridas: corridas)
-        var orcamento = RegrasPlano.fracaoMaximaQualidade * alvo - (aceleracoes ? trabalhoAceleracoes : 0)
+        var orcamento = RegrasPlano.fracaoMaximaQualidade * alvoQualidade - (aceleracoes ? trabalhoAceleracoes : 0)
         var diasQualidade: [Int] = []
         for candidato in candidatosQualidade(diasCorrida, diaLongao: e.diaLongao)
         where diasQualidade.count < quantidade && !diasQualidade.contains(where: { adjacente($0, candidato) }) {
@@ -220,12 +223,12 @@ public enum GeradorPlano {
         }
         for (slot, dia) in diasQualidade.enumerated() {
             let modelo = escolherModelo(slot: slot, numero: numero, fase: fase, e: e)
-            var s = sessaoQualidade(modelo, e: e, zonas: zonas, fase: fase, alvo: alvo, orcamento: orcamento,
+            var s = sessaoQualidade(modelo, e: e, zonas: zonas, fase: fase, alvo: alvoQualidade, orcamento: orcamento,
                                     maiorDistancia: tetoQualidade)
             // Sem espaço para uma dose útil: o treino principal vira fartlek (menos trabalho no limiar);
             // o segundo vira corrida fácil. Melhor um treino forte de verdade que dois de enfeite.
             if s == nil, slot == 0, modelo.id != Modelos.fartlek.id {
-                s = sessaoQualidade(Modelos.fartlek, e: e, zonas: zonas, fase: fase, alvo: alvo, orcamento: orcamento,
+                s = sessaoQualidade(Modelos.fartlek, e: e, zonas: zonas, fase: fase, alvo: alvoQualidade, orcamento: orcamento,
                                     maiorDistancia: tetoQualidade)
             }
             if let s {
