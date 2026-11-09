@@ -62,6 +62,7 @@ public struct DiagnosticoGPS: Codable, Sendable, Equatable {
     public private(set) var eventosDescartados = 0
 
     var ultimoPonto: Date?
+    var ultimoTipo: Tipo?
     var pontoDesdeUltimoEvento = true
 
     public init() {}
@@ -93,7 +94,9 @@ public struct DiagnosticoGPS: Codable, Sendable, Equatable {
     /// Registra um aviso. O mesmo aviso repetido sem nenhum ponto no meio conta uma vez só
     /// (o iOS repete o mesmo sinal a cada atualização enquanto ele dura).
     public mutating func registrar(_ tipo: Tipo, em instante: Date) {
-        if let ultimo = eventos.last, ultimo.tipo == tipo, !pontoDesdeUltimoEvento { return }
+        // Compara com o último aviso recebido (não com o último guardado, que para de mudar no limite).
+        if ultimoTipo == tipo, !pontoDesdeUltimoEvento { return }
+        ultimoTipo = tipo
         pontoDesdeUltimoEvento = false
         guard eventos.count < Self.maximoEventos else {
             eventosDescartados += 1
