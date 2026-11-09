@@ -50,8 +50,12 @@ enum TextoTreino {
 
 // MARK: - Linha do tempo
 
-/// Barra horizontal do treino: um segmento por passo (repetições abertas), largura pela duração
-/// estimada, altura e cor pela intensidade. Toque num segmento devolve (bloco, passo da repetição).
+/// Perfil do treino: um segmento por passo (repetições abertas), altura e cor pela intensidade,
+/// todos na mesma base, como um perfil de altimetria. A largura cresce com a raiz quadrada da
+/// duração: aquecimento e desaquecimento longos encolhem, e tiros e recuperações ficam legíveis.
+/// É a estrutura do treino, não uma escala de tempo; os tempos exatos estão na lista de blocos.
+/// Com trabalho forte no treino, os trechos leves ficam mais apagados para ele se destacar.
+/// Toque num segmento devolve (bloco, passo da repetição).
 struct LinhaDoTempoTreino: View {
     let blocos: [Bloco]
     var zonas: Zonas?
@@ -65,24 +69,26 @@ struct LinhaDoTempoTreino: View {
         let duracao: TimeInterval
         let cor: Color
         let fracaoAltura: CGFloat
-        let inicioRepeticao: Int?
+        let leve: Bool
     }
 
     private var segmentos: [Segmento] {
         let z = zonas ?? Zonas.estimativaSemReferencia(.intermediario)
         var lista: [Segmento] = []
+        func adicionar(_ p: Passo, bloco: Int, passo: Int?) {
+            lista.append(Segmento(
+                id: lista.count, bloco: bloco, passo: passo, duracao: p.estimativa(zonas: z).duracao,
+                cor: p.tipoParaCor.cor, fracaoAltura: Self.fracaoAltura(p.intensidade),
+                leve: p.intensidade == .facil || p.intensidade == .caminhada
+            ))
+        }
         for (b, bloco) in blocos.enumerated() {
             switch bloco {
             case let .passo(p):
-                lista.append(Segmento(id: lista.count, bloco: b, passo: nil, duracao: p.estimativa(zonas: z).duracao,
-                                      cor: p.tipoParaCor.cor, fracaoAltura: Self.fracaoAltura(p.intensidade), inicioRepeticao: nil))
+                adicionar(p, bloco: b, passo: nil)
             case let .repetir(vezes, passos):
-                for k in 0..<max(1, vezes) {
-                    for (i, p) in passos.enumerated() {
-                        lista.append(Segmento(id: lista.count, bloco: b, passo: i, duracao: p.estimativa(zonas: z).duracao,
-                                              cor: p.tipoParaCor.cor, fracaoAltura: Self.fracaoAltura(p.intensidade),
-                                              inicioRepeticao: (k == 0 && i == 0) ? vezes : nil))
-                    }
+                for _ in 0..<max(1, vezes) {
+                    for (i, p) in passos.enumerated() { adicionar(p, bloco: b, passo: i) }
                 }
             }
         }
@@ -91,54 +97,66 @@ struct LinhaDoTempoTreino: View {
 
     static func fracaoAltura(_ i: Intensidade) -> CGFloat {
         switch i {
-        case .caminhada: 0.35
-        case .facil: 0.5
-        case .maratona: 0.65
-        case .limiar: 0.78
-        case .prova: 0.85
-        case .intervalado: 0.92
+        case .caminhada: 0.3
+        case .facil: 0.42
+        case .maratona: 0.6
+        case .limiar: 0.74
+        case .prova: 0.84
+        case .intervalado: 0.93
         case .repeticoes: 1
         }
     }
 
-    private var temRepeticao: Bool {
-        blocos.contains { bloco in
-            if case .repetir = bloco { return true }
-            return false
+    /// Larguras pela raiz quadrada da duração, com um mínimo para nada sumir. Quem fica abaixo do
+    /// mínimo trava nele e o resto divide o espaço que sobra; sem espaço, todas iguais.
+    static func larguras(_ duracoes: [TimeInterval], disponivel: CGFloat, minimo: CGFloat = 4) -> [CGFloat] {
+        guard !duracoes.isEmpty else { return [] }
+        let n = CGFloat(duracoes.count)
+        guard disponivel > minimo * n else { return duracoes.map { _ in max(disponivel, 0) / n } }
+        let pesos = duracoes.map { CGFloat(max($0, 1)).squareRoot() }
+        var travados = Set<Int>()
+        while true {
+            let livre = disponivel - minimo * CGFloat(travados.count)
+            let somaPesos = pesos.indices.filter { !travados.contains($0) }.reduce(CGFloat(0)) { $0 + pesos[$1] }
+            var novos = travados
+            for i in pesos.indices where !travados.contains(i) && pesos[i] / somaPesos * livre < minimo {
+                novos.insert(i)
+            }
+            if novos == travados {
+                return pesos.indices.map { travados.contains($0) ? minimo : pesos[$0] / somaPesos * livre }
+            }
+            travados = novos
         }
     }
 
     var body: some View {
         let lista = segmentos
+        let comTrabalho = lista.contains { !$0.leve }
         GeometryReader { geo in
-            let espaco: CGFloat = lista.count > 40 ? 1 : 2
+            let espaco: CGFloat = lista.count > 48 ? 1 : (lista.count > 24 ? 1.5 : 2)
             let disponivel = max(geo.size.width - espaco * CGFloat(max(lista.count - 1, 0)), 1)
-            let total = max(lista.reduce(0) { $0 + $1.duracao }, 1)
-            let brutas = lista.map { max(3, CGFloat($0.duracao / total) * disponivel) }
-            let escala = min(1, disponivel / max(brutas.reduce(0, +), 1))
+            let larguras = Self.larguras(lista.map(\.duracao), disponivel: disponivel)
             HStack(alignment: .bottom, spacing: espaco) {
                 ForEach(lista) { s in
-                    RoundedRectangle(cornerRadius: 3, style: .continuous)
-                        .fill(s.cor)
-                        .frame(width: brutas[s.id] * escala, height: max(6, altura * s.fracaoAltura))
-                        .overlay(alignment: .topLeading) {
-                            if let vezes = s.inicioRepeticao, vezes > 1 {
-                                Text("×\(vezes)")
-                                    .font(.caption2.weight(.bold))
-                                    .fixedSize()
-                                    .offset(y: -16)
-                            }
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture { aoTocar?(s.bloco, s.passo) }
+                    let largura = larguras[s.id]
+                    let raio = min(4, altura * 0.14, largura / 2)
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: raio, bottomLeadingRadius: min(raio, 1.5),
+                        bottomTrailingRadius: min(raio, 1.5), topTrailingRadius: raio, style: .continuous
+                    )
+                    .fill(s.cor.opacity(s.leve && comTrabalho ? 0.62 : 1))
+                    .frame(width: largura, height: max(5, altura * s.fracaoAltura))
+                    // Toque na altura inteira da barra, não só no segmento (os leves são baixos).
+                    .frame(height: altura, alignment: .bottom)
+                    .contentShape(Rectangle())
+                    .onTapGesture { aoTocar?(s.bloco, s.passo) }
                 }
             }
             .frame(width: geo.size.width, height: altura, alignment: .bottomLeading)
         }
         .frame(height: altura)
-        .padding(.top, temRepeticao ? 16 : 0)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Linha do tempo do treino")
+        .accessibilityLabel("Estrutura do treino")
         .accessibilityValue(TextoRapido.texto(blocos))
     }
 }
