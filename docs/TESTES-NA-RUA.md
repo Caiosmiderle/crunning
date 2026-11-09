@@ -131,3 +131,10 @@ O que me contar: se as respostas do coach fizeram sentido, quanto custou na sua 
 2. **Prova secundária:** Plano > Opções do plano > "Adicionar prova secundária". Escolha semana, dia e distância: vem a proposta com antes e depois (ou a recusa explicada, por exemplo no polimento).
 3. **Avaliar o coach:** Ajustes > Modo de desenvolvimento > "Avaliar o coach (4 casos)". Com a chave, custa centavos; com "Simular o coach", roda de graça.
 
+
+## Avisos na corrida e corrida minimizada (0.9.6)
+
+1. **Bipe:** Ajustes > Avisos durante a corrida > desligue "Bipe na troca de etapa". Num treino com blocos (pode ser na simulação), a troca de etapa só fala e vibra; a contagem 3, 2, 1 continua na tela e na voz.
+2. **Engrenagem na corrida:** com o treino rodando, toque na engrenagem no canto de cima. Desligue a voz ou o bipe e feche: vale na hora, sem pausar, e fica salvo para as próximas corridas.
+3. **Minimizar:** toque na seta para baixo no canto de cima. A corrida vira uma barra acima das abas, com a etapa, o que falta e o botão de pausa. Navegue pelo app (Plano, Histórico, Ajustes) e veja se a voz e a Live Activity seguem normais. Toque na barra para voltar.
+4. **Começar outro treino com um minimizado:** a tela da corrida que já está aberta volta; nada novo começa.

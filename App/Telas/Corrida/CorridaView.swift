@@ -11,6 +11,7 @@ struct CorridaView: View {
     @AppStorage(Preferencias.unidade) var unidade: UnidadeDistancia = .quilometros
     @State var avisoVisivel: AvisoCorrida?
     @State var confirmandoPulo = false
+    @State var ajustando = false
 
     var body: some View {
         Group {
@@ -35,6 +36,7 @@ struct CorridaView: View {
         .sensoryFeedback(.impact(weight: .heavy), trigger: gravador.sessao.estado)
         .sensoryFeedback(.success, trigger: gravador.sessao.parciaisKm.count)
         .sensoryFeedback(.impact(weight: .light), trigger: gravador.contagemVisivel) { _, novo in novo != nil }
+        .sheet(isPresented: $ajustando) { AjustesNaCorridaView() }
         .confirmationDialog("Pular esta etapa?", isPresented: $confirmandoPulo, titleVisibility: .visible) {
             Button("Pular etapa") { gravador.pularEtapa() }
         } message: {
@@ -210,7 +212,12 @@ struct CorridaView: View {
     // MARK: Partes
 
     private func cabecalho(_ estado: EstadoCorrida, titulo nomeTreino: String?) -> some View {
-        HStack {
+        HStack(spacing: 10) {
+            if EstadoApp.podeMinimizar {
+                botaoTopo(rotulo: "Minimizar a corrida", icone: "chevron.down") {
+                    estadoApp.corridaMinimizada = true
+                }
+            }
             VStack(alignment: .leading, spacing: 2) {
                 if let nomeTreino {
                     Text(nomeTreino)
@@ -223,8 +230,18 @@ struct CorridaView: View {
             }
             Spacer()
             IndicadorGPS(qualidade: gravador.qualidade)
+            botaoTopo(rotulo: "Avisos da corrida", icone: "gearshape") { ajustando = true }
         }
     }
+
+    private func botaoTopo(rotulo: String, icone: String, acao: @escaping () -> Void) -> some View {
+        Button(rotulo, systemImage: icone, action: acao)
+            .labelStyle(.iconOnly)
+            .font(.body.weight(.semibold))
+            .frame(width: 44, height: 44)
+            .background(Color.primary.opacity(0.08), in: Circle())
+            .contentShape(Circle())
+            .buttonStyle(.plain)
 
     @ViewBuilder
     private var avisoAtual: some View {

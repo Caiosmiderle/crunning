@@ -11,6 +11,8 @@ final class EstadoApp {
     static let compartilhado = EstadoApp()
 
     var gravadorAtivo: GravadorCorrida?
+    /// A corrida segue gravando, mas a tela dela vira uma barra acima das abas.
+    var corridaMinimizada = false
     @ObservationIgnored private var verificouPendente = false
 
     private init() {}
@@ -24,12 +26,23 @@ final class EstadoApp {
     func abrirTreino(_ treino: Treino, esteira: Bool = false, aquecimentoGuiado: Bool? = nil, plano: (semana: Int, dia: Int)? = nil, ajusteCalor: Double = 0) {
         let guiado = aquecimentoGuiado ?? (UserDefaults.standard.object(forKey: Preferencias.aquecimentoGuiado) as? Bool ?? true)
         let execucao = ExecucaoTreino(treino: treino, zonas: ZonasDoUsuario.atuais(), aquecimentoGuiado: guiado, esteira: esteira, ajusteCalor: ajusteCalor)
-        abrir(execucao: execucao, esteira: esteira)
-        gravadorAtivo?.sessaoPlano = plano
+        if abrir(execucao: execucao, esteira: esteira) {
+            gravadorAtivo?.sessaoPlano = plano
+        }
     }
 
-    private func abrir(execucao: ExecucaoTreino?, esteira: Bool) {
-        guard gravadorAtivo == nil else { return }
+    /// A barra da corrida minimizada usa um modificador do iOS 26.1.
+    static var podeMinimizar: Bool {
+        if #available(iOS 26.1, *) { return true }
+        return false
+    }
+
+    /// Abre a tela de corrida. Se já houver uma corrida (minimizada), ela volta para a tela e
+    /// nada novo começa.
+    @discardableResult
+    private func abrir(execucao: ExecucaoTreino?, esteira: Bool) -> Bool {
+        corridaMinimizada = false
+        guard gravadorAtivo == nil else { return false }
         let padroes = UserDefaults.standard
         let pausaAutomatica = padroes.object(forKey: Preferencias.pausaAutomatica) as? Bool ?? true
         let simular = !esteira && padroes.bool(forKey: Preferencias.modoDesenvolvimento) && padroes.bool(forKey: Preferencias.simularGPS)
@@ -47,6 +60,7 @@ final class EstadoApp {
             execucao: execucao,
             esteira: esteira
         )
+        return true
     }
 
     /// Na abertura do processo: se havia uma corrida em andamento quando o iOS fechou

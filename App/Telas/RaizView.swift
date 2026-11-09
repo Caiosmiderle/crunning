@@ -32,18 +32,21 @@ struct RaizView: View {
                 }
             }
             .tabBarMinimizeBehavior(.onScrollDown)
-            .accessibilityHidden(estado.gravadorAtivo != nil)
+            .modifier(AcessorioCorrida(estado: estado))
+            .accessibilityHidden(estado.gravadorAtivo != nil && !estado.corridaMinimizada)
 
             // A corrida fica por cima das abas (e não num fullScreenCover) para aparecer
             // também quando ela já está aberta na hora em que a tela é criada: é o caso
-            // da corrida retomada depois de o iOS fechar o app.
-            if let gravador = estado.gravadorAtivo {
+            // da corrida retomada depois de o iOS fechar o app. Minimizada, ela vira a
+            // barra acima das abas (AcessorioCorrida) e continua gravando.
+            if let gravador = estado.gravadorAtivo, !estado.corridaMinimizada {
                 CorridaView(gravador: gravador)
                     .transition(.move(edge: .bottom))
                     .zIndex(1)
             }
         }
         .animation(.smooth(duration: 0.35), value: estado.gravadorAtivo?.id)
+        .animation(.smooth(duration: 0.35), value: estado.corridaMinimizada)
         .environment(estado)
         .task { estado.restaurarCorridaPendente() }
     }

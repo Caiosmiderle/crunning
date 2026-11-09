@@ -2,9 +2,12 @@ import AudioToolbox
 import AVFoundation
 import Foundation
 
-/// O que avisar durante a corrida (Ajustes > Avisos durante a corrida).
-struct AvisosCorrida {
+/// O que avisar durante a corrida (Ajustes > Avisos durante a corrida, ou a engrenagem da
+/// tela de corrida).
+struct AvisosCorrida: Equatable {
     var voz: Bool
+    /// Bipe longo na troca de etapa e bipes curtos da contagem.
+    var bipe: Bool
     var contagem: Bool
     var ritmo: Bool
     var vibracao: Bool
@@ -15,6 +18,7 @@ struct AvisosCorrida {
         let d = UserDefaults.standard
         return AvisosCorrida(
             voz: d.object(forKey: Preferencias.avisoVoz) as? Bool ?? true,
+            bipe: d.object(forKey: Preferencias.avisoBipe) as? Bool ?? true,
             contagem: d.object(forKey: Preferencias.avisoContagem) as? Bool ?? true,
             ritmo: d.object(forKey: Preferencias.avisoRitmo) as? Bool ?? true,
             vibracao: d.object(forKey: Preferencias.avisoVibracao) as? Bool ?? true,

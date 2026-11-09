@@ -76,8 +76,9 @@ final class GravadorCorrida: Identifiable {
 
     let simulada: Bool
     let esteira: Bool
-    let avisos: AvisosCorrida
-    let manterTelaAcesa: Bool
+    /// Lidos de novo quando as preferências mudam no meio da corrida.
+    private(set) var avisos: AvisosCorrida
+    private(set) var manterTelaAcesa: Bool
     private let multiplicadorSimulacao: Double?
     private let sementeSimulacao: UInt64?
     /// Último salvamento antes de o iOS fechar o app (só em corrida recuperada).
@@ -460,6 +461,26 @@ final class GravadorCorrida: Identifiable {
         observadores.append(centro.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.mudouDePlano(segundoPlano: false) }
         })
+        observadores.append(centro.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.recarregarPreferencias() }
+        })
+    }
+
+    /// Avisos e tela acesa mudados no meio da corrida (engrenagem da tela de corrida ou aba
+    /// Ajustes com a corrida minimizada) valem na hora.
+    private func recarregarPreferencias() {
+        let novos = AvisosCorrida.atuais()
+        if novos != avisos {
+            if avisos.voz, !novos.voz { locutor.calar() }
+            avisos = novos
+        }
+        let tela = UserDefaults.standard.object(forKey: Preferencias.telaAcesa) as? Bool ?? true
+        if tela != manterTelaAcesa {
+            manterTelaAcesa = tela
+            if sessao.estado == .correndo || sessao.estado == .pausadaAuto || sessao.estado == .pausadaManual {
+                UIApplication.shared.isIdleTimerDisabled = tela
+            }
+        }
     }
 
     private func mudouDePlano(segundoPlano: Bool) {
@@ -509,14 +530,14 @@ final class GravadorCorrida: Identifiable {
                 transicoes += 1
                 contagemVisivel = nil
                 if avisos.vibracao { locutor.vibrar() }
-                if avisos.contagem { locutor.bipe(longo: true) }
+                if avisos.bipe { locutor.bipe(longo: true) }
                 if avisos.voz { locutor.falar(Fala.etapa(execucao.etapas[i], unidade: unidade), interromper: interromperFala) }
                 salvarSessao(forcar: true)
             case let .contagem(n):
                 contagemVisivel = n
                 contagemEm = agora
                 if avisos.contagem {
-                    locutor.bipe(longo: false)
+                    if avisos.bipe { locutor.bipe(longo: false) }
                     if avisos.voz { locutor.falar(Fala.contagem(n)) }
                 }
             case let .ritmo(aviso):

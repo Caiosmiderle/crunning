@@ -30,6 +30,7 @@ enum Preferencias {
     /// Avisos durante a corrida (fase 5).
     static let avisoVoz = "avisoVoz"
     static let avisoContagem = "avisoContagem"
+    static let avisoBipe = "avisoBipe"
     static let avisoRitmo = "avisoRitmo"
     static let avisoVibracao = "avisoVibracao"
     static let avisoParciais = "avisoParciais"
