@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sonda do CRUNNING para o Amazfit Pace (Android 5.1, API 22, MIPS).
+     Testa se um app de terceiros consegue ler batimento e GPS e continuar vivo com a tela
+     apagada. Versão e SDKs mínimos entram pelo compilar.sh (aapt2). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="io.github.caiosmiderle.crunning.sonda">
+
+    <uses-permission android:name="android.permission.BODY_SENSORS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:label="CRUNNING sonda"
+        android:allowBackup="false">
+
+        <activity
+            android:name=".Principal"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".Servico"
+            android:exported="false" />
+    </application>
+</manifest>

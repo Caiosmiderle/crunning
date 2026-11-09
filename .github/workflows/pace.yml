@@ -1,0 +1,33 @@
+# Compila a sonda do Amazfit Pace (APK de teste, Android 5.1) e publica como Release.
+# Roda só quando você pede (aba Actions > Relógio Pace > Run workflow).
+name: Relógio Pace
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write   # necessário para criar a Release
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v6
+
+      - name: Compilar o APK da sonda
+        run: bash relogio/pace-sonda/compilar.sh "${{ github.run_number }}"
+
+      - name: Publicar a Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="pace-sonda-${{ github.run_number }}"
+          gh release create "$TAG" \
+            relogio/pace-sonda/saida/crunning-sonda.apk \
+            relogio/pace-sonda/saida/crunning-sonda.apk.sha256 \
+            --target "$GITHUB_SHA" \
+            --title "CRUNNING sonda (Pace) $TAG" \
+            --notes "APK de teste para o Amazfit Pace (commit ${GITHUB_SHA::7}). Instale pelo ADB: relogio/pace-sonda/LEIAME.md." \
+            --prerelease

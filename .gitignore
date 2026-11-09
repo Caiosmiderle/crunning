@@ -42,3 +42,6 @@ desktop.ini
 
 # --- Python ---
 __pycache__/
+
+# --- Relógio (sonda do Pace): saída da compilação ---
+relogio/pace-sonda/saida/
