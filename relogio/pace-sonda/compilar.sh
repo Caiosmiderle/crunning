@@ -9,8 +9,11 @@ AQUI="$(cd "$(dirname "$0")" && pwd)"
 SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:?defina ANDROID_HOME}}"
 
 # Compila contra o Android 5.1 (API 22), o sistema do Pace: assim nenhuma API mais nova entra.
-yes | "$SDK/cmdline-tools/latest/bin/sdkmanager" "platforms;android-22" > /dev/null
+# (yes || true): o yes termina com "broken pipe" quando o sdkmanager para de ler, e o pipefail
+# acusaria erro.
+(yes || true) | "$SDK/cmdline-tools/latest/bin/sdkmanager" "platforms;android-22" > /dev/null
 JAR="$SDK/platforms/android-22/android.jar"
+test -f "$JAR" || { echo "android-22 não instalou"; exit 1; }
 BT="$SDK/build-tools/$(ls "$SDK/build-tools" | sort -V | tail -1)"
 echo "build-tools: $BT"
 
