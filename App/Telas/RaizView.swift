@@ -1,3 +1,4 @@
+import SwiftData
 import SwiftUI
 
 enum Aba: Hashable {
@@ -53,6 +54,11 @@ struct RaizView: View {
         .task {
             estado.restaurarCorridaPendente()
             EnvioStrava.configurar(contexto)
+            // Eventos criados por uma versão com defeito (treino em dois dias) são refeitos uma vez.
+            if CalendarioSync.precisaRefazer,
+               let agenda = (try? contexto.fetch(FetchDescriptor<PlanoAtivo>()))?.first?.agenda {
+                if CalendarioSync.sincronizar(agenda) != nil { CalendarioSync.marcarRefeito() }
+            }
             await EnvioStrava.processarFila()
         }
         .onChange(of: fase) { _, nova in

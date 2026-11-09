@@ -12,6 +12,17 @@ enum CalendarioSync {
         UserDefaults.standard.bool(forKey: Preferencias.sincronizarCalendario)
     }
 
+    /// Versão do formato dos eventos; ao mudar, os eventos são refeitos na abertura do app.
+    static let versaoEventos = 2
+
+    static var precisaRefazer: Bool {
+        ligado && UserDefaults.standard.integer(forKey: "versaoEventosCalendario") < versaoEventos
+    }
+
+    static func marcarRefeito() {
+        UserDefaults.standard.set(versaoEventos, forKey: "versaoEventosCalendario")
+    }
+
     static var autorizado: Bool {
         EKEventStore.authorizationStatus(for: .event) == .fullAccess
     }
@@ -49,9 +60,11 @@ enum CalendarioSync {
                 let inicio = agenda.data(semana: semana.numero, dia: dia)
                 let evento = EKEvent(eventStore: loja)
                 evento.calendar = calendario
+                // Dia inteiro: o EventKit trata o fim como incluído, então fim = início. Com o fim
+                // na meia-noite do dia seguinte, o evento aparecia em dois dias.
                 evento.isAllDay = true
                 evento.startDate = inicio
-                evento.endDate = Calendar.current.date(byAdding: .day, value: 1, to: inicio) ?? inicio
+                evento.endDate = inicio
                 evento.title = "\(sessao.treino.nome) · " + Formatador.distancia(sessao.distancia, casas: 1)
                 var notas = "Semana \(semana.numero) (\(semana.fase.nome)). " + TextoRapido.texto(sessao.treino.blocos)
                 if let porque = sessao.treino.modeloID.flatMap({ Modelos.modelo(id: $0)?.porque }) { notas += "\n\n" + porque }

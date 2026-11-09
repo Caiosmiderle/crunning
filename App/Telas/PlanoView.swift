@@ -23,35 +23,8 @@ struct PlanoView: View {
                     .entradaCascata(2)
                 cartaoExplicacao
                     .entradaCascata(3)
-                NavigationLink {
-                    CriarPlanoCoachView()
-                } label: {
-                    HStack(spacing: 14) {
-                        Image(systemName: "bubble.left.and.text.bubble.right").font(.title2).foregroundStyle(Paleta.verdeLogo)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Montar o plano com o coach").font(.headline)
-                            Text("Responda algumas perguntas; o coach escolhe os parâmetros e o motor monta com as travas.")
-                                .font(.subheadline).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-                        }
-                        Spacer(minLength: 0)
-                        Image(systemName: "chevron.right").foregroundStyle(.tertiary)
-                    }
-                    .padding(20)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .cartaoVidro()
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .entradaCascata(3)
-                NavigationLink {
-                    PreviaPlanoView()
-                } label: {
-                    cartaoPrevia
-                }
-                .buttonStyle(.plain)
-                .entradaCascata(3)
-                legendaDeCores
-                    .entradaCascata(4)
+                OpcoesDePlano()
+                    .entradaCascata(3)
             }
             .toolbar(.hidden, for: .navigationBar)
         }
@@ -103,16 +76,56 @@ struct PlanoView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .cartaoVidro()
     }
+}
 
-    private var cartaoPrevia: some View {
+/// Montar um plano com o coach, a prévia do motor e a legenda de cores. Aparece na aba Plano sem
+/// plano e, com um plano ativo, embaixo dele ("Criar outro plano"), para nada sumir.
+struct OpcoesDePlano: View {
+    var comPlanoAtivo = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if comPlanoAtivo {
+                Text("Criar outro plano")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 8)
+            }
+            NavigationLink {
+                CriarPlanoCoachView()
+            } label: {
+                cartao(
+                    icone: "bubble.left.and.text.bubble.right",
+                    titulo: "Montar o plano com o coach",
+                    texto: comPlanoAtivo
+                        ? "Responda as perguntas de novo. O plano atual só é trocado se você tocar em \"Usar este plano\"."
+                        : "Responda algumas perguntas; o coach escolhe os parâmetros e o motor monta com as travas."
+                )
+            }
+            .buttonStyle(.plain)
+            NavigationLink {
+                PreviaPlanoView()
+            } label: {
+                cartao(
+                    icone: "wand.and.stars",
+                    titulo: "Prévia do motor de treino",
+                    texto: "Monte um plano de teste e veja as fases, os treinos e as travas."
+                )
+            }
+            .buttonStyle(.plain)
+            legendaDeCores
+        }
+    }
+
+    private func cartao(icone: String, titulo: String, texto: String) -> some View {
         HStack(spacing: 14) {
-            Image(systemName: "wand.and.stars")
+            Image(systemName: icone)
                 .font(.title2)
                 .foregroundStyle(Paleta.verdeLogo)
             VStack(alignment: .leading, spacing: 4) {
-                Text("Prévia do motor de treino")
+                Text(titulo)
                     .font(.headline)
-                Text("Monte um plano de teste e veja as fases, os treinos e as travas.")
+                Text(texto)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

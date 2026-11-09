@@ -289,7 +289,7 @@ enum CriadorPlanoCoach {
     Você é o treinador de corrida do CRUNNING montando o plano de um corredor amador a partir do que ele contou. Você não escreve treinos: escolhe os parâmetros do motor de regras, que monta o plano com as travas de segurança.
 
     Escolha:
-    - objetivo, semanas (1 a 30), nivel, dias de corrida (0 = segunda ... 6 = domingo, pelo menos 2) e diaLongao (um dos dias);
+    - objetivo, semanas (1 a 30), nivel, dias de corrida (0 = segunda ... 6 = domingo, pelo menos 2, só entre os dias que ele disse que pode; pode usar menos, nunca outros) e diaLongao (um dos dias);
     - volumeAtualKm e longaoAtualKm: use o que ele contou; reduza só se houver lesão recente ou volta de pausa, e explique;
     - tetoPercentual (5 a 20): aumento máximo do volume por semana. Use 10 por padrão; menos com lesão recente, histórico de lesões ou iniciante; nunca mais de 10 sem motivo claro.
     Não invente tempo de prova nem dados que ele não deu. Se ele já tiver prova de referência no app, os ritmos saem dela.
@@ -301,9 +301,14 @@ enum CriadorPlanoCoach {
     /// se falhar de novo, monta pelas regras com as respostas como estão e avisa.
     static func montar(_ q: QuestionarioPlano, vdot: Double?) async throws -> (plano: Plano, explicacao: String) {
         func entrada(_ e: EscolhaPlanoIA) -> EntradaPlano {
-            EntradaPlano(
+            // Os dias são os que você marcou: a IA pode usar menos, nunca outros.
+            let marcados = Set(q.dias.filter { (0...6).contains($0) })
+            var dias = Set(e.dias).intersection(marcados)
+            if dias.count < 2 { dias = marcados }
+            let longao = dias.contains(e.diaLongao) ? e.diaLongao : (dias.contains(q.diaLongao) ? q.diaLongao : (dias.max() ?? q.diaLongao))
+            return EntradaPlano(
                 objetivo: objetivo(e.objetivo), semanas: min(max(e.semanas, 1), 30), nivel: nivel(e.nivel),
-                diasDisponiveis: Set(e.dias.filter { (0...6).contains($0) }), diaLongao: e.diaLongao,
+                diasDisponiveis: dias, diaLongao: longao,
                 volumeAtual: max(0, e.volumeAtualKm) * 1000, longaoAtual: max(0, e.longaoAtualKm) * 1000, vdot: vdot,
                 tetoProgressao: Double(min(max(e.tetoPercentual, 5), 20)) / 100
             )

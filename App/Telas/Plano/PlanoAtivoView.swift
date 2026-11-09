@@ -114,11 +114,6 @@ struct PlanoAtivoView: View {
                         mudandoProva = true
                     }
                 }
-                NavigationLink {
-                    PreviaPlanoView()
-                } label: {
-                    Label("Montar outro plano (prévia)", systemImage: "wand.and.stars")
-                }
                 Button("Encerrar este plano", systemImage: "xmark.circle", role: .destructive) { confirmandoEncerrar = true }
             } label: {
                 Label("Opções do plano", systemImage: "ellipsis.circle")
@@ -126,6 +121,9 @@ struct PlanoAtivoView: View {
                     .frame(maxWidth: .infinity, minHeight: 48)
             }
             .buttonStyle(.glass)
+
+            // O que havia na aba antes do plano continua aqui embaixo.
+            OpcoesDePlano(comPlanoAtivo: true)
         }
         .sheet(item: $proposta) { p in
             PropostaCorrecaoView(proposta: p, unidade: unidade) { aplicar(p) }
