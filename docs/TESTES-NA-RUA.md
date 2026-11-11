@@ -201,3 +201,4 @@ Antes, o app só lia o sinal que a Mi Band transmite, e o iPhone para de entrega
 1. Em casa: Ajustes > Conexões > Frequência cardíaca, com a pulseira já escolhida e a transmissão ligada no app da pulseira. A linha "Conexão" deve mostrar "conectada · vale com a tela bloqueada" em alguns segundos. Se o iPhone pedir para parear, aceite e me avise.
 2. Se ficar em "só o sinal · precisa da tela acesa", comece um treino na própria pulseira e veja se muda. Se não mudar, a pulseira não aceita conexão e só a tela acesa resolve: me avise.
 3. Corrida curta (pode ser caminhada) com a tela bloqueada desde o começo. No fim, o resumo e o detalhe devem ter FC média e máxima.
+4. No detalhe de qualquer corrida com pulseira (a de 11/11 serve): o cartão "Frequência cardíaca" mostra o gráfico (média de 10 s, buracos sem sinal em branco, média tracejada) e a tabela de blocos mostra a FC média e a máxima de cada etapa.

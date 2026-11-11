@@ -242,6 +242,48 @@ struct GraficoAltitude: View {
     }
 }
 
+/// Batimentos ao longo da corrida (média de 10 s), com a média tracejada. Buracos sem leitura
+/// (pulseira sem sinal) ficam em branco.
+struct GraficoFC: View {
+    let serie: [FrequenciaCardiaca.PontoGrafico]
+    let media: Int?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(L("Frequência cardíaca", "Heart rate"))
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+            Chart {
+                ForEach(serie) { ponto in
+                    LineMark(
+                        x: .value("min", ponto.t / 60),
+                        y: .value("bpm", ponto.bpm),
+                        series: .value("trecho", ponto.trecho)
+                    )
+                    .interpolationMethod(.catmullRom)
+                    .foregroundStyle(Paleta.foraForte)
+                    .lineStyle(StrokeStyle(lineWidth: 2))
+                }
+                if let media {
+                    RuleMark(y: .value("media", media))
+                        .foregroundStyle(.secondary)
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                        .annotation(position: .top, alignment: .leading) {
+                            Text(L("média \(media)", "avg \(media)"))
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                }
+            }
+            .chartYScale(domain: .automatic(includesZero: false))
+            .chartYAxisLabel("bpm")
+            .chartXAxisLabel("min")
+            .frame(height: 180)
+        }
+        .accessibilityLabel(L("Gráfico da frequência cardíaca ao longo da corrida", "Heart rate chart over the run"))
+    }
+}
+
 // MARK: - Esforço percebido
 
 /// Escala de 1 a 10 (CR10 de Borg adaptada): quão pesado foi o treino como um todo.

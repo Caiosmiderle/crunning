@@ -327,6 +327,9 @@ struct ListaBlocos: View {
 struct TabelaBlocos: View {
     let resultados: [ResultadoEtapa]
     var unidade: UnidadeDistancia = .quilometros
+    /// Batimentos da corrida e o início dela, para a FC de cada etapa (vazio sem pulseira).
+    var fc: [AmostraFC] = []
+    var inicioCorrida: Date?
 
     private enum Linha: Identifiable {
         case etapa(ResultadoEtapa)
@@ -414,9 +417,20 @@ struct TabelaBlocos: View {
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
                 }
+                if let fc = fcEtapa(r) {
+                    Label(L("\(fc.media) bpm (máx \(fc.maxima))", "\(fc.media) bpm (max \(fc.maxima))"), systemImage: "heart.fill")
+                        .labelStyle(.titleAndIcon)
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.secondary)
+                }
             }
         }
         .accessibilityElement(children: .combine)
+    }
+
+    private func fcEtapa(_ r: ResultadoEtapa) -> FrequenciaCardiaca.Resumo? {
+        guard !fc.isEmpty, let inicioCorrida, let i = r.inicio, let f = r.fim else { return nil }
+        return FrequenciaCardiaca.resumo(fc, de: i.timeIntervalSince(inicioCorrida), ate: f.timeIntervalSince(inicioCorrida))
     }
 
     private func planejado(_ r: ResultadoEtapa) -> String {

@@ -46,6 +46,8 @@ struct DetalheCorridaView: View {
     @State var amostras: [AmostraTrilha] = []
     @State var serieRitmo: [PontoSerie] = []
     @State var serieAltitude: [PontoSerie] = []
+    @State var fc: [AmostraFC] = []
+    @State var serieFC: [FrequenciaCardiaca.PontoGrafico] = []
     @State var arquivoGPX: URL?
     @State var arquivoTCX: URL?
     @State var carregou = false
@@ -100,7 +102,7 @@ struct DetalheCorridaView: View {
                 .cartaoVidro()
 
                 if !dados.resultados.isEmpty {
-                    TabelaBlocos(resultados: dados.resultados, unidade: unidade)
+                    TabelaBlocos(resultados: dados.resultados, unidade: unidade, fc: fc, inicioCorrida: dados.inicio)
                         .padding(20)
                         .cartaoVidro()
                 }
@@ -139,6 +141,12 @@ struct DetalheCorridaView: View {
                         .foregroundStyle(.secondary)
                         .padding(20)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .cartaoVidro()
+                }
+
+                if serieFC.count >= 2 {
+                    GraficoFC(serie: serieFC, media: dados.fcMedia)
+                        .padding(20)
                         .cartaoVidro()
                 }
 
@@ -253,6 +261,8 @@ struct DetalheCorridaView: View {
         amostras = corrida.carregarAmostras()
         serieRitmo = Series.ritmo(amostras)
         serieAltitude = Series.altitude(amostras)
+        fc = corrida.carregarFC()
+        serieFC = FrequenciaCardiaca.serieGrafico(fc)
         let arquivos = Exportacao.arquivos(de: corrida, amostras: amostras)
         arquivoTCX = arquivos.tcx
         arquivoGPX = arquivos.gpx

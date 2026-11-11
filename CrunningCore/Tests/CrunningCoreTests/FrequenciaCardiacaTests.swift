@@ -23,6 +23,22 @@ struct FrequenciaCardiacaTests {
         #expect(FrequenciaCardiaca.lerMedicaoPadrao([]) == nil)
     }
 
+    @Test func serieDoGrafico() {
+        // 0–19 s a 120 bpm, buraco de 40 s, 60–69 s a 150 bpm (dados fictícios).
+        let fc = (0..<20).map { AmostraFC(t: Double($0), bpm: 120) } + (60..<70).map { AmostraFC(t: Double($0), bpm: 150) }
+        let serie = FrequenciaCardiaca.serieGrafico(fc, janela: 10, buraco: 20)
+        #expect(serie.map(\.t) == [5, 15, 65])
+        #expect(serie.map(\.bpm) == [120, 120, 150])
+        #expect(serie.map(\.trecho) == [0, 0, 1])
+        #expect(FrequenciaCardiaca.serieGrafico([AmostraFC(t: 0, bpm: 0)]).isEmpty)
+    }
+
+    @Test func resumoDeUmTrecho() {
+        let fc = (0..<30).map { AmostraFC(t: Double($0), bpm: $0 < 10 ? 100 : 160) }
+        #expect(FrequenciaCardiaca.resumo(fc, de: 10, ate: 29) == .init(media: 160, maxima: 160))
+        #expect(FrequenciaCardiaca.resumo(fc, de: 100, ate: 200) == nil)
+    }
+
     @Test func mediaPonderadaPeloTempo() throws {
         // 100 bpm por 4 s, depois 160 bpm por 1 s e a última leitura vale 1 s.
         let amostras = [AmostraFC(t: 0, bpm: 100), AmostraFC(t: 4, bpm: 160), AmostraFC(t: 5, bpm: 160)]

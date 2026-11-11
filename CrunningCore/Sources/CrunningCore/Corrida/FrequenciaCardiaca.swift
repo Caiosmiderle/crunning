@@ -75,6 +75,52 @@ extension FrequenciaCardiaca {
         return Resumo(media: media, maxima: maxima)
     }
 
+    /// Média e máxima entre dois instantes (segundos desde o início), como num trecho do treino.
+    public static func resumo(_ amostras: [AmostraFC], de t0: TimeInterval, ate t1: TimeInterval) -> Resumo? {
+        resumo(amostras.filter { $0.t >= t0 && $0.t <= t1 })
+    }
+
+    /// Um ponto do gráfico de batimentos: média de uma janela de tempo. `trecho` muda depois de um
+    /// buraco sem leitura, para o gráfico não ligar os dois lados com uma reta.
+    public struct PontoGrafico: Sendable, Equatable, Identifiable {
+        public let t: TimeInterval
+        public let bpm: Double
+        public let trecho: Int
+        public var id: TimeInterval { t }
+    }
+
+    /// Série para o gráfico: média por janela de `janela` segundos (no meio da janela), com um
+    /// trecho novo quando passam mais de `buraco` segundos sem leitura.
+    public static func serieGrafico(_ amostras: [AmostraFC], janela: TimeInterval = 10, buraco: TimeInterval = 20) -> [PontoGrafico] {
+        let validas = amostras.filter { faixaValida.contains($0.bpm) }.sorted { $0.t < $1.t }
+        guard janela > 0 else { return [] }
+        var pontos: [PontoGrafico] = []
+        var trecho = 0
+        var anterior: TimeInterval?
+        var balde: (indice: Int, soma: Int, n: Int)?
+        func fechar() {
+            guard let b = balde, b.n > 0 else { return }
+            pontos.append(PontoGrafico(t: (Double(b.indice) + 0.5) * janela, bpm: Double(b.soma) / Double(b.n), trecho: trecho))
+            balde = nil
+        }
+        for a in validas {
+            if let anterior, a.t - anterior > buraco {
+                fechar()
+                trecho += 1
+            }
+            anterior = a.t
+            let indice = Int((a.t / janela).rounded(.down))
+            if let b = balde, b.indice == indice {
+                balde = (indice, b.soma + a.bpm, b.n + 1)
+            } else {
+                fechar()
+                balde = (indice, a.bpm, 1)
+            }
+        }
+        fechar()
+        return pontos
+    }
+
     /// Batimento mais perto do instante `t`, se houver um a no máximo `tolerancia` segundos.
     public static func valor(em t: TimeInterval, _ amostras: [AmostraFC], tolerancia: TimeInterval = 5) -> Int? {
         guard !amostras.isEmpty else { return nil }
