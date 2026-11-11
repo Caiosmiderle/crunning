@@ -130,23 +130,19 @@ struct DetalheCorridaView: View {
                             .padding(20)
                             .cartaoVidro()
                     }
+                    graficoFC
                     if !serieAltitude.isEmpty {
                         GraficoAltitude(serie: serieAltitude, unidade: unidade)
                             .padding(20)
                             .cartaoVidro()
                     }
                 } else if carregou {
+                    graficoFC
                     Text(dados.esteira ? L("Corrida na esteira: sem rota.", "Treadmill run: no route.") : L("Esta corrida não tem rota gravada.", "This run has no recorded route."))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .padding(20)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .cartaoVidro()
-                }
-
-                if serieFC.count >= 2 {
-                    GraficoFC(serie: serieFC, media: dados.fcMedia)
-                        .padding(20)
                         .cartaoVidro()
                 }
 
@@ -248,6 +244,15 @@ struct DetalheCorridaView: View {
                 }
                 .buttonStyle(.glass)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var graficoFC: some View {
+        if serieFC.count >= 2 {
+            GraficoFC(serie: serieFC, media: dados.fcMedia, maxima: dados.fcMaxima)
+                .padding(20)
+                .cartaoVidro()
         }
     }
 

@@ -210,3 +210,10 @@ O "Ritmo atual" agora é a média da velocidade que o GPS informa nos últimos 1
 1. Corra 5 minutos em ritmo constante, num trecho reto e num com curvas. O ritmo atual deve ficar firme (variação de poucos segundos por km) e acompanhar uma mudança de ritmo em uns 10 segundos.
 2. Num treino com faixa de pace, os avisos de "acelere" e "reduza" devem aparecer bem menos à toa.
 3. Pare num semáforo: o ritmo some e a pausa automática segue como antes.
+
+## Gráficos com toque, treino de hoje, volume por mês e km do tênis (0.13.0)
+
+1. Detalhe de uma corrida com GPS e pulseira: segure o dedo nos gráficos de ritmo, frequência cardíaca e altitude e arraste. O topo do cartão mostra o valor sob o dedo (km e pace; tempo e bpm; km e altitude) e o gráfico marca o ponto. O de batimentos fica logo abaixo do de ritmo.
+2. Hoje, com plano: toque no nome do treino de hoje. Sem fazer, abre a tela do treino com "Começar"; depois de feito, abre a corrida, igual à do Histórico.
+3. Volume por semana: segure o dedo numa barra e veja os números na linha acima do gráfico (sem balão por cima). Arraste para os lados até o fim do plano; as setas andam uma semana de cada vez. Em "Meses", o gráfico vai mês a mês até o mês da prova, e as setas andam um mês.
+4. Ajustes > Tênis: cadastre um tênis com "Km que ele já tem" e veja "Rodados" somar esses km com os das corridas. Num tênis já cadastrado, mude "Antes do app".

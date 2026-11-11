@@ -43,10 +43,13 @@ final class Tenis {
     var limiteKm: Double = 700
     var aposentado: Bool = false
     var criadoEm: Date = Date.now
+    /// Km que o tênis já tinha quando entrou no app (somados aos das corridas).
+    var kmIniciais: Double = 0
 
-    init(nome: String, limiteKm: Double = 700) {
+    init(nome: String, limiteKm: Double = 700, kmIniciais: Double = 0) {
         self.nome = nome
         self.limiteKm = limiteKm
+        self.kmIniciais = max(0, kmIniciais)
     }
 }
 

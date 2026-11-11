@@ -35,6 +35,35 @@ public enum VolumeSemanal {
         return lista
     }
 
+    /// Volume por mês (`inicio` = dia 1 à meia-noite), de `passados` meses antes do atual até o
+    /// último mês com plano. O planejado de cada semana é dividido igualmente pelos 7 dias, para a
+    /// semana que atravessa a virada do mês contar nos dois.
+    public static func porMes(
+        corridas: [(inicio: Date, distancia: Double)], plano: [(inicio: Date, distancia: Double)],
+        hoje: Date, passados: Int = 5, calendario: Calendar = CalendarioTreino.padrao()
+    ) -> [VolumeSemana] {
+        func mes(_ d: Date) -> Date { calendario.dateInterval(of: .month, for: d)?.start ?? calendario.startOfDay(for: d) }
+        let atual = mes(hoje)
+        var feito: [Date: Double] = [:]
+        for c in corridas where c.distancia > 0 { feito[mes(c.inicio), default: 0] += c.distancia }
+        var planejado: [Date: Double] = [:]
+        for p in plano {
+            let inicio = CalendarioTreino.inicioDaSemana(p.inicio, calendario: calendario)
+            for d in 0..<7 {
+                guard let dia = calendario.date(byAdding: .day, value: d, to: inicio) else { continue }
+                planejado[mes(dia), default: 0] += p.distancia / 7
+            }
+        }
+        let ultimo = max(atual, planejado.keys.max() ?? atual)
+        var lista: [VolumeSemana] = []
+        var k = -max(0, passados)
+        while let inicio = calendario.date(byAdding: .month, value: k, to: atual), inicio <= ultimo {
+            lista.append(VolumeSemana(inicio: inicio, feito: inicio > atual ? 0 : (feito[inicio] ?? 0), planejado: planejado[inicio]))
+            k += 1
+        }
+        return lista
+    }
+
     /// Média das `n` semanas completas antes da semana de `hoje`.
     public static func media(_ semanas: [VolumeSemana], ultimas n: Int, hoje: Date,
                              calendario: Calendar = CalendarioTreino.padrao()) -> Double {

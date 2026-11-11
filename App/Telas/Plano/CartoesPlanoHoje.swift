@@ -56,14 +56,39 @@ struct CartoesPlanoHoje: View {
                 .foregroundStyle(.secondary)
             if let p = agenda.posicao(de: hoje) {
                 if let sessao = agenda.sessao(semana: p.semana, dia: p.dia) {
-                    HStack {
-                        Circle().fill(sessao.tipo.cor).frame(width: 12, height: 12)
-                        Text(sessao.treino.nome).font(.title2.weight(.semibold))
+                    let feita = agenda.status(semana: p.semana, dia: p.dia) == .feita
+                    // Tocar no treino: feito abre a corrida (como no Histórico); não feito, a tela de começar.
+                    NavigationLink {
+                        if let corrida = corridaDeHoje(p, feita: feita) {
+                            DetalheCorridaView(corrida: corrida)
+                        } else {
+                            DetalheTreinoView(
+                                treino: sessao.treino,
+                                porque: sessao.treino.modeloID.flatMap { Modelos.modelo(id: $0)?.porque },
+                                salvo: nil,
+                                plano: (p.semana, p.dia),
+                                subtitulo: L("Treino de hoje · semana \(p.semana)", "Today's workout · week \(p.semana)")
+                            )
+                        }
+                    } label: {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Circle().fill(sessao.tipo.cor).frame(width: 12, height: 12)
+                                Text(sessao.treino.nome).font(.title2.weight(.semibold))
+                                Spacer(minLength: 8)
+                                Image(systemName: "chevron.right")
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(.tertiary)
+                            }
+                            Text("≈ " + Formatador.distancia(sessao.distancia, unidade: unidade, casas: 1) + " · " + LinhaDoTempoTreino.tempoCurto(sessao.duracao) + L(" · semana \(p.semana)", " · week \(p.semana)"))
+                                .font(.subheadline.monospacedDigit())
+                                .foregroundStyle(.secondary)
+                            LinhaDoTempoTreino(blocos: sessao.treino.blocos, zonas: ZonasDoUsuario.atuais(), legenda: false)
+                        }
+                        .contentShape(Rectangle())
                     }
-                    Text("≈ " + Formatador.distancia(sessao.distancia, unidade: unidade, casas: 1) + " · " + LinhaDoTempoTreino.tempoCurto(sessao.duracao) + L(" · semana \(p.semana)", " · week \(p.semana)"))
-                        .font(.subheadline.monospacedDigit())
-                        .foregroundStyle(.secondary)
-                    LinhaDoTempoTreino(blocos: sessao.treino.blocos, zonas: ZonasDoUsuario.atuais(), legenda: false)
+                    .buttonStyle(.plain)
+                    .accessibilityHint(feita ? L("Abre a corrida feita", "Opens the finished run") : L("Abre o treino para começar", "Opens the workout to start"))
                     NavigationLink {
                         DetalheTreinoView(
                             treino: sessao.treino,
@@ -108,6 +133,14 @@ struct CartoesPlanoHoje: View {
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .cartaoVidro()
+    }
+
+    /// A corrida de hoje que cumpriu este treino do plano; com o treino marcado como feito, serve
+    /// também outra corrida de verdade feita hoje (por exemplo, uma corrida livre).
+    private func corridaDeHoje(_ p: (semana: Int, dia: Int), feita: Bool) -> Corrida? {
+        let deHoje = corridas.filter { !$0.simulada && !$0.exemplo && Calendar.current.isDateInToday($0.inicio) }
+        if let doPlano = deHoje.first(where: { $0.planoSemana == p.semana && $0.planoDia == p.dia }) { return doPlano }
+        return feita ? deHoje.first : nil
     }
 
     private func proximo(_ agenda: AgendaPlano, depois p: (semana: Int, dia: Int)) -> String {

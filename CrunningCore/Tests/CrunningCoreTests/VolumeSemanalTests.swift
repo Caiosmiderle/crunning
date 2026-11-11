@@ -6,6 +6,24 @@ import Testing
 struct VolumeSemanalTests {
     typealias A = AgendaPlanoTests
 
+    @Test func somaPorMesComPlanoDivididoPelosDias() throws {
+        // Plano de 6 semanas a partir de 2/11/2026 com 7 km cada (1 km por dia, dados fictícios).
+        let plano: [(inicio: Date, distancia: Double)] = (0..<6).map { (A.dia($0 * 7), 7000) }
+        let corridas: [(inicio: Date, distancia: Double)] = [
+            (A.dia(1), 6000), (A.dia(6), 10_000), (A.dia(8), 5000), (A.dia(9), 8000), // novembro: 29 km
+            (A.dia(-14), 7000),                                                     // outubro
+        ]
+        let m = VolumeSemanal.porMes(corridas: corridas, plano: plano, hoje: A.dia(9), passados: 1, calendario: A.calendario)
+        #expect(m.count == 3) // outubro, novembro e dezembro (último mês do plano)
+        #expect(m[0].feito == 7000 && m[0].planejado == nil)
+        #expect(m[1].feito == 29_000)
+        // Novembro: 4 semanas inteiras + o dia 30 da 5ª semana; dezembro: o resto dela + a 6ª.
+        #expect(abs((m[1].planejado ?? 0) - 29_000) < 0.01)
+        #expect(m[2].feito == 0)
+        #expect(abs((m[2].planejado ?? 0) - 13_000) < 0.01)
+        #expect(A.calendario.component(.day, from: m[2].inicio) == 1)
+    }
+
     @Test func somaPorSemanaComPlano() throws {
         // Hoje: quarta da semana de 9/11/2026 (A.dia(9)). Corridas nesta semana, na passada e há 3 semanas.
         let hoje = A.dia(9)

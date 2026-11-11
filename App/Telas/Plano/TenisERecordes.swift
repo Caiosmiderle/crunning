@@ -9,35 +9,52 @@ struct TenisView: View {
     @Environment(\.modelContext) var contexto
     @AppStorage(PreferenciasPlano.tenisPrincipal) var principal = ""
     @State var novoNome = ""
+    @State var novoKm: Double?
 
     var body: some View {
         Form {
             Section {
+                TextField("Nome do tênis novo", text: $novoNome)
                 HStack {
-                    TextField("Nome do tênis novo", text: $novoNome)
+                    TextField(L("Km que ele já tem (opcional)", "Km it already has (optional)"), value: $novoKm, format: .number.precision(.fractionLength(0...1)))
+                        .keyboardType(.decimalPad)
                     Button("Adicionar") {
                         let nome = novoNome.trimmingCharacters(in: .whitespaces)
                         guard !nome.isEmpty else { return }
-                        let novo = Tenis(nome: nome)
+                        let novo = Tenis(nome: nome, kmIniciais: novoKm ?? 0)
                         contexto.insert(novo)
                         try? contexto.save()
                         // O primeiro tênis vira o principal sozinho.
                         if PreferenciasPlano.principal == nil { principal = novo.codigo }
                         novoNome = ""
+                        novoKm = nil
                     }
                     .disabled(novoNome.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             } footer: {
-                Text("Toda corrida usa o tênis principal. Se um dia correr com outro, troque no resumo da corrida ou depois, no detalhe dela no Histórico. O aviso de troca usa o limite que você definir (muita gente usa algo entre 500 e 800 km; não há um número com base científica).")
+                Text("Se o tênis já tinha uso antes do app, informe os km dele: entram na soma e no aviso de troca. Toda corrida usa o tênis principal. Se um dia correr com outro, troque no resumo da corrida ou depois, no detalhe dela no Histórico. O aviso de troca usa o limite que você definir (muita gente usa algo entre 500 e 800 km; não há um número com base científica).")
             }
             ForEach(tenis) { t in
-                let km = corridas.filter { $0.tenis == t.codigo }.reduce(0) { $0 + $1.distanciaMetros } / 1000
+                let noApp = corridas.filter { $0.tenis == t.codigo }.reduce(0) { $0 + $1.distanciaMetros } / 1000
+                let km = t.kmIniciais + noApp
                 Section {
                     Toggle("Tênis principal", isOn: Binding(
                         get: { principal == t.codigo || (principal.isEmpty && PreferenciasPlano.principal == t.codigo) },
                         set: { principal = $0 ? t.codigo : "" }
                     ))
                     LabeledContent("Rodados", value: Formatador.numero(km, casas: 1) + " km")
+                    LabeledContent(L("Antes do app", "Before the app")) {
+                        TextField("0", value: Binding(get: { t.kmIniciais }, set: { t.kmIniciais = max(0, $0) }),
+                                  format: .number.precision(.fractionLength(0...1)))
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: 90)
+                        Text("km").foregroundStyle(.secondary)
+                    }
+                    if t.kmIniciais > 0 {
+                        LabeledContent(L("Com o CRUNNING", "With CRUNNING"), value: Formatador.numero(noApp, casas: 1) + " km")
+                            .foregroundStyle(.secondary)
+                    }
                     Stepper("Avisar com \(Int(t.limiteKm)) km", value: Binding(get: { t.limiteKm }, set: { t.limiteKm = $0 }), in: 0...2000, step: 50)
                     if t.limiteKm > 0, km >= t.limiteKm {
                         Label("Passou do limite que você definiu", systemImage: "exclamationmark.triangle.fill")

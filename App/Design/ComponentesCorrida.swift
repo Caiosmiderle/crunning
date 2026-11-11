@@ -176,21 +176,34 @@ struct ListaParciais: View {
 struct GraficoRitmo: View {
     let serie: [PontoSerie]
     let unidade: UnidadeDistancia
+    @State private var selecao: Double?
 
     var body: some View {
+        let ponto = PontoMaisPerto.serie(serie, x: selecao.map { $0 * unidade.metros })
         VStack(alignment: .leading, spacing: 10) {
-            Text("Ritmo")
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.secondary)
-            Chart(serie) { ponto in
-                LineMark(
-                    x: .value("Distância", ponto.distancia / unidade.metros),
-                    y: .value("Ritmo", ponto.valor)
-                )
-                .interpolationMethod(.catmullRom)
-                .foregroundStyle(Color.accentColor)
-                .lineStyle(StrokeStyle(lineWidth: 2.5))
+            CabecalhoGrafico(titulo: L("Ritmo", "Pace"), leitura: ponto.map {
+                Formatador.distancia($0.distancia, unidade: unidade, casas: 2) + " · "
+                    + Formatador.ritmo(segundosPorKm: $0.valor, unidade: unidade) + " " + unidade.siglaRitmo
+            } ?? L("Segure e arraste para ver", "Press and drag to see"))
+            Chart {
+                ForEach(serie) { p in
+                    LineMark(
+                        x: .value("dist", p.distancia / unidade.metros),
+                        y: .value("ritmo", p.valor)
+                    )
+                    .interpolationMethod(.catmullRom)
+                    .foregroundStyle(Color.accentColor)
+                    .lineStyle(StrokeStyle(lineWidth: 2.5))
+                }
+                if let ponto {
+                    RuleMark(x: .value("dist", ponto.distancia / unidade.metros))
+                        .foregroundStyle(Color.primary.opacity(0.3))
+                    PointMark(x: .value("dist", ponto.distancia / unidade.metros), y: .value("ritmo", ponto.valor))
+                        .foregroundStyle(Color.accentColor)
+                        .symbolSize(70)
+                }
             }
+            .chartXSelection(value: $selecao)
             .chartYScale(domain: .automatic(includesZero: false, reversed: true))
             .chartYAxis {
                 AxisMarks(position: .leading) { valor in
@@ -205,82 +218,143 @@ struct GraficoRitmo: View {
             .chartXAxisLabel(unidade.sigla)
             .frame(height: 180)
         }
-        .accessibilityLabel("Gráfico do ritmo ao longo da corrida")
+        .accessibilityLabel(L("Gráfico do ritmo ao longo da corrida", "Pace chart over the run"))
     }
 }
 
 struct GraficoAltitude: View {
     let serie: [PontoSerie]
     let unidade: UnidadeDistancia
+    @State private var selecao: Double?
 
     var body: some View {
         let minimo = serie.map(\.valor).min() ?? 0
+        let ponto = PontoMaisPerto.serie(serie, x: selecao.map { $0 * unidade.metros })
         VStack(alignment: .leading, spacing: 10) {
-            Text("Altitude")
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.secondary)
-            Chart(serie) { ponto in
-                AreaMark(
-                    x: .value("Distância", ponto.distancia / unidade.metros),
-                    yStart: .value("Base", minimo - 5),
-                    yEnd: .value("Altitude", ponto.valor)
-                )
-                .foregroundStyle(LinearGradient(colors: [TipoTreino.longao.cor.opacity(0.5), TipoTreino.longao.cor.opacity(0.05)],
-                                                startPoint: .top, endPoint: .bottom))
-                LineMark(
-                    x: .value("Distância", ponto.distancia / unidade.metros),
-                    y: .value("Altitude", ponto.valor)
-                )
-                .foregroundStyle(TipoTreino.longao.cor)
+            CabecalhoGrafico(titulo: L("Altitude", "Elevation"), leitura: ponto.map {
+                Formatador.distancia($0.distancia, unidade: unidade, casas: 2) + " · \(Int($0.valor.rounded())) m"
+            } ?? L("Segure e arraste para ver", "Press and drag to see"))
+            Chart {
+                ForEach(serie) { p in
+                    AreaMark(
+                        x: .value("dist", p.distancia / unidade.metros),
+                        yStart: .value("base", minimo - 5),
+                        yEnd: .value("alt", p.valor)
+                    )
+                    .foregroundStyle(LinearGradient(colors: [TipoTreino.longao.cor.opacity(0.5), TipoTreino.longao.cor.opacity(0.05)],
+                                                    startPoint: .top, endPoint: .bottom))
+                    LineMark(
+                        x: .value("dist", p.distancia / unidade.metros),
+                        y: .value("alt", p.valor)
+                    )
+                    .foregroundStyle(TipoTreino.longao.cor)
+                }
+                if let ponto {
+                    RuleMark(x: .value("dist", ponto.distancia / unidade.metros))
+                        .foregroundStyle(Color.primary.opacity(0.3))
+                    PointMark(x: .value("dist", ponto.distancia / unidade.metros), y: .value("alt", ponto.valor))
+                        .foregroundStyle(TipoTreino.longao.cor)
+                        .symbolSize(70)
+                }
             }
+            .chartXSelection(value: $selecao)
             .chartYScale(domain: .automatic(includesZero: false))
             .chartYAxisLabel("m")
             .chartXAxisLabel(unidade.sigla)
             .frame(height: 140)
         }
-        .accessibilityLabel("Gráfico da altitude ao longo da corrida")
+        .accessibilityLabel(L("Gráfico da altitude ao longo da corrida", "Elevation chart over the run"))
     }
 }
 
-/// Batimentos ao longo da corrida (média de 10 s), com a média tracejada. Buracos sem leitura
-/// (pulseira sem sinal) ficam em branco.
+/// Batimentos ao longo da corrida (média de 10 s). Buracos sem leitura (pulseira sem sinal)
+/// ficam em branco. Segurando o dedo, o topo mostra o batimento daquele instante.
 struct GraficoFC: View {
     let serie: [FrequenciaCardiaca.PontoGrafico]
     let media: Int?
+    let maxima: Int?
+    @State private var selecao: Double?
 
     var body: some View {
+        let ponto = PontoMaisPerto.fc(serie, t: selecao.map { $0 * 60 })
+        let resumo = [media.map { L("média \($0)", "avg \($0)") }, maxima.map { L("máx \($0)", "max \($0)") }]
+            .compactMap { $0 }.joined(separator: " · ")
         VStack(alignment: .leading, spacing: 10) {
-            Text(L("Frequência cardíaca", "Heart rate"))
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(.secondary)
+            CabecalhoGrafico(titulo: L("Frequência cardíaca", "Heart rate"), leitura: ponto.map {
+                Formatador.duracao($0.t) + " · \(Int($0.bpm.rounded())) bpm"
+            } ?? (resumo.isEmpty ? L("Segure e arraste para ver", "Press and drag to see") : resumo + " bpm"))
             Chart {
-                ForEach(serie) { ponto in
+                ForEach(serie) { p in
                     LineMark(
-                        x: .value("min", ponto.t / 60),
-                        y: .value("bpm", ponto.bpm),
-                        series: .value("trecho", ponto.trecho)
+                        x: .value("min", p.t / 60),
+                        y: .value("bpm", p.bpm),
+                        series: .value("trecho", p.trecho)
                     )
                     .interpolationMethod(.catmullRom)
                     .foregroundStyle(Paleta.foraForte)
                     .lineStyle(StrokeStyle(lineWidth: 2))
                 }
-                if let media {
+                if let media, ponto == nil {
                     RuleMark(y: .value("media", media))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.primary.opacity(0.3))
                         .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
-                        .annotation(position: .top, alignment: .leading) {
-                            Text(L("média \(media)", "avg \(media)"))
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                        }
+                }
+                if let ponto {
+                    RuleMark(x: .value("min", ponto.t / 60))
+                        .foregroundStyle(Color.primary.opacity(0.3))
+                    PointMark(x: .value("min", ponto.t / 60), y: .value("bpm", ponto.bpm))
+                        .foregroundStyle(Paleta.foraForte)
+                        .symbolSize(70)
                 }
             }
+            .chartXSelection(value: $selecao)
             .chartYScale(domain: .automatic(includesZero: false))
+            .chartYAxis {
+                AxisMarks(position: .leading) { _ in
+                    AxisGridLine()
+                    AxisValueLabel()
+                }
+            }
             .chartYAxisLabel("bpm")
             .chartXAxisLabel("min")
             .frame(height: 180)
         }
         .accessibilityLabel(L("Gráfico da frequência cardíaca ao longo da corrida", "Heart rate chart over the run"))
+    }
+}
+
+/// Título do gráfico à esquerda e, à direita, o valor do ponto sob o dedo (ou um resumo). Fica
+/// fora do desenho para o dedo não cobrir o número.
+struct CabecalhoGrafico: View {
+    let titulo: String
+    let leitura: String
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(titulo)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.secondary)
+            Spacer(minLength: 8)
+            Text(leitura)
+                .font(.footnote.weight(.semibold))
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .animation(nil, value: leitura)
+    }
+}
+
+/// O ponto da série mais perto do x sob o dedo.
+enum PontoMaisPerto {
+    static func serie(_ serie: [PontoSerie], x: Double?) -> PontoSerie? {
+        guard let x else { return nil }
+        return serie.min { abs($0.distancia - x) < abs($1.distancia - x) }
+    }
+
+    static func fc(_ serie: [FrequenciaCardiaca.PontoGrafico], t: Double?) -> FrequenciaCardiaca.PontoGrafico? {
+        guard let t, let p = serie.min(by: { abs($0.t - t) < abs($1.t - t) }), abs(p.t - t) <= 30 else { return nil }
+        return p
     }
 }
 
