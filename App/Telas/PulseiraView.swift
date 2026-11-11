@@ -17,7 +17,8 @@ struct PulseiraView: View {
             } header: {
                 Text("Como ligar")
             } footer: {
-                Text("O iPhone só recebe esse sinal com o CRUNNING na tela. Na corrida, com a tela acesa (Ajustes > Corrida), o batimento aparece; com a tela bloqueada, ele para e volta quando você abre o app.")
+                Text(L("O CRUNNING se conecta à pulseira como sensor cardíaco (sem parear), e assim o batimento continua com a tela bloqueada. Se a conexão não abrir, ele usa o sinal que a pulseira transmite, que o iPhone só entrega com o app na tela.",
+                       "CRUNNING connects to the band as a heart rate sensor (without pairing), so heart rate keeps coming with the screen locked. If the connection does not open, it uses the signal the band broadcasts, which the iPhone only delivers with the app on screen."))
             }
             .font(.subheadline)
 
@@ -25,6 +26,11 @@ struct PulseiraView: View {
                 Section {
                     LabeledContent(monitor.nomePulseira ?? L("Pulseira", "Band"), value: monitor.atual().map { "\($0) bpm" } ?? L("sem sinal", "no signal"))
                         .monospacedDigit()
+                    LabeledContent(L("Conexão", "Connection")) {
+                        Text(monitor.conectada ? L("conectada · vale com a tela bloqueada", "connected · works with the screen locked")
+                                               : L("só o sinal · precisa da tela acesa", "signal only · needs the screen on"))
+                            .foregroundStyle(monitor.conectada ? Paleta.verdeLogo : Color.secondary)
+                    }
                     Toggle("Usar na corrida", isOn: $usar)
                     Button("Esquecer esta pulseira", role: .destructive) {
                         monitor.esquecer()

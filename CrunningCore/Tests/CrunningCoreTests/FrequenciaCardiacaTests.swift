@@ -14,6 +14,15 @@ struct FrequenciaCardiacaTests {
         #expect(FrequenciaCardiaca.ehXiaomi([0x57, 0x01]))
     }
 
+    @Test func medicaoDoServicoPadrao() {
+        #expect(FrequenciaCardiaca.lerMedicaoPadrao([0x00, 148]) == 148)             // UInt8
+        #expect(FrequenciaCardiaca.lerMedicaoPadrao([0x16, 152, 0x10, 0x03]) == 152) // UInt8 com contato e RR
+        #expect(FrequenciaCardiaca.lerMedicaoPadrao([0x01, 0x9A, 0x00]) == 154)      // UInt16
+        #expect(FrequenciaCardiaca.lerMedicaoPadrao([0x00, 0]) == nil)               // sem leitura
+        #expect(FrequenciaCardiaca.lerMedicaoPadrao([0x01, 0x9A]) == nil)            // curto demais
+        #expect(FrequenciaCardiaca.lerMedicaoPadrao([]) == nil)
+    }
+
     @Test func mediaPonderadaPeloTempo() throws {
         // 100 bpm por 4 s, depois 160 bpm por 1 s e a última leitura vale 1 s.
         let amostras = [AmostraFC(t: 0, bpm: 100), AmostraFC(t: 4, bpm: 160), AmostraFC(t: 5, bpm: 160)]

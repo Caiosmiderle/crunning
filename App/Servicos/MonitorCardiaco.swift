@@ -3,13 +3,14 @@ import CrunningCore
 import Foundation
 import Observation
 
-/// Lê o batimento que a Mi Band transmite no anúncio Bluetooth (com a transmissão de
-/// frequência cardíaca ligada no app oficial da pulseira). Não pareia, não conecta e não
-/// fala com servidor nenhum: só escuta os anúncios da pulseira escolhida.
+/// Lê o batimento da Mi Band (com a transmissão de frequência cardíaca ligada no app oficial
+/// da pulseira) por dois caminhos, sem parear e sem servidor nenhum:
 ///
-/// Limite do iOS: anúncio sem serviço declarado só chega com o app na frente. Com a tela
-/// acesa (padrão do CRUNNING na corrida) funciona; com a tela bloqueada, a leitura para e
-/// volta quando o app reaparece.
+/// 1. Conexão ao serviço de frequência cardíaca padrão do Bluetooth (0x180D, medição 0x2A37),
+///    o mesmo que apps como Wahoo e RunKeeper usam. Com o modo de segundo plano
+///    `bluetooth-central`, continua com a tela bloqueada.
+/// 2. Anúncio da pulseira (dados de fabricante da Xiaomi). Sem serviço declarado, o iOS só
+///    entrega com o app na frente: fica como reserva com a tela acesa.
 @MainActor
 @Observable
 final class MonitorCardiaco: NSObject {
@@ -30,10 +31,17 @@ final class MonitorCardiaco: NSObject {
     private(set) var encontradas: [Encontrada] = []
     private(set) var bluetoothLigado = false
     private(set) var semPermissao = false
+    /// Conectada ao serviço padrão: o batimento continua com a tela bloqueada.
+    private(set) var conectada = false
 
     @ObservationIgnored private var central: CBCentralManager?
     @ObservationIgnored private var querOuvir = false
     @ObservationIgnored private var procurando = false
+    /// A pulseira escolhida, guardada enquanto a conexão é pedida ou está aberta.
+    @ObservationIgnored private var periferico: CBPeripheral?
+
+    nonisolated static let servicoFC = "180D"
+    nonisolated static let medicaoFC = "2A37"
 
     /// Pulseira escolhida (identificador que o iOS dá a ela neste iPhone).
     var pulseira: UUID? {
@@ -58,9 +66,12 @@ final class MonitorCardiaco: NSObject {
         UserDefaults.standard.set(encontrada.nome, forKey: Preferencias.nomePulseiraFC)
         bpm = encontrada.bpm
         lidoEm = encontrada.bpm == nil ? nil : encontrada.vistaEm
+        desconectar()
+        conectarSePuder()
     }
 
     func esquecer() {
+        desconectar()
         UserDefaults.standard.removeObject(forKey: Preferencias.pulseiraFC)
         UserDefaults.standard.removeObject(forKey: Preferencias.nomePulseiraFC)
         bpm = nil
@@ -88,17 +99,61 @@ final class MonitorCardiaco: NSObject {
         querOuvir = false
         procurando = false
         central?.stopScan()
+        desconectar()
     }
 
     private func comecarSePuder() {
         guard querOuvir, let central, central.state == .poweredOn else { return }
         // Repetidos ligados: cada anúncio novo traz o batimento atualizado.
         central.scanForPeripherals(withServices: nil, options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
+        conectarSePuder()
+    }
+
+    /// Pede a conexão à pulseira escolhida. O pedido não expira: se ela estiver longe ou ocupada,
+    /// o iOS conecta quando der, também em segundo plano.
+    private func conectarSePuder() {
+        guard querOuvir, let central, central.state == .poweredOn, let id = pulseira else { return }
+        if let periferico, periferico.identifier == id, periferico.state != .disconnected { return }
+        guard let alvo = periferico?.identifier == id ? periferico : central.retrievePeripherals(withIdentifiers: [id]).first else { return }
+        periferico = alvo
+        alvo.delegate = self
+        central.connect(alvo)
+    }
+
+    private func desconectar() {
+        if let periferico { central?.cancelPeripheralConnection(periferico) }
+        periferico = nil
+        conectada = false
+    }
+
+    fileprivate func conectou(_ id: UUID) {
+        guard id == periferico?.identifier else { return }
+        periferico?.discoverServices([CBUUID(string: Self.servicoFC)])
+    }
+
+    fileprivate func caiu(_ id: UUID) {
+        guard id == periferico?.identifier else { return }
+        conectada = false
+        // Durante a corrida, volta a pedir a conexão (a pulseira pode ter ficado fora de alcance).
+        if querOuvir, let central, let periferico { central.connect(periferico) }
+    }
+
+    fileprivate func assinando(_ id: UUID) {
+        guard id == periferico?.identifier else { return }
+        conectada = true
+    }
+
+    fileprivate func mediu(_ id: UUID, bytes: [UInt8]) {
+        guard id == pulseira, let lido = FrequenciaCardiaca.lerMedicaoPadrao(bytes) else { return }
+        conectada = true
+        bpm = lido
+        lidoEm = .now
     }
 
     fileprivate func mudouEstado(_ estado: CBManagerState) {
         bluetoothLigado = estado == .poweredOn
         semPermissao = estado == .unauthorized
+        if estado != .poweredOn { conectada = false }
         comecarSePuder()
     }
 
@@ -136,5 +191,47 @@ extension MonitorCardiaco: CBCentralManagerDelegate {
         let id = peripheral.identifier
         let nome = peripheral.name ?? (advertisementData[CBAdvertisementDataLocalNameKey] as? String) ?? L("Pulseira Xiaomi", "Xiaomi band")
         MainActor.assumeIsolated { self.recebeu(id: id, nome: nome, bytes: bytes) }
+    }
+
+    nonisolated func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        let id = peripheral.identifier
+        MainActor.assumeIsolated { self.conectou(id) }
+    }
+
+    nonisolated func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: (any Error)?) {
+        let id = peripheral.identifier
+        MainActor.assumeIsolated { self.caiu(id) }
+    }
+
+    nonisolated func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: (any Error)?) {
+        let id = peripheral.identifier
+        MainActor.assumeIsolated { self.caiu(id) }
+    }
+}
+
+extension MonitorCardiaco: CBPeripheralDelegate {
+    nonisolated func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: (any Error)?) {
+        for servico in peripheral.services ?? [] where servico.uuid == CBUUID(string: Self.servicoFC) {
+            peripheral.discoverCharacteristics([CBUUID(string: Self.medicaoFC)], for: servico)
+        }
+    }
+
+    nonisolated func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: (any Error)?) {
+        for c in service.characteristics ?? [] where c.uuid == CBUUID(string: Self.medicaoFC) {
+            peripheral.setNotifyValue(true, for: c)
+        }
+    }
+
+    nonisolated func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: (any Error)?) {
+        guard error == nil, characteristic.isNotifying else { return }
+        let id = peripheral.identifier
+        MainActor.assumeIsolated { self.assinando(id) }
+    }
+
+    nonisolated func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: (any Error)?) {
+        guard error == nil, characteristic.uuid == CBUUID(string: Self.medicaoFC), let dados = characteristic.value else { return }
+        let id = peripheral.identifier
+        let bytes = [UInt8](dados)
+        MainActor.assumeIsolated { self.mediu(id, bytes: bytes) }
     }
 }

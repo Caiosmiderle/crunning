@@ -13,8 +13,8 @@ public struct AmostraFC: Codable, Sendable, Equatable {
 }
 
 /// Frequência cardíaca vinda de uma pulseira por Bluetooth (o tipo nasce em Treino/Zonas.swift,
-/// com a máxima estimada). Fica no iPhone e só sai dele no TCX enviado ao Strava (ou exportado
-/// por você); nunca vai para o Coach de IA.
+/// com a máxima estimada). Fica no iPhone; sai dele no TCX enviado ao Strava (ou exportado por
+/// você) e, só como média e máxima por etapa, na análise pós-treino que você pede.
 extension FrequenciaCardiaca {
     /// Valores fora disso são leitura ruim (pulseira solta, sem medir).
     public static let faixaValida = 30...230
@@ -29,6 +29,22 @@ extension FrequenciaCardiaca {
     public static func lerAnuncioMiBand(_ dados: [UInt8]) -> Int? {
         guard ehXiaomi(dados), dados.count >= 6 else { return nil }
         let bpm = Int(dados[5])
+        return faixaValida.contains(bpm) ? bpm : nil
+    }
+
+    /// Medição do serviço de frequência cardíaca padrão do Bluetooth (característica 0x2A37):
+    /// o 1º byte são as flags; com o bit 0 desligado o batimento é um byte (UInt8), com ele ligado
+    /// são dois (UInt16 little-endian). Heart Rate Service 1.0, Bluetooth SIG.
+    public static func lerMedicaoPadrao(_ dados: [UInt8]) -> Int? {
+        guard let flags = dados.first else { return nil }
+        let bpm: Int
+        if flags & 0x01 == 0 {
+            guard dados.count >= 2 else { return nil }
+            bpm = Int(dados[1])
+        } else {
+            guard dados.count >= 3 else { return nil }
+            bpm = Int(UInt16(dados[1]) | UInt16(dados[2]) << 8)
+        }
         return faixaValida.contains(bpm) ? bpm : nil
     }
 

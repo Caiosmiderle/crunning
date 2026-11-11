@@ -194,3 +194,10 @@ O que me contar: se as respostas do coach fizeram sentido, quanto custou na sua 
 4. **Na corrida:** aparece "Pace entre X e Y" e, nos trechos longos, "Tente ficar na Z2 (123–151 bpm)"; com a Mi Band transmitindo, mostra o batimento de agora e o coração fica verde dentro da zona e vermelho acima.
 5. **Calendário:** as notas de cada evento listam os trechos com tempo, distância, ritmo e zona (os eventos são refeitos sozinhos na abertura).
 
+## Batimento com a tela bloqueada (0.12.1)
+
+Antes, o app só lia o sinal que a Mi Band transmite, e o iPhone para de entregar esse sinal com a tela bloqueada. Agora ele também se conecta à pulseira como sensor cardíaco padrão do Bluetooth, e a conexão continua em segundo plano.
+
+1. Em casa: Ajustes > Conexões > Frequência cardíaca, com a pulseira já escolhida e a transmissão ligada no app da pulseira. A linha "Conexão" deve mostrar "conectada · vale com a tela bloqueada" em alguns segundos. Se o iPhone pedir para parear, aceite e me avise.
+2. Se ficar em "só o sinal · precisa da tela acesa", comece um treino na própria pulseira e veja se muda. Se não mudar, a pulseira não aceita conexão e só a tela acesa resolve: me avise.
+3. Corrida curta (pode ser caminhada) com a tela bloqueada desde o começo. No fim, o resumo e o detalhe devem ter FC média e máxima.
