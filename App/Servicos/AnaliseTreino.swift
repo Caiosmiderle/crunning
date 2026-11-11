@@ -34,7 +34,7 @@ struct UsoIA: Codable, Equatable {
     let saida: Int
     /// nil se o modelo não estiver na tabela de preços do app.
     let custoUSD: Double?
-    /// A API trocou de modelo no meio (recusa por engano): o custo é aproximado.
+    /// A API trocou de modelo no meio (recusa por engano, outro Opus assume): o custo é aproximado.
     let comFallback: Bool
 
     var nomeModelo: String {

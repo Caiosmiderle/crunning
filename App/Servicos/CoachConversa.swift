@@ -22,9 +22,9 @@ enum ClienteClaude {
             "messages": mensagens.map { ["role": $0.papel, "content": $0.texto] },
             "output_config": ["effort": effort, "format": ["type": "json_schema", "schema": esquema]],
         ]
-        // Troca de modelo no servidor em caso de recusa por engano (o Haiku não tem).
-        if modelo == sonnet { corpo["fallbacks"] = "default" }
-        if modelo == opus { corpo["fallbacks"] = [["model": sonnet]] }
+        // Troca de modelo no servidor em caso de recusa por engano (o Haiku não tem). "default" deixa a
+        // API escolher o substituto permitido para cada modelo (o Opus 5.5 só aceita outros Opus).
+        if modelo == sonnet || modelo == opus { corpo["fallbacks"] = "default" }
         return try JSONSerialization.data(withJSONObject: corpo)
     }
 
