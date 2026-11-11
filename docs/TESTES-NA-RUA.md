@@ -202,3 +202,11 @@ Antes, o app só lia o sinal que a Mi Band transmite, e o iPhone para de entrega
 2. Se ficar em "só o sinal · precisa da tela acesa", comece um treino na própria pulseira e veja se muda. Se não mudar, a pulseira não aceita conexão e só a tela acesa resolve: me avise.
 3. Corrida curta (pode ser caminhada) com a tela bloqueada desde o começo. No fim, o resumo e o detalhe devem ter FC média e máxima.
 4. No detalhe de qualquer corrida com pulseira (a de 11/11 serve): o cartão "Frequência cardíaca" mostra o gráfico (média de 10 s, buracos sem sinal em branco, média tracejada) e a tabela de blocos mostra a FC média e a máxima de cada etapa.
+
+## Pace atual mais estável (0.12.2)
+
+O "Ritmo atual" agora é a média da velocidade que o GPS informa nos últimos 12 s, em vez da distância entre posições nos últimos 20 s (as posições tremem alguns metros e o número pulava). Sem velocidade do GPS, volta ao cálculo pela distância, agora com 30 s.
+
+1. Corra 5 minutos em ritmo constante, num trecho reto e num com curvas. O ritmo atual deve ficar firme (variação de poucos segundos por km) e acompanhar uma mudança de ritmo em uns 10 segundos.
+2. Num treino com faixa de pace, os avisos de "acelere" e "reduza" devem aparecer bem menos à toa.
+3. Pare num semáforo: o ritmo some e a pausa automática segue como antes.

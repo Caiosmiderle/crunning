@@ -85,6 +85,48 @@ struct SessaoCorridaTests {
         #expect(sessao.ritmoAtual(em: t0.addingTimeInterval(130)) == nil)
     }
 
+    @Test func ritmoAtualPelaVelocidadeDoGPS() {
+        // Posições com tremido de ±4 m, mas o GPS informa 3 m/s em todas (dados fictícios).
+        var sessao = SessaoCorrida()
+        sessao.iniciar(em: t0)
+        let pontos = reta(inicio: t0, segundos: 120, velocidade: 3).enumerated().map { i, p in
+            var q = p
+            let tremido = Geo.deslocar(lat: p.latitude, lon: p.longitude, leste: i % 2 == 0 ? 4 : -4, norte: i % 3 == 0 ? 3 : -3)
+            q.latitude = tremido.lat
+            q.longitude = tremido.lon
+            return q
+        }
+        var ritmos: [Double] = []
+        for (i, p) in pontos.enumerated() {
+            sessao.receber(p)
+            if i >= 40, let r = sessao.ritmoAtual(em: p.instante) { ritmos.append(r) }
+        }
+        #expect(!ritmos.isEmpty)
+        #expect(ritmos.allSatisfy { abs($0 - 1000.0 / 3) < 1 })
+    }
+
+    @Test func ritmoAtualSemVelocidadeVaiPelaDistancia() {
+        var sessao = SessaoCorrida()
+        sessao.iniciar(em: t0)
+        for var p in reta(inicio: t0, segundos: 100, velocidade: 4) {
+            p.velocidade = nil
+            sessao.receber(p)
+        }
+        #expect(abs((sessao.ritmoAtual(em: t0.addingTimeInterval(100)) ?? 0) - 250) < 1)
+    }
+
+    @Test func ritmoAtualMediaAsLeiturasDaJanela() {
+        // Velocidade do GPS alternando 2,5 e 3,5 m/s: o ritmo fica na média (3 m/s), sem pular.
+        var sessao = SessaoCorrida()
+        sessao.iniciar(em: t0)
+        for (i, var p) in reta(inicio: t0, segundos: 60, velocidade: 3).enumerated() {
+            p.velocidade = i % 2 == 0 ? 2.5 : 3.5
+            sessao.receber(p)
+        }
+        let ritmo = sessao.ritmoAtual(em: t0.addingTimeInterval(60)) ?? 0
+        #expect(abs(ritmo - 1000.0 / 3) < 15)
+    }
+
     @Test func pausaManualNaoContaTempoNemDistancia() {
         var sessao = SessaoCorrida()
         sessao.iniciar(em: t0)

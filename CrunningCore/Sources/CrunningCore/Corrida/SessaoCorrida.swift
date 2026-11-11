@@ -14,8 +14,10 @@ public struct ConfiguracaoCorrida: Codable, Sendable, Equatable {
     public var velocidadeRetomada: Double = 1.2
     /// Só soma distância quando sai deste raio do último ponto contado (corta o "tremido" do GPS parado).
     public var passoMinimo: Double = 2.5
-    /// Ritmo atual = média dos últimos `janelaRitmo` segundos em movimento, se andou pelo menos `distanciaMinimaRitmo`.
-    public var janelaRitmo: TimeInterval = 20
+    /// Ritmo atual sem a velocidade do GPS (reserva): média dos últimos `janelaRitmo` segundos em
+    /// movimento, se andou pelo menos `distanciaMinimaRitmo`. 30 s: num treino real de 6 km, a
+    /// variação de um ponto para o outro caiu cerca de 30% em relação a 20 s.
+    public var janelaRitmo: TimeInterval = 30
     public var distanciaMinimaRitmo: Double = 25
     /// Subida acumulada só conta variações maiores que isto (ruído do altímetro).
     public var limiarSubida: Double = 3
@@ -147,10 +149,35 @@ public struct SessaoCorrida: Codable, Sendable {
         return tempoEmMovimento(em: instante) / distancia * 1000
     }
 
+    /// Janela da média da velocidade do GPS no ritmo atual e o mínimo de leituras nela.
+    static let janelaVelocidade: TimeInterval = 12
+    static let minimoLeiturasVelocidade = 4
+    /// Abaixo disto (cerca de 20:50/km) o ritmo atual não é mostrado pela velocidade.
+    static let velocidadeMinimaRitmo = 0.8
+
     /// Ritmo dos últimos segundos em movimento, em s/km (nil se parado ou sem dados).
+    /// Usa a média da velocidade que o próprio GPS informa nos últimos 12 s: ela não depende da
+    /// diferença entre duas posições, que tremem alguns metros, e por isso oscila bem menos.
+    /// Sem velocidade do GPS, vai pela distância percorrida nos últimos `janelaRitmo` segundos.
     public func ritmoAtual(em instante: Date) -> Double? {
         guard estado == .correndo, let inicio, let ultima = amostras.last else { return nil }
         guard instante.timeIntervalSince(inicio) - ultima.t <= 10 else { return nil }
+        if let ritmo = ritmoPelaVelocidade(em: instante) { return ritmo }
+        return ritmoPelaDistancia(ultima)
+    }
+
+    func ritmoPelaVelocidade(em instante: Date) -> Double? {
+        guard let ultimo = recentes.last, instante.timeIntervalSince(ultimo.instante) <= 10 else { return nil }
+        let janela = recentes.filter { ultimo.instante.timeIntervalSince($0.instante) <= Self.janelaVelocidade }
+        let velocidades = janela.compactMap(\.velocidade)
+        // Precisa de leituras suficientes e de velocidade em pelo menos metade dos pontos.
+        guard velocidades.count >= Self.minimoLeiturasVelocidade, velocidades.count * 2 >= janela.count else { return nil }
+        let media = velocidades.reduce(0, +) / Double(velocidades.count)
+        guard media >= Self.velocidadeMinimaRitmo else { return nil }
+        return 1000 / media
+    }
+
+    func ritmoPelaDistancia(_ ultima: AmostraTrilha) -> Double? {
         let limite = ultima.mov - configuracao.janelaRitmo
         var base: AmostraTrilha?
         for amostra in amostras.reversed() {
