@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Compila a sonda do Amazfit Pace sem Gradle, só com as ferramentas oficiais do Android:
-# aapt2 (manifesto), javac (Java 8), d8 (dex), zipalign e apksigner. Roda no GitHub Actions
+# aapt2 (recursos e manifesto), javac (Java 8), d8 (dex), zipalign e apksigner. Roda no GitHub Actions
 # (ubuntu, que já traz o SDK e o JDK). Uso: bash compilar.sh <número da versão>
 set -euo pipefail
 
@@ -21,7 +21,9 @@ SAIDA="$AQUI/saida"
 rm -rf "$SAIDA"
 mkdir -p "$SAIDA/classes" "$SAIDA/dex"
 
+"$BT/aapt2" compile --dir "$AQUI/res" -o "$SAIDA/res.zip"
 "$BT/aapt2" link -I "$JAR" --manifest "$AQUI/AndroidManifest.xml" \
+  -R "$SAIDA/res.zip" --auto-add-overlay \
   --min-sdk-version 22 --target-sdk-version 22 \
   --version-code "$VERSAO" --version-name "0.1.$VERSAO" \
   -o "$SAIDA/base.apk"
@@ -40,5 +42,6 @@ keytool -genkeypair -keystore "$SAIDA/sonda.keystore" -storepass android -keypas
   -alias sonda -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=CRUNNING sonda" > /dev/null 2>&1
 "$BT/apksigner" sign --ks "$SAIDA/sonda.keystore" --ks-pass pass:android --key-pass pass:android \
   --out "$SAIDA/crunning-sonda.apk" "$SAIDA/alinhado.apk"
-"$BT/apksigner" verify --min-sdk-version 22 --verbose "$SAIDA/crunning-sonda.apk" | head -5
+# sed consome toda a saída: head poderia causar SIGPIPE com set -o pipefail.
+"$BT/apksigner" verify --min-sdk-version 22 --verbose "$SAIDA/crunning-sonda.apk" | sed -n '1,5p'
 sha256sum "$SAIDA/crunning-sonda.apk" | tee "$SAIDA/crunning-sonda.apk.sha256"

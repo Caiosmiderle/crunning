@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -46,13 +47,14 @@ public class Servico extends Service implements SensorEventListener, LocationLis
     static volatile long gpsEm;
     static volatile long gpsBomEm;
     static volatile float precisao;
-    static volatile float precisaoBoa;
+    static volatile boolean temPrecisao;
     static volatile double distanciaM;
     static volatile double paceAtual = -1;
     static volatile double paceMedio = -1;
     static volatile long tempoGravadoMs;
     static volatile int satelitesUsados;
     static volatile int satelitesVistos;
+    private static Servico ativo; // Activity e callbacks do serviço executam na thread principal.
     static volatile int bateria = -1;
     static volatile boolean telaVisivel;
     static volatile String arquivo = "";
@@ -65,13 +67,16 @@ public class Servico extends Service implements SensorEventListener, LocationLis
     private PrintWriter log;
     private GpsStatus.Listener ouvinteGps;
     private float velocidade;
+    private boolean temVelocidade;
+    private float snrMax;
+    private int satSnr30;
     private final IntentFilter filtroBateria = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
 
     private static final long JANELA_MS = 12000;
     private static final long SEM_GPS_MS = 3000;
     private static final float PRECISAO_MAX_M = 25;
-    private static final float VELOCIDADE_MAX_MPS = 12; // 43,2 km/h: rejeita saltos de corrida.
-    private static final double VELOCIDADE_MIN_MPS = 1.0 / 3.6;
+    private static final float VELOCIDADE_MAX_MPS = 10; // 36 km/h: limite de plausibilidade.
+    private static final double VELOCIDADE_MIN_MPS = 0.5;
     // Só um ponto anterior em RAM. O histórico contém velocidades/tempos, nunca a rota.
     private final Location anterior = new Location(LocationManager.GPS_PROVIDER);
     private boolean temAnterior;
@@ -102,6 +107,7 @@ public class Servico extends Service implements SensorEventListener, LocationLis
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (rodando) return START_STICKY;
         rodando = true;
+        ativo = this;
         inicio = SystemClock.elapsedRealtime();
         bpm = 0;
         bpmEm = 0;
@@ -110,8 +116,11 @@ public class Servico extends Service implements SensorEventListener, LocationLis
         gpsEm = 0;
         gpsBomEm = 0;
         precisao = -1;
-        precisaoBoa = -1;
+        temPrecisao = false;
         velocidade = -1;
+        temVelocidade = false;
+        snrMax = 0;
+        satSnr30 = 0;
         satelitesUsados = 0;
         satelitesVistos = 0;
         bateria = -1;
@@ -165,14 +174,14 @@ public class Servico extends Service implements SensorEventListener, LocationLis
         local = (LocationManager) getSystemService(LOCATION_SERVICE);
         try {
             if (local != null) {
-                local.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
                 ouvinteGps = new GpsStatus.Listener() {
                     @Override
                     public void onGpsStatusChanged(int qual) {
-                        if (qual == GpsStatus.GPS_EVENT_SATELLITE_STATUS) contarSatelites();
+                        if (rodando) atualizarStatusGps(qual);
                     }
                 };
-                local.addGpsStatusListener(ouvinteGps);
+                if (!local.addGpsStatusListener(ouvinteGps)) evento("status GPS indisponivel");
+                local.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
             } else {
                 evento("sem gerenciador de GPS");
             }
@@ -191,6 +200,7 @@ public class Servico extends Service implements SensorEventListener, LocationLis
         atualizarMetricas(SystemClock.elapsedRealtime());
         evento("fim");
         rodando = false;
+        if (ativo == this) ativo = null;
         if (handler != null) handler.removeCallbacks(tique);
         if (sensores != null) sensores.unregisterListener(this);
         if (local != null) {
@@ -250,8 +260,10 @@ public class Servico extends Service implements SensorEventListener, LocationLis
         if (!rodando || l == null) return;
         long agora = SystemClock.elapsedRealtime();
         gpsEm = agora;
-        precisao = l.hasAccuracy() ? l.getAccuracy() : -1;
-        velocidade = l.hasSpeed() ? l.getSpeed() : -1;
+        temPrecisao = l.hasAccuracy();
+        temVelocidade = l.hasSpeed();
+        precisao = temPrecisao ? l.getAccuracy() : -1;
+        velocidade = temVelocidade ? l.getSpeed() : -1;
         leiturasGPS++;
 
         // API 17: relógio monotônico da própria amostra, não o horário civil ou de chegada.
@@ -259,8 +271,8 @@ public class Servico extends Service implements SensorEventListener, LocationLis
         if (amostraEm < inicio || amostraEm <= ultimaAmostraEm || amostraEm > agora
                 || agora - amostraEm > SEM_GPS_MS) return;
         ultimaAmostraEm = amostraEm;
-        if (!finito(precisao) || precisao < 0 || precisao > PRECISAO_MAX_M
-                || (l.hasSpeed() && (!finito(velocidade) || velocidade < 0
+        if ((temPrecisao && (!finito(precisao) || precisao < 0 || precisao > PRECISAO_MAX_M))
+                || (temVelocidade && (!finito(velocidade) || velocidade < 0
                 || velocidade > VELOCIDADE_MAX_MPS))) {
             perderReferencia();
             return;
@@ -273,20 +285,25 @@ public class Servico extends Service implements SensorEventListener, LocationLis
         }
         long intervaloMs = amostraEm - anteriorEm;
         if (intervaloMs < 500) return; // Duplicatas/rajadas não dominam a janela de 12 s.
-        float metros = anterior.distanceTo(l);
         double segundos = intervaloMs / 1000.0;
-        if (!finito(metros) || metros < 0 || metros / segundos > VELOCIDADE_MAX_MPS) {
-            // Não promove um salto a referência: voltar dele não deve contar outra distância.
-            gpsBomEm = 0;
-            limparJanela();
-            return;
+        double velocidadeTrecho;
+        if (temVelocidade) {
+            // Doppler tem prioridade: coordenadas com deriva não vetam a velocidade válida.
+            velocidadeTrecho = velocidade < VELOCIDADE_MIN_MPS ? 0 : velocidade;
+        } else {
+            float metros = anterior.distanceTo(l);
+            if (!finito(metros) || metros < 0 || metros / segundos > VELOCIDADE_MAX_MPS) {
+                // Não promove um salto a referência: voltar dele não conta outra distância.
+                gpsBomEm = 0;
+                limparJanela();
+                return;
+            }
+            velocidadeTrecho = metros / segundos;
         }
-        // Com velocidade GNSS de repouso, não acumula a deriva pequena das coordenadas.
-        if (l.hasSpeed() && velocidade < VELOCIDADE_MIN_MPS) metros = 0;
-        distanciaM += metros;
+        distanciaM += velocidadeTrecho * segundos;
         trechosInicio[proximoTrecho] = anteriorEm;
         trechosFim[proximoTrecho] = amostraEm;
-        trechosVelocidade[proximoTrecho] = l.hasSpeed() ? velocidade : metros / segundos;
+        trechosVelocidade[proximoTrecho] = velocidadeTrecho;
         proximoTrecho = (proximoTrecho + 1) % trechosInicio.length;
         quantidadeTrechos = Math.min(quantidadeTrechos + 1, trechosInicio.length);
         guardarReferencia(l, amostraEm);
@@ -300,7 +317,6 @@ public class Servico extends Service implements SensorEventListener, LocationLis
     private void guardarReferencia(Location l, long em) {
         anterior.set(l);
         anteriorEm = em;
-        precisaoBoa = l.getAccuracy();
         temAnterior = true;
     }
 
@@ -361,25 +377,65 @@ public class Servico extends Service implements SensorEventListener, LocationLis
         evento("gps desligado");
     }
 
-    private void contarSatelites() {
+    private void atualizarStatusGps(int qual) {
         if (local == null) return;
+        if (qual == GpsStatus.GPS_EVENT_STOPPED || qual == GpsStatus.GPS_EVENT_STARTED) {
+            satelitesVistos = 0;
+            satelitesUsados = 0;
+            snrMax = 0;
+            satSnr30 = 0;
+            return;
+        }
+        if (qual != GpsStatus.GPS_EVENT_SATELLITE_STATUS
+                && qual != GpsStatus.GPS_EVENT_FIRST_FIX) return;
         try {
             GpsStatus s = local.getGpsStatus(null);
             if (s == null) return;
+            if (qual == GpsStatus.GPS_EVENT_FIRST_FIX) {
+                evento("primeiro fix em " + String.format(Locale.US, "%.1f", s.getTimeToFirstFix() / 1000.0) + " s");
+                return;
+            }
             int vistos = 0;
             int usados = 0;
+            float maiorSnr = 0;
+            int fortes = 0;
             for (GpsSatellite sat : s.getSatellites()) {
+                if (sat == null) continue;
                 vistos++;
                 if (sat.usedInFix()) usados++;
+                float snr = sat.getSnr();
+                if (finito(snr) && snr >= 0) {
+                    maiorSnr = Math.max(maiorSnr, snr);
+                    if (snr >= 30) fortes++;
+                }
             }
             satelitesVistos = vistos;
             satelitesUsados = usados;
+            snrMax = maiorSnr;
+            satSnr30 = fortes;
         } catch (SecurityException e) {
             // Sem permissão: fica zero.
         }
     }
 
     // MARK: Registro
+
+    static void registrarApagarAgps(String resultado, boolean aceito) {
+        Log.i("CRUNNING", "apagar_agps: " + resultado);
+        if (ativo != null && rodando) {
+            ativo.evento("apagar_agps: " + resultado);
+            if (aceito) {
+                ativo.perderReferencia();
+                gpsEm = 0;
+                temPrecisao = false;
+                ativo.temVelocidade = false;
+                satelitesVistos = 0;
+                satelitesUsados = 0;
+                ativo.snrMax = 0;
+                ativo.satSnr30 = 0;
+            }
+        }
+    }
 
     private void abrirLog() {
         try {
@@ -392,7 +448,7 @@ public class Servico extends Service implements SensorEventListener, LocationLis
             File f = new File(pasta, nome);
             log = new PrintWriter(new FileWriter(f, true));
             arquivo = f.getAbsolutePath();
-            log.println("segundos,bpm,gps_fixo,precisao_m,velocidade_mps,satelites_usados,satelites_vistos,bateria,tela_ligada,app_visivel,distancia_m,pace_atual_s_km,pace_medio_s_km");
+            log.println("segundos,bpm,gps_fixo,precisao_m,velocidade_mps,satelites_usados,satelites_vistos,bateria,tela_ligada,app_visivel,distancia_m,pace_atual_s_km,pace_medio_s_km,tem_precisao,tem_velocidade,snr_max,sat_snr_30");
             log.flush();
         } catch (IOException | SecurityException e) {
             log = null;
@@ -429,7 +485,9 @@ public class Servico extends Service implements SensorEventListener, LocationLis
                 + (telaLigada ? 1 : 0) + "," + (telaVisivel ? 1 : 0) + ","
                 + String.format(Locale.US, "%.2f", distanciaM) + ","
                 + (paceAtual > 0 ? String.format(Locale.US, "%.1f", paceAtual) : "") + ","
-                + (paceMedio > 0 ? String.format(Locale.US, "%.1f", paceMedio) : ""));
+                + (paceMedio > 0 ? String.format(Locale.US, "%.1f", paceMedio) : "") + ","
+                + (fixo && temPrecisao ? 1 : 0) + "," + (fixo && temVelocidade ? 1 : 0) + ","
+                + String.format(Locale.US, "%.1f", snrMax) + "," + satSnr30);
         log.flush();
     }
 }

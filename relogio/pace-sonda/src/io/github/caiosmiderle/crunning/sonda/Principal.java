@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,13 +18,17 @@ import android.widget.Button;
 
 import java.util.Locale;
 
-/** Painel sem recursos externos, desenhado para os 320 x 300 pixels físicos do Pace. */
+/** Painel desenhado para os 320 x 300 pixels físicos do Pace, sem forçar orientação. */
 public class Principal extends Activity {
     private Painel painel;
     private boolean telaSempre;
     private boolean acaoPendente;
     private long confirmarAte;
     private boolean confirmacaoVisivel;
+    private long confirmarAgpsAte;
+    private boolean confirmacaoAgpsVisivel;
+    private long resultadoAgpsAte;
+    private String resultadoAgps = "";
     private final Handler handler = new Handler();
 
     // Um único pulso visual; toques alteram o estado, mostrado no próximo pulso (até 1 s).
@@ -44,6 +50,8 @@ public class Principal extends Activity {
             @Override
             public void onClick(View v) {
                 if (acaoPendente) return;
+                confirmarAgpsAte = 0;
+                confirmacaoAgpsVisivel = false;
                 long agora = SystemClock.elapsedRealtime();
                 Intent servico = new Intent(Principal.this, Servico.class);
                 if (!Servico.rodando) {
@@ -66,10 +74,93 @@ public class Principal extends Activity {
                 telaSempre = !telaSempre;
                 confirmarAte = 0;
                 confirmacaoVisivel = false;
+                confirmarAgpsAte = 0;
+                confirmacaoAgpsVisivel = false;
                 aplicarTela();
             }
         });
+        painel.alvoGps.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                long agora = SystemClock.elapsedRealtime();
+                confirmarAte = 0;
+                confirmacaoVisivel = false;
+                if (confirmacaoAgpsVisivel && confirmarAgpsAte > 0 && agora <= confirmarAgpsAte) {
+                    apagarAgps();
+                } else if (confirmarAgpsAte == 0 || agora > confirmarAgpsAte) {
+                    confirmarAgpsAte = agora + 3000;
+                    confirmacaoAgpsVisivel = false;
+                    resultadoAgpsAte = 0;
+                }
+                return true;
+            }
+        });
         setContentView(painel);
+        tratarAcao(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        tratarAcao(intent);
+    }
+
+    private void tratarAcao(Intent intent) {
+        if (intent == null) return;
+        String acao;
+        try {
+            acao = intent.getStringExtra("acao");
+            intent.removeExtra("acao"); // Não repete o comando ao recriar a Activity.
+        } catch (RuntimeException e) {
+            Log.i("CRUNNING", "acao recebida: extra invalido");
+            return;
+        }
+        if (acao == null) return;
+        boolean conhecida = "comecar".equals(acao) || "parar".equals(acao)
+                || "apagar_agps".equals(acao) || "tela_sempre".equals(acao)
+                || "tela_normal".equals(acao);
+        // Nunca imprime Intent/extras arbitrários, que poderiam conter dados pessoais.
+        Log.i("CRUNNING", "acao recebida: " + (conhecida ? acao : "desconhecida"));
+        if (!conhecida) return;
+        confirmarAte = 0;
+        confirmacaoVisivel = false;
+        confirmarAgpsAte = 0;
+        confirmacaoAgpsVisivel = false;
+        if ("comecar".equals(acao)) {
+            startService(new Intent(this, Servico.class));
+            acaoPendente = true;
+        } else if ("parar".equals(acao)) {
+            stopService(new Intent(this, Servico.class));
+            acaoPendente = true;
+        } else if ("apagar_agps".equals(acao)) {
+            apagarAgps();
+        } else {
+            telaSempre = "tela_sempre".equals(acao);
+            aplicarTela();
+        }
+    }
+
+    private void apagarAgps() {
+        confirmarAgpsAte = 0;
+        confirmacaoAgpsVisivel = false;
+        boolean aceito = false;
+        try {
+            LocationManager local = (LocationManager) getSystemService(LOCATION_SERVICE);
+            if (local == null) {
+                resultadoAgps = "AGPS indisponível";
+            } else {
+                aceito = local.sendExtraCommand(LocationManager.GPS_PROVIDER, "delete_aiding_data", null);
+                resultadoAgps = aceito ? "AGPS: pedido aceito" : "AGPS: recusado";
+            }
+        } catch (SecurityException e) {
+            resultadoAgps = "AGPS: sem permissão";
+        } catch (RuntimeException e) {
+            // Falha do provedor/firmware: não registra exceções ou objetos do GPS.
+            resultadoAgps = "AGPS: falhou";
+        }
+        resultadoAgpsAte = SystemClock.elapsedRealtime() + 5000;
+        Servico.registrarApagarAgps(resultadoAgps, aceito);
     }
 
     private void aplicarTela() {
@@ -99,6 +190,8 @@ public class Principal extends Activity {
         Servico.telaVisivel = false;
         confirmarAte = 0;
         confirmacaoVisivel = false;
+        confirmarAgpsAte = 0;
+        confirmacaoAgpsVisivel = false;
         handler.removeCallbacks(atualizar);
         super.onPause();
     }
@@ -108,6 +201,10 @@ public class Principal extends Activity {
         boolean gravando = Servico.rodando;
         boolean fcRecente = gravando && Servico.bpmEm > 0 && agora - Servico.bpmEm <= 5000;
         boolean gpsBom = gravando && Servico.gpsBomEm > 0 && agora - Servico.gpsBomEm <= 3000;
+        boolean gpsRecente = gravando && Servico.gpsEm > 0 && agora - Servico.gpsEm <= 3000;
+        boolean confirmandoAgps = confirmarAgpsAte > 0 && agora <= confirmarAgpsAte;
+        if (!confirmandoAgps) confirmarAgpsAte = 0;
+        confirmacaoAgpsVisivel = confirmandoAgps;
         boolean confirmando = gravando && confirmarAte > 0 && agora <= confirmarAte;
         if (!confirmando) confirmarAte = 0;
         confirmacaoVisivel = confirmando;
@@ -122,12 +219,24 @@ public class Principal extends Activity {
         painel.fc = fcRecente ? "♥ " + Servico.bpm : "♥ --";
         painel.corFc = fcRecente ? Cores.VERDE_LOGO : Cores.SEM_LEITURA;
         painel.distancia = String.format(Locale.US, "%.2f km", Servico.distanciaM / 1000).replace('.', ',');
-        painel.gps = gpsBom ? "GPS ok ±" + Math.round(Servico.precisaoBoa) + " m" : "GPS procurando";
-        painel.corGps = gpsBom ? Cores.VERDE_LOGO : Cores.AMARELO;
+        boolean precisaoValida = Servico.temPrecisao && !Float.isNaN(Servico.precisao)
+                && !Float.isInfinite(Servico.precisao) && Servico.precisao >= 0;
+        painel.gps = gpsRecente ? "GPS ok" : "GPS procurando";
+        painel.gps += gpsRecente && precisaoValida ? " ±" + Math.round(Servico.precisao) + " m"
+                : " · " + Servico.satelitesVistos + " sat";
+        painel.corGps = gpsRecente ? Cores.VERDE_LOGO : Cores.AMARELO;
+        if (agora < resultadoAgpsAte) {
+            painel.gps = resultadoAgps;
+            painel.corGps = Cores.AMARELO;
+        }
+        painel.alvoGps.setContentDescription(confirmandoAgps
+                ? "Segure GPS de novo em até 3 segundos para apagar os dados de apoio"
+                : "GPS: segure para pedir limpeza dos dados de apoio");
         painel.bateria = "Bat " + (Servico.bateria < 0 ? "--" : Servico.bateria + "%");
-        painel.diagnostico = confirmando ? "Toque de novo para parar"
+        painel.diagnostico = confirmandoAgps ? "Apagar AGPS? Segure GPS (3 s)"
+                : confirmando ? "Toque de novo para parar"
                 : "FC " + Servico.leiturasFC + " · GPS " + Servico.leiturasGPS;
-        painel.corDiagnostico = confirmando ? Cores.AMARELO : Cores.BRANCO;
+        painel.corDiagnostico = confirmando || confirmandoAgps ? Cores.AMARELO : Cores.BRANCO;
         painel.gravar.setText(confirmando ? "Confirmar" : gravando ? "Parar" : "Começar");
         painel.gravar.setBackgroundColor(gravando ? Cores.ALERTA : Cores.VERDE_LOGO);
         painel.gravar.setContentDescription(confirmando ? "Toque de novo para parar em até 3 segundos"
@@ -151,6 +260,7 @@ public class Principal extends Activity {
         private final Typeface fonte = Typeface.create("sans-serif-condensed", Typeface.BOLD);
         final Button gravar = botao();
         final Button tela = botao();
+        final View alvoGps = new View(Principal.this);
         private float escala = 1;
         private float esquerda;
         private float topo;
@@ -174,6 +284,7 @@ public class Principal extends Activity {
             tinta.setTextAlign(Paint.Align.CENTER);
             addView(gravar);
             addView(tela);
+            addView(alvoGps);
         }
 
         private Button botao() {
@@ -212,12 +323,17 @@ public class Principal extends Activity {
                     View.MeasureSpec.makeMeasureSpec(bh, View.MeasureSpec.EXACTLY));
             tela.measure(View.MeasureSpec.makeMeasureSpec(bw, View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(bh, View.MeasureSpec.EXACTLY));
+            alvoGps.measure(View.MeasureSpec.makeMeasureSpec(Math.round(160 * escala), View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(Math.round(24 * escala), View.MeasureSpec.EXACTLY));
         }
 
         @Override
         protected void onLayout(boolean mudou, int l, int t, int r, int b) {
             posicionar(gravar, 80);
             posicionar(tela, 164);
+            int gx = Math.round(esquerda + 42 * escala);
+            int gy = Math.round(topo + 176 * escala);
+            alvoGps.layout(gx, gy, gx + alvoGps.getMeasuredWidth(), gy + alvoGps.getMeasuredHeight());
         }
 
         private void posicionar(Button botao, int x) {
