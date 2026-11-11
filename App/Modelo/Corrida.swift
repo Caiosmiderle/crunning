@@ -41,6 +41,8 @@ final class Corrida {
     var stravaErro: String? = nil
     /// Na fila de envio ao Strava (sai quando a atividade é criada ou o Strava recusa o arquivo).
     var stravaPendente: Bool = false
+    /// Análise pós-treino do treinador de IA ([AnaliseSalva] em JSON), com o custo que a API informou.
+    var analiseIA: Data? = nil
 
     init(
         inicio: Date,
@@ -78,6 +80,11 @@ final class Corrida {
     func carregarFC() -> [AmostraFC] {
         guard let frequencia else { return [] }
         return (try? JSONDecoder().decode([AmostraFC].self, from: frequencia)) ?? []
+    }
+
+    func carregarAnalise() -> AnaliseSalva? {
+        guard let analiseIA else { return nil }
+        return try? JSONDecoder().decode(AnaliseSalva.self, from: analiseIA)
     }
 
     func carregarDiagnostico() -> DiagnosticoGPS? {

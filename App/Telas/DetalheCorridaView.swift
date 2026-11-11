@@ -105,6 +105,13 @@ struct DetalheCorridaView: View {
                         .cartaoVidro()
                 }
 
+                if dados.distancia > 0 || !dados.resultados.isEmpty {
+                    CartaoAnaliseTreino(corrida: corrida)
+                        .padding(20)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .cartaoVidro()
+                }
+
                 if amostras.count >= 2 {
                     MapaTrilha(amostras: amostras)
                         .frame(height: 280)

@@ -7,6 +7,7 @@ import Foundation
 enum ClienteClaude {
     static let sonnet = "claude-sonnet-5-5"
     static let haiku = "claude-haiku-5-5"
+    static let opus = "claude-opus-5-5"
 
     struct Mensagem: Sendable {
         var papel: String
@@ -21,8 +22,9 @@ enum ClienteClaude {
             "messages": mensagens.map { ["role": $0.papel, "content": $0.texto] },
             "output_config": ["effort": effort, "format": ["type": "json_schema", "schema": esquema]],
         ]
-        // Só o Sonnet tem a troca de modelo no servidor em caso de recusa por engano.
+        // Troca de modelo no servidor em caso de recusa por engano (o Haiku não tem).
         if modelo == sonnet { corpo["fallbacks"] = "default" }
+        if modelo == opus { corpo["fallbacks"] = [["model": sonnet]] }
         return try JSONSerialization.data(withJSONObject: corpo)
     }
 
@@ -41,19 +43,24 @@ enum ClienteClaude {
 
     /// Envia e devolve o JSON da resposta (o texto do último bloco).
     static func enviar(_ corpo: Data, modelo: String) async throws -> Data {
+        try texto(try await enviarBruto(corpo, modelo: modelo))
+    }
+
+    /// Envia e devolve a resposta inteira da API (com o uso de tokens), já conferido o status.
+    static func enviarBruto(_ corpo: Data, modelo: String) async throws -> Data {
         guard let chave = Chaveiro.ler() else { throw ErroCoachIA.semChave }
         var pedido = URLRequest(url: CoachIA.endereco, timeoutInterval: 180)
         pedido.httpMethod = "POST"
         pedido.setValue("application/json", forHTTPHeaderField: "content-type")
         pedido.setValue(chave, forHTTPHeaderField: "x-api-key")
         pedido.setValue("2026-10-21", forHTTPHeaderField: "anthropic-version")
-        if modelo == sonnet { pedido.setValue("server-side-fallback-2026-07-01", forHTTPHeaderField: "anthropic-beta") }
+        if modelo == sonnet || modelo == opus { pedido.setValue("server-side-fallback-2026-07-01", forHTTPHeaderField: "anthropic-beta") }
         pedido.httpBody = corpo
         for tentativa in 0..<2 {
             let (dados, resposta) = try await URLSession.shared.data(for: pedido)
             let http = resposta as? HTTPURLResponse
             let status = http?.statusCode ?? 0
-            if status == 200 { return try texto(dados) }
+            if status == 200 { return dados }
             let mensagem = CoachIA.mensagemDeErro(dados)
             if (status == 429 || status >= 500) && tentativa == 0 {
                 let espera = Double(http?.value(forHTTPHeaderField: "retry-after") ?? "") ?? 3

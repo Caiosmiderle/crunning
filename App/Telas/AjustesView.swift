@@ -16,6 +16,7 @@ struct AjustesView: View {
     @State var importandoGPX = false
     @State var temGPXImportado = Simulacao.temGPXImportado
     @State var mensagemSimulacao: String?
+    @Environment(\.openURL) var abrirURL
 
     var body: some View {
         let saude = Servicos.saude.disponibilidade
@@ -51,12 +52,24 @@ struct AjustesView: View {
                     Text("A voz abaixa a música enquanto fala e funciona com a tela bloqueada. O aviso de ritmo espera 15 segundos fora da faixa e repete no máximo uma vez por minuto; no fácil, só avisa quando está rápido demais. Durante a corrida, a engrenagem no topo da tela muda estes avisos sem parar o treino.")
                 }
 
-                Section("Aparência") {
+                Section {
                     Picker("Tema", selection: $tema) {
                         ForEach(Tema.allCases) { tema in
                             Text(tema.nome).tag(tema)
                         }
                     }
+                    // O iOS guarda o idioma de cada app nos Ajustes do iPhone; o app abre lá.
+                    Button {
+                        if let url = URL(string: UIApplication.openSettingsURLString) { abrirURL(url) }
+                    } label: {
+                        LabeledContent(L("Idioma", "Language"), value: Idioma.atual == .ingles ? "English" : "Português")
+                    }
+                    .foregroundStyle(.primary)
+                } header: {
+                    Text("Aparência")
+                } footer: {
+                    Text(L("O idioma segue o do iPhone. Para trocar só no CRUNNING, toque em Idioma e escolha em Ajustes do iPhone.",
+                           "The language follows the iPhone. To change it only for CRUNNING, tap Language and pick it in iPhone Settings."))
                 }
 
                 Section {

@@ -190,9 +190,15 @@ public struct ResultadoEtapa: Codable, Sendable, Equatable, Identifiable {
     public let distancia: Double
     public let duracao: TimeInterval
     public let situacao: Situacao
+    /// Função do passo (nil no exercício e nas corridas gravadas antes da 0.12).
+    public let funcao: FuncaoPasso?
+    /// Quando a etapa começou e terminou (nil se não foi feita; para cruzar com os batimentos).
+    public let inicio: Date?
+    public let fim: Date?
 
     public init(id: Int, nome: String, tipo: TipoTreino, repeticao: Int?, totalRepeticoes: Int?, ehExercicio: Bool,
-                planejado: Medida, faixa: FaixaRitmo?, distancia: Double, duracao: TimeInterval, situacao: Situacao) {
+                planejado: Medida, faixa: FaixaRitmo?, distancia: Double, duracao: TimeInterval, situacao: Situacao,
+                funcao: FuncaoPasso? = nil, inicio: Date? = nil, fim: Date? = nil) {
         self.id = id
         self.nome = nome
         self.tipo = tipo
@@ -204,6 +210,9 @@ public struct ResultadoEtapa: Codable, Sendable, Equatable, Identifiable {
         self.distancia = distancia
         self.duracao = duracao
         self.situacao = situacao
+        self.funcao = funcao
+        self.inicio = inicio
+        self.fim = fim
     }
 
     /// Ritmo médio da etapa (nil em exercício, sem distância medida ou trecho curto demais).
@@ -447,7 +456,8 @@ public struct ExecucaoTreino: Codable, Sendable {
             return ResultadoEtapa(
                 id: e.id, nome: e.nome, tipo: e.tipo, repeticao: e.repeticao, totalRepeticoes: e.totalRepeticoes,
                 ehExercicio: e.exercicio != nil, planejado: e.planejado, faixa: e.faixa,
-                distancia: distancia, duracao: duracao, situacao: situacao
+                distancia: distancia, duracao: duracao, situacao: situacao,
+                funcao: e.passo?.funcao, inicio: e.inicio?.instante, fim: e.fim?.instante
             )
         }
     }

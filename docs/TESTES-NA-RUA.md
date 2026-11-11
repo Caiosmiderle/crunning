@@ -167,6 +167,14 @@ O que me contar: se as respostas do coach fizeram sentido, quanto custou na sua 
 7. **Revisão semanal:** no domingo à noite ou na segunda, com a semana cumprida, o Hoje mostra só "Semana dentro do plano". Com treino perdido, corrida fora do plano, esforço alto nas fáceis ou ritmo fora da faixa, aparece "Vale revisar a semana" com os motivos.
 8. **Lista de treinos:** cartões mais baixos, barras em cápsulas com legenda de tempo por tipo, tempos sem segundos ("≈ 7,1 km · 49 min") e o título "Prontos" não passa mais por cima do relógio.
 
+## Análise pós-treino e idioma (0.12.0)
+
+1. **Sem gastar:** Ajustes > modo de desenvolvimento > "Simular o coach". Abra uma corrida no Histórico: o cartão "Análise do treinador" tem o botão "Analisar este treino". A resposta simulada aparece em 1 s, com "Resposta simulada" no rodapé.
+2. **De verdade:** desligue a simulação e toque em "Analisar este treino" numa corrida por etapas (por exemplo, um intervalado). Em uns 20 a 60 s aparecem: selo (No plano / Quase no plano / Fora do plano), resumo, o que foi bem, o que ajustar (o que aconteceu e como fazer) e "Na próxima vez". O rodapé mostra o modelo, os tokens e o custo em dólar que a API informou. Me conte esse custo.
+3. **Fica salva:** saia e volte ao detalhe: a análise continua lá, sem chamar a API de novo. "Refazer" pede outra.
+4. **Corrida livre:** numa corrida sem etapas, a análise usa as parciais de km.
+5. **Idioma:** Ajustes > Aparência > Idioma abre os Ajustes do iPhone na página do CRUNNING, onde dá para escolher português ou inglês só para o app.
+
 ## Volume por semana (0.10.4)
 
 1. No Hoje, toque no cartão "Esta semana". Abre o gráfico das últimas 12 semanas: barra verde = feito, cinza larga atrás = planejado pelo plano (e as próximas semanas do plano, só em cinza). Em cima: esta semana, semana passada (com a variação sobre a anterior) e a média de 4 semanas.
