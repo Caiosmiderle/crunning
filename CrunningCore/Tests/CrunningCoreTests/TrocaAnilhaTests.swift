@@ -38,7 +38,8 @@ struct TrocaAnilhaTests {
         #expect(json.contains("\"duracao_movimento_s\":2644"))
         #expect(json.contains("\"versao\":1"))
         // Nada de coordenadas no que vai.
-        #expect(!json.contains("lat") && !json.contains("lon"))
+        // ("longo" é o tipo; o que não pode aparecer são as chaves de coordenada.)
+        #expect(!json.contains("\"lat\"") && !json.contains("\"lon\"") && !json.contains("latitude"))
     }
 
     @Test func corridaSemDistanciaOuTempoNaoVai() {
