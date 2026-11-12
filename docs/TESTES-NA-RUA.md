@@ -234,3 +234,12 @@ O "Ritmo atual" agora é a média da velocidade que o GPS informa nos últimos 1
 - [ ] Mês: grade de segunda a domingo, setas até o mês da prova, km planejados do mês no topo.
 - [ ] Cada dia com treino tem a cor do tipo e os km; feito com visto verde, perdido riscado, hoje com contorno.
 - [ ] Tocar num dia abre o treino; segurar dá marcar feito/perdido, mover e trocar.
+
+## Conversas do coach (0.15.0)
+
+- [ ] Plano > Conversar com o coach: mande uma mensagem, saia e volte. Aparece "Continuar a última conversa"; tocar traz a conversa inteira.
+- [ ] Menu (…): "Nova conversa", "Conversas anteriores" (abrir, apagar com o dedo, "Apagar todas") e "Voltar ao plano anterior".
+- [ ] Botões de resposta pronta acima do campo: no começo (viagem, dor, trocar longão…) e depois de cada resposta (explica melhor, mais leve…). Somem enquanto há proposta na tela.
+- [ ] Rolando para cima, aparece a seta no canto: toque e volta para a mensagem mais recente.
+- [ ] Teclado: arrastar a conversa para baixo abaixa o teclado; o botão do teclado ao lado do campo também.
+- [ ] Apagar a conversa que está aberta e fechar a lista: a tela volta para uma conversa nova, sem travar.

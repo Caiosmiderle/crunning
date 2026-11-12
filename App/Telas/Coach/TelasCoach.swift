@@ -27,11 +27,13 @@ struct ChatCoachView: View {
     @Environment(\.modelContext) var contexto
     @AppStorage(Preferencias.unidade) var unidade: UnidadeDistancia = .quilometros
     @Query(sort: \Corrida.inicio, order: .reverse) var corridas: [Corrida]
+    @Query(sort: \ConversaCoach.atualizada, order: .reverse) var conversas: [ConversaCoach]
 
     struct Fala: Identifiable {
         let id = UUID()
         let doCoach: Bool
         let texto: String
+        var instante: Date = .now
     }
 
     struct Proposta {
@@ -45,7 +47,33 @@ struct ChatCoachView: View {
     @State var texto = ""
     @State var enviando = false
     @State var proposta: Proposta?
+    /// Conversa salva que está aberta (nil até a primeira mensagem de uma conversa nova).
+    @State var conversa: ConversaCoach?
+    @State var vendoConversas = false
+    /// O fim da conversa está na tela (senão aparece a seta para descer).
+    @State var noFim = true
     @FocusState var focado: Bool
+
+    /// Respostas prontas: tocar manda o texto como se tivesse digitado.
+    static var sugestoesIniciais: [String] {
+        [L("Viajo semana que vem", "I'm traveling next week"),
+         L("Estou com uma dor", "I'm in some pain"),
+         L("Troca o longão de dia", "Move the long run to another day"),
+         L("A semana foi pesada", "This week felt hard"),
+         L("A prova mudou de data", "The race date changed")]
+    }
+
+    static var sugestoesDepois: [String] {
+        [L("Explica melhor", "Explain that better"),
+         L("Pode deixar mais leve", "Make it lighter"),
+         L("Tem outra opção?", "Any other option?"),
+         L("Ok, obrigado", "OK, thanks")]
+    }
+
+    private var sugestoes: [String] {
+        if enviando || proposta != nil { return [] }
+        return falas.isEmpty ? Self.sugestoesIniciais : Self.sugestoesDepois
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -60,15 +88,59 @@ struct ChatCoachView: View {
                             Text("Conte o que mudou: \"viajo semana que vem\", \"estou com a canela dolorida\", \"troca o longão para sábado\", \"a prova mudou para daqui a 10 semanas\".")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
+                            if let ultima = conversas.first {
+                                cartaoContinuar(ultima)
+                            }
                         }
                         ForEach(falas) { f in balao(f) }
                         if let proposta { cartaoProposta(proposta) }
                         if enviando { ProgressView().padding(.vertical, 8) }
                         Color.clear.frame(height: 1).id("fim")
+                            .onAppear { noFim = true }
+                            .onDisappear { noFim = false }
                     }
                     .padding(16)
                 }
-                .onChange(of: falas.count) { _, _ in withAnimation { leitor.scrollTo("fim") } }
+                .scrollDismissesKeyboard(.interactively)
+                .onChange(of: falas.count) { _, _ in
+                    guardar()
+                    withAnimation { leitor.scrollTo("fim") }
+                }
+                .overlay(alignment: .bottomTrailing) {
+                    if !noFim && !falas.isEmpty {
+                        Button {
+                            withAnimation { leitor.scrollTo("fim") }
+                        } label: {
+                            Image(systemName: "arrow.down")
+                                .font(.headline)
+                                .frame(width: 44, height: 44)
+                        }
+                        .buttonStyle(.glass)
+                        .clipShape(Circle())
+                        .padding(16)
+                        .accessibilityLabel(L("Ir para a mensagem mais recente", "Jump to the latest message"))
+                        .transition(.scale.combined(with: .opacity))
+                    }
+                }
+                .animation(.snappy, value: noFim)
+            }
+            if !sugestoes.isEmpty {
+                ScrollView(.horizontal) {
+                    HStack(spacing: 8) {
+                        ForEach(sugestoes, id: \.self) { s in
+                            Button(s) {
+                                texto = s
+                                Task { await enviar() }
+                            }
+                            .font(.subheadline)
+                            .buttonStyle(.glass)
+                            .disabled(!Chaveiro.temChave && !ClienteClaude.simulado)
+                        }
+                    }
+                    .padding(.horizontal, 12)
+                }
+                .scrollIndicators(.hidden)
+                .padding(.top, 8)
             }
             HStack(alignment: .bottom, spacing: 10) {
                 TextField("Escreva para o coach", text: $texto, axis: .vertical)
@@ -76,6 +148,15 @@ struct ChatCoachView: View {
                     .focused($focado)
                     .padding(12)
                     .background(Color.primary.opacity(0.08), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                if focado {
+                    Button {
+                        focado = false
+                    } label: {
+                        Image(systemName: "keyboard.chevron.compact.down").font(.system(size: 22))
+                            .frame(width: 34, height: 34)
+                    }
+                    .accessibilityLabel(L("Abaixar o teclado", "Hide the keyboard"))
+                }
                 Button {
                     Task { await enviar() }
                 } label: {
@@ -90,18 +171,63 @@ struct ChatCoachView: View {
         .navigationTitle("Coach")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if ativo.agenda?.anterior != nil {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Voltar ao anterior") { voltar() }
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button(L("Nova conversa", "New conversation"), systemImage: "square.and.pencil") { novaConversa() }
+                        .disabled(falas.isEmpty)
+                    Button(L("Conversas anteriores", "Past conversations"), systemImage: "clock.arrow.circlepath") { vendoConversas = true }
+                        .disabled(conversas.isEmpty)
+                    if ativo.agenda?.anterior != nil {
+                        Divider()
+                        Button(L("Voltar ao plano anterior", "Back to the previous plan"), systemImage: "arrow.uturn.backward") { voltar() }
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
                 }
+                .accessibilityLabel(L("Opções da conversa", "Conversation options"))
             }
         }
+        .sheet(isPresented: $vendoConversas, onDismiss: {
+            // A conversa aberta pode ter sido apagada na lista.
+            if let c = conversa, !conversas.contains(where: { $0.persistentModelID == c.persistentModelID }) { novaConversa() }
+        }) {
+            ConversasCoachView(abrir: { c in
+                abrir(c)
+                vendoConversas = false
+            })
+        }
+    }
+
+    private func cartaoContinuar(_ ultima: ConversaCoach) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button {
+                abrir(ultima)
+            } label: {
+                VStack(alignment: .leading, spacing: 2) {
+                    Label(L("Continuar a última conversa", "Continue the last conversation"), systemImage: "arrow.uturn.forward")
+                        .font(.subheadline.weight(.semibold))
+                    Text(ultima.atualizada.formatted(.dateTime.day().month().hour().minute()) + (ultima.titulo.isEmpty ? "" : " · " + ultima.titulo))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .buttonStyle(.plain)
+            if conversas.count > 1 {
+                Button(L("Ver todas (\(conversas.count))", "See all (\(conversas.count))")) { vendoConversas = true }
+                    .font(.caption.weight(.semibold))
+            }
+        }
+        .padding(14)
+        .cartaoVidro(raio: 18)
     }
 
     private func balao(_ f: Fala) -> some View {
         HStack {
             if !f.doCoach { Spacer(minLength: 40) }
             Text(f.texto)
+                .textSelection(.enabled)
                 .padding(12)
                 .background(f.doCoach ? Color.primary.opacity(0.08) : Paleta.verdeLogo.opacity(0.25),
                             in: RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -141,9 +267,50 @@ struct ChatCoachView: View {
         m.map { Formatador.distancia($0, unidade: unidade, casas: 1) } ?? "—"
     }
 
+    // MARK: Conversas salvas
+
+    /// Grava a conversa aberta (cria na primeira fala). Fica só no aparelho.
+    private func guardar() {
+        guard !falas.isEmpty else { return }
+        // Só abriu uma conversa salva: nada novo para gravar (não muda a data dela).
+        if let conversa, conversa.falasSalvas.count == falas.count { return }
+        let c: ConversaCoach
+        if let conversa {
+            c = conversa
+        } else {
+            c = ConversaCoach()
+            contexto.insert(c)
+            conversa = c
+        }
+        c.guardar(falas: falas.map { RegistroConversa.Fala(doCoach: $0.doCoach, texto: $0.texto, instante: $0.instante) },
+                  mensagens: historico.map { RegistroConversa.Mensagem(papel: $0.papel, texto: $0.texto) })
+        try? contexto.save()
+    }
+
+    private func abrir(_ c: ConversaCoach) {
+        proposta = nil
+        conversa = c
+        historico = c.mensagensSalvas.map { ClienteClaude.Mensagem(papel: $0.papel, texto: $0.texto) }
+        falas = c.falasSalvas.map { Fala(doCoach: $0.doCoach, texto: $0.texto, instante: $0.instante) }
+    }
+
+    private func novaConversa() {
+        proposta = nil
+        conversa = nil
+        historico = []
+        falas = []
+    }
+
+    /// O que vai para a IA: só o fim do histórico (a tela mostra tudo).
+    private var historicoParaIA: [ClienteClaude.Mensagem] {
+        RegistroConversa.recorte(historico.map { RegistroConversa.Mensagem(papel: $0.papel, texto: $0.texto) })
+            .map { ClienteClaude.Mensagem(papel: $0.papel, texto: $0.texto) }
+    }
+
     private func enviar() async {
         guard let agenda = ativo.agenda else { return }
         let pedido = texto.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !pedido.isEmpty else { return }
         texto = ""
         falas.append(Fala(doCoach: false, texto: pedido))
         historico.append(ClienteClaude.Mensagem(papel: "user", texto: pedido))
@@ -152,7 +319,7 @@ struct ChatCoachView: View {
         let contextoIA = ContextoAgendaIA(agenda: agenda, ladosRecentes: ladosRecentes(corridas))
         do {
             for tentativa in 0..<2 {
-                let resposta = try await CoachChat.responder(historico, contexto: contextoIA)
+                let resposta = try await CoachChat.responder(historicoParaIA, contexto: contextoIA)
                 historico.append(ClienteClaude.Mensagem(papel: "assistant", texto: resposta.mensagem))
                 let acoes = resposta.acoes.compactMap(\.correcao)
                 guard !acoes.isEmpty else {
@@ -190,9 +357,9 @@ struct ChatCoachView: View {
         ativo.agenda = agenda
         try? contexto.save()
         proposta = nil
-        falas.append(Fala(doCoach: true, texto: L("Salvo. Se mudar de ideia, \"Voltar ao anterior\" desfaz.", "Saved. If you change your mind, \"Go back to the previous one\" undoes it.")))
         historico.append(ClienteClaude.Mensagem(papel: "user", texto: "Salvei a proposta."))
         historico.append(ClienteClaude.Mensagem(papel: "assistant", texto: "Combinado."))
+        falas.append(Fala(doCoach: true, texto: L("Salvo. Se mudar de ideia, \"Voltar ao plano anterior\" no menu desfaz.", "Saved. If you change your mind, \"Back to the previous plan\" in the menu undoes it.")))
     }
 
     private func voltar() {
@@ -200,6 +367,63 @@ struct ChatCoachView: View {
         ativo.agenda = agenda
         try? contexto.save()
         falas.append(Fala(doCoach: true, texto: L("Voltei ao plano anterior.", "Back to the previous plan.")))
+    }
+}
+
+/// Conversas anteriores com o coach: abrir para ler ou continuar, apagar uma ou todas.
+struct ConversasCoachView: View {
+    let abrir: (ConversaCoach) -> Void
+    @Environment(\.modelContext) var contexto
+    @Environment(\.dismiss) var fechar
+    @Query(sort: \ConversaCoach.atualizada, order: .reverse) var conversas: [ConversaCoach]
+    @State var confirmandoApagarTodas = false
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    ForEach(conversas) { c in
+                        Button {
+                            abrir(c)
+                        } label: {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(c.titulo.isEmpty ? L("Conversa", "Conversation") : c.titulo)
+                                    .font(.body.weight(.medium))
+                                    .foregroundStyle(.primary)
+                                    .lineLimit(2)
+                                Text(c.atualizada.formatted(.dateTime.weekday(.abbreviated).day().month().hour().minute())
+                                     + " · " + L("\(c.falasSalvas.count) mensagens", "\(c.falasSalvas.count) messages"))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    .onDelete { indices in
+                        for i in indices { contexto.delete(conversas[i]) }
+                        try? contexto.save()
+                    }
+                } footer: {
+                    Text("As conversas ficam só neste iPhone. Ao continuar uma conversa, vão para a IA só as últimas \(RegistroConversa.maximoParaIA) mensagens, para não encarecer cada resposta.")
+                }
+            }
+            .navigationTitle("Conversas anteriores")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Fechar") { fechar() } }
+                ToolbarItem(placement: .destructiveAction) {
+                    Button("Apagar todas", role: .destructive) { confirmandoApagarTodas = true }
+                        .disabled(conversas.isEmpty)
+                }
+            }
+            .confirmationDialog("Apagar todas as conversas?", isPresented: $confirmandoApagarTodas, titleVisibility: .visible) {
+                Button("Apagar todas", role: .destructive) {
+                    for c in conversas { contexto.delete(c) }
+                    try? contexto.save()
+                }
+            } message: {
+                Text("Não dá para desfazer. O plano não muda.")
+            }
+        }
     }
 }
 

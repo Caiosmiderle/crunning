@@ -12,7 +12,7 @@ struct CrunningApp: App {
             RaizView()
                 .preferredColorScheme(tema.esquema)
         }
-        .modelContainer(for: [Corrida.self, TreinoSalvo.self, PlanoAtivo.self, Tenis.self])
+        .modelContainer(for: [Corrida.self, TreinoSalvo.self, PlanoAtivo.self, Tenis.self, ConversaCoach.self])
     }
 }
 
