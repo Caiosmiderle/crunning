@@ -272,3 +272,27 @@ O "Ritmo atual" agora é a média da velocidade que o GPS informa nos últimos 1
 - [ ] Plano > Semana e Plano > Mês: segurar um dia com treino mostra a prévia em cima das opções (feito, perdido, mover, trocar). Descanso: só as opções.
 - [ ] Treinos: segurar qualquer treino (meus, modelos, prontos) mostra a prévia e "Começar este treino".
 - [ ] Anilha: apagar uma corrida manda a lápide em cerca de 1 s (sem precisar de Enviar agora); corridas com menos de 5 m ou mais de 48 h não vão.
+
+## Força do Anilha no CRUNNING (0.20.0 e 0.21.0)
+
+Conferido antes deste roteiro: em 12/11 a leitura de força (`GET /forca` da função `troca-crunning`) respondeu 200 nas duas chamadas reais do seu iPhone, sem erro nos logs. A função foi republicada a partir do arquivo exato do repositório, com as mesmas respostas de antes. Instale o build 57 (0.21.0), que já inclui a 0.20.0.
+
+### Em casa (10 minutos)
+
+1. **Conexão:** Ajustes > Anilha (musculação). "Conexão: ativa". Se não estiver, gere o token no Anilha (Você > Conexões > CRUNNING > Gerar token) e cole aqui.
+2. **Marcas na semana:** na aba Hoje, a faixa da semana mostra um halter nos dias com musculação do Anilha: cheio quando já foi feita, vazado quando está prevista. Confira contra o Plano do Anilha (site, aba Plano).
+3. **No plano:** na aba Plano, abra um dia com treino de força previsto. Aparece a linha do treino do Anilha com o nome da ficha.
+4. **Aviso de perna pesada:** só aparece quando há treino de perna com 6 séries ou mais no Anilha até 48 h antes de um treino forte (longão ou intervalado). Para provocar: no Anilha, ponha a ficha de perna para a véspera do seu próximo longão e abra o CRUNNING (puxe para atualizar o Hoje). O cartão "Perna pesada perto de ..." mostra o motivo e uma sugestão de troca.
+   - "Ver no plano" (na aba Hoje) ou "Ver troca" (no Plano) mostra a prévia; nada muda sem você confirmar.
+   - "Manter assim" esconde aquele aviso; ele não volta para o mesmo par de treinos.
+5. **Coach:** abra o chat do coach e pergunte "como está minha semana de força?". Ele deve citar os treinos de força (dia e se tem perna), sem nomes de exercícios, cargas ou notas.
+6. **Revisão do plano:** crie ou revise um plano. A prévia deve levar em conta a perna pesada (por exemplo, não marcar longão no dia seguinte a uma perna forte).
+
+### O que me contar
+
+- As marcas de halter bateram com o que está no Anilha?
+- O aviso apareceu no caso provocado? A troca sugerida fazia sentido? Apareceu algum aviso sem motivo?
+- O coach falou da força com dados certos?
+- Algum erro de conexão em Ajustes > Anilha (um print da mensagem ajuda).
+
+Para calibrar o limite de "perna pesada", é uma constante só: `ConflitoForca.seriesPesada` (hoje 6).
