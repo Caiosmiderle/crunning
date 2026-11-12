@@ -33,6 +33,37 @@ struct FrequenciaCardiacaTests {
         #expect(FrequenciaCardiaca.serieGrafico([AmostraFC(t: 0, bpm: 0)]).isEmpty)
     }
 
+    @Test func serieDoGraficoLigaLeiturasEspacadasESuaviza() {
+        // Leituras a cada 30 s (pulseira só no sinal), alternando 150 e 160 bpm (dados fictícios).
+        let fc = (0..<10).map { AmostraFC(t: Double($0 * 30), bpm: $0 % 2 == 0 ? 150 : 160) }
+        let serie = FrequenciaCardiaca.serieGrafico(fc)
+        #expect(serie.count == 10)
+        #expect(Set(serie.map(\.trecho)) == [0]) // 30 s não quebra a linha
+        // No meio, cada ponto vira a média com os vizinhos: (150+160+150)/3 ou (160+150+160)/3.
+        #expect(serie[1...8].allSatisfy { abs($0.bpm - 460.0 / 3) < 0.01 || abs($0.bpm - 470.0 / 3) < 0.01 })
+        // Sem suavizar, os valores ficam como vieram.
+        #expect(FrequenciaCardiaca.serieGrafico(fc, suavizar: 0).map(\.bpm) == fc.map { Double($0.bpm) })
+        // Mais de 60 s sem leitura abre outro trecho, e a suavização não mistura os dois.
+        let comBuraco = [AmostraFC(t: 0, bpm: 100), AmostraFC(t: 10, bpm: 100), AmostraFC(t: 100, bpm: 170)]
+        let s = FrequenciaCardiaca.serieGrafico(comBuraco)
+        #expect(s.map(\.trecho) == [0, 0, 1])
+        #expect(s.map(\.bpm) == [100, 100, 170])
+    }
+
+    @Test func faixaDoEixo() throws {
+        let r = try #require(EscalaGrafico.dominio([100, 200]))
+        #expect(abs(r.lowerBound - 92) < 0.001 && abs(r.upperBound - 208) < 0.001)
+        // Terreno quase plano: pelo menos 20 m de faixa, centrada nos dados.
+        let alt = try #require(EscalaGrafico.dominio([5, 7], vaoMinimo: 20))
+        #expect(abs(alt.lowerBound - -4) < 0.001 && abs(alt.upperBound - 16) < 0.001)
+        // Ritmo com uma parada: o pico lento não estica o eixo inteiro.
+        let ritmos = Array(repeating: 400.0, count: 30) + Array(repeating: 420.0, count: 30) + [900]
+        let p = try #require(EscalaGrafico.dominio(ritmos, cortarPicosAltos: true))
+        #expect(p.upperBound < 450 && p.lowerBound < 400)
+        #expect(EscalaGrafico.dominio([]) == nil)
+        #expect(EscalaGrafico.rotuloX(2) == "2" && EscalaGrafico.rotuloX(2.5) == "2,5")
+    }
+
     @Test func resumoDeUmTrecho() {
         let fc = (0..<30).map { AmostraFC(t: Double($0), bpm: $0 < 10 ? 100 : 160) }
         #expect(FrequenciaCardiaca.resumo(fc, de: 10, ate: 29) == .init(media: 160, maxima: 160))

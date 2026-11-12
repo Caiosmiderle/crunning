@@ -173,6 +173,9 @@ struct ListaParciais: View {
 
 // MARK: - Gráficos
 
+/// Os três gráficos da corrida seguem o mesmo desenho: título e leitura no topo, eixo x do zero
+/// até o fim dos dados com a unidade no próprio número ("2 km", "20 min"), eixo y à esquerda com
+/// faixa ajustada aos dados e, segurando o dedo, uma linha vertical com o ponto.
 struct GraficoRitmo: View {
     let serie: [PontoSerie]
     let unidade: UnidadeDistancia
@@ -180,43 +183,54 @@ struct GraficoRitmo: View {
 
     var body: some View {
         let ponto = PontoMaisPerto.serie(serie, x: selecao.map { $0 * unidade.metros })
-        VStack(alignment: .leading, spacing: 10) {
+        // Média por distância: os pontos são igualmente espaçados em metros.
+        let media = serie.isEmpty ? nil : serie.map(\.valor).reduce(0, +) / Double(serie.count)
+        // O ritmo é desenhado negativo para o mais rápido ficar em cima com a faixa fixa.
+        let faixa = EscalaGrafico.dominio(serie.map(\.valor), folga: 0.1, vaoMinimo: 30, cortarPicosAltos: true) ?? 240...480
+        let fim = (serie.last?.distancia ?? unidade.metros) / unidade.metros
+        VStack(alignment: .leading, spacing: 12) {
             CabecalhoGrafico(titulo: L("Ritmo", "Pace"), leitura: ponto.map {
                 Formatador.distancia($0.distancia, unidade: unidade, casas: 2) + " · "
                     + Formatador.ritmo(segundosPorKm: $0.valor, unidade: unidade) + " " + unidade.siglaRitmo
-            } ?? L("Segure e arraste para ver", "Press and drag to see"))
+            } ?? media.map {
+                L("média ", "avg ") + Formatador.ritmo(segundosPorKm: $0, unidade: unidade) + " " + unidade.siglaRitmo
+            } ?? "")
             Chart {
                 ForEach(serie) { p in
-                    LineMark(
-                        x: .value("dist", p.distancia / unidade.metros),
-                        y: .value("ritmo", p.valor)
-                    )
-                    .interpolationMethod(.catmullRom)
-                    .foregroundStyle(Color.accentColor)
-                    .lineStyle(StrokeStyle(lineWidth: 2.5))
+                    LineMark(x: .value("dist", p.distancia / unidade.metros), y: .value("ritmo", -p.valor))
+                        .interpolationMethod(.monotone)
+                        .foregroundStyle(Color.accentColor)
+                        .lineStyle(StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                }
+                if let media, ponto == nil {
+                    RuleMark(y: .value("media", -media))
+                        .foregroundStyle(Color.primary.opacity(0.35))
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
                 }
                 if let ponto {
                     RuleMark(x: .value("dist", ponto.distancia / unidade.metros))
                         .foregroundStyle(Color.primary.opacity(0.3))
-                    PointMark(x: .value("dist", ponto.distancia / unidade.metros), y: .value("ritmo", ponto.valor))
+                    PointMark(x: .value("dist", ponto.distancia / unidade.metros), y: .value("ritmo", -ponto.valor))
                         .foregroundStyle(Color.accentColor)
                         .symbolSize(70)
                 }
             }
             .chartXSelection(value: $selecao)
-            .chartYScale(domain: .automatic(includesZero: false, reversed: true))
+            .chartXScale(domain: 0...max(fim, 0.1))
+            .chartYScale(domain: -faixa.upperBound ... -faixa.lowerBound)
+            .chartPlotStyle { $0.clipped() }
+            .chartXAxis { EixoX.marcas(unidade: unidade.sigla) }
             .chartYAxis {
-                AxisMarks(position: .leading) { valor in
+                AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { valor in
                     AxisGridLine()
                     AxisValueLabel {
-                        if let segundos = valor.as(Double.self) {
-                            Text(Formatador.ritmo(segundosPorKm: segundos, unidade: unidade))
+                        if let v = valor.as(Double.self) {
+                            Text(Formatador.ritmo(segundosPorKm: -v, unidade: unidade))
                         }
                     }
                 }
             }
-            .chartXAxisLabel(unidade.sigla)
-            .frame(height: 180)
+            .frame(height: 170)
         }
         .accessibilityLabel(L("Gráfico do ritmo ao longo da corrida", "Pace chart over the run"))
     }
@@ -228,26 +242,30 @@ struct GraficoAltitude: View {
     @State private var selecao: Double?
 
     var body: some View {
-        let minimo = serie.map(\.valor).min() ?? 0
+        let valores = serie.map(\.valor)
+        let faixa = EscalaGrafico.dominio(valores, folga: 0.15, vaoMinimo: 20) ?? 0...20
         let ponto = PontoMaisPerto.serie(serie, x: selecao.map { $0 * unidade.metros })
-        VStack(alignment: .leading, spacing: 10) {
+        let fim = (serie.last?.distancia ?? unidade.metros) / unidade.metros
+        let resumo = valores.isEmpty ? "" : L("mín \(Int(valores.min()!.rounded())) · máx \(Int(valores.max()!.rounded())) m",
+                                              "min \(Int(valores.min()!.rounded())) · max \(Int(valores.max()!.rounded())) m")
+        VStack(alignment: .leading, spacing: 12) {
             CabecalhoGrafico(titulo: L("Altitude", "Elevation"), leitura: ponto.map {
                 Formatador.distancia($0.distancia, unidade: unidade, casas: 2) + " · \(Int($0.valor.rounded())) m"
-            } ?? L("Segure e arraste para ver", "Press and drag to see"))
+            } ?? resumo)
             Chart {
                 ForEach(serie) { p in
                     AreaMark(
                         x: .value("dist", p.distancia / unidade.metros),
-                        yStart: .value("base", minimo - 5),
+                        yStart: .value("base", faixa.lowerBound),
                         yEnd: .value("alt", p.valor)
                     )
-                    .foregroundStyle(LinearGradient(colors: [TipoTreino.longao.cor.opacity(0.5), TipoTreino.longao.cor.opacity(0.05)],
+                    .interpolationMethod(.monotone)
+                    .foregroundStyle(LinearGradient(colors: [TipoTreino.longao.cor.opacity(0.45), TipoTreino.longao.cor.opacity(0.05)],
                                                     startPoint: .top, endPoint: .bottom))
-                    LineMark(
-                        x: .value("dist", p.distancia / unidade.metros),
-                        y: .value("alt", p.valor)
-                    )
-                    .foregroundStyle(TipoTreino.longao.cor)
+                    LineMark(x: .value("dist", p.distancia / unidade.metros), y: .value("alt", p.valor))
+                        .interpolationMethod(.monotone)
+                        .foregroundStyle(TipoTreino.longao.cor)
+                        .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
                 }
                 if let ponto {
                     RuleMark(x: .value("dist", ponto.distancia / unidade.metros))
@@ -258,17 +276,26 @@ struct GraficoAltitude: View {
                 }
             }
             .chartXSelection(value: $selecao)
-            .chartYScale(domain: .automatic(includesZero: false))
-            .chartYAxisLabel("m")
-            .chartXAxisLabel(unidade.sigla)
-            .frame(height: 140)
+            .chartXScale(domain: 0...max(fim, 0.1))
+            .chartYScale(domain: faixa)
+            .chartPlotStyle { $0.clipped() }
+            .chartXAxis { EixoX.marcas(unidade: unidade.sigla) }
+            .chartYAxis {
+                AxisMarks(position: .leading, values: .automatic(desiredCount: 3)) { valor in
+                    AxisGridLine()
+                    AxisValueLabel {
+                        if let v = valor.as(Double.self) { Text("\(Int(v.rounded())) m") }
+                    }
+                }
+            }
+            .frame(height: 120)
         }
         .accessibilityLabel(L("Gráfico da altitude ao longo da corrida", "Elevation chart over the run"))
     }
 }
 
-/// Batimentos ao longo da corrida (média de 10 s). Buracos sem leitura (pulseira sem sinal)
-/// ficam em branco. Segurando o dedo, o topo mostra o batimento daquele instante.
+/// Batimentos ao longo da corrida (média de 10 s, suavizada). Buracos de mais de um minuto sem
+/// leitura ficam em branco. Segurando o dedo, o topo mostra o batimento daquele instante.
 struct GraficoFC: View {
     let serie: [FrequenciaCardiaca.PontoGrafico]
     let media: Int?
@@ -279,24 +306,30 @@ struct GraficoFC: View {
         let ponto = PontoMaisPerto.fc(serie, t: selecao.map { $0 * 60 })
         let resumo = [media.map { L("média \($0)", "avg \($0)") }, maxima.map { L("máx \($0)", "max \($0)") }]
             .compactMap { $0 }.joined(separator: " · ")
-        VStack(alignment: .leading, spacing: 10) {
+        let faixa = EscalaGrafico.dominio(serie.map(\.bpm), folga: 0.1, vaoMinimo: 20) ?? 60...200
+        let fim = (serie.last?.t ?? 60) / 60
+        // Trecho de um ponto só não vira linha: aparece como um pontinho.
+        let contagem = Dictionary(grouping: serie, by: \.trecho).mapValues(\.count)
+        let soltos = serie.filter { contagem[$0.trecho] == 1 }
+        VStack(alignment: .leading, spacing: 12) {
             CabecalhoGrafico(titulo: L("Frequência cardíaca", "Heart rate"), leitura: ponto.map {
                 Formatador.duracao($0.t) + " · \(Int($0.bpm.rounded())) bpm"
-            } ?? (resumo.isEmpty ? L("Segure e arraste para ver", "Press and drag to see") : resumo + " bpm"))
+            } ?? (resumo.isEmpty ? "" : resumo + " bpm"))
             Chart {
                 ForEach(serie) { p in
-                    LineMark(
-                        x: .value("min", p.t / 60),
-                        y: .value("bpm", p.bpm),
-                        series: .value("trecho", p.trecho)
-                    )
-                    .interpolationMethod(.catmullRom)
-                    .foregroundStyle(Paleta.foraForte)
-                    .lineStyle(StrokeStyle(lineWidth: 2))
+                    LineMark(x: .value("min", p.t / 60), y: .value("bpm", p.bpm), series: .value("trecho", p.trecho))
+                        .interpolationMethod(.monotone)
+                        .foregroundStyle(Paleta.foraForte)
+                        .lineStyle(StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                }
+                ForEach(soltos) { p in
+                    PointMark(x: .value("min", p.t / 60), y: .value("bpm", p.bpm))
+                        .foregroundStyle(Paleta.foraForte)
+                        .symbolSize(16)
                 }
                 if let media, ponto == nil {
                     RuleMark(y: .value("media", media))
-                        .foregroundStyle(Color.primary.opacity(0.3))
+                        .foregroundStyle(Color.primary.opacity(0.35))
                         .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
                 }
                 if let ponto {
@@ -308,18 +341,33 @@ struct GraficoFC: View {
                 }
             }
             .chartXSelection(value: $selecao)
-            .chartYScale(domain: .automatic(includesZero: false))
+            .chartXScale(domain: 0...max(fim, 1))
+            .chartYScale(domain: faixa)
+            .chartPlotStyle { $0.clipped() }
+            .chartXAxis { EixoX.marcas(unidade: "min") }
             .chartYAxis {
-                AxisMarks(position: .leading) { _ in
+                AxisMarks(position: .leading, values: .automatic(desiredCount: 4)) { _ in
                     AxisGridLine()
                     AxisValueLabel()
                 }
             }
-            .chartYAxisLabel("bpm")
-            .chartXAxisLabel("min")
-            .frame(height: 180)
+            .frame(height: 170)
         }
         .accessibilityLabel(L("Gráfico da frequência cardíaca ao longo da corrida", "Heart rate chart over the run"))
+    }
+}
+
+/// Eixo x comum: poucas marcas, com a unidade no número, sem a linha de título embaixo.
+enum EixoX {
+    static func marcas(unidade: String) -> some AxisContent {
+        AxisMarks(values: .automatic(desiredCount: 4)) { valor in
+            AxisGridLine()
+            AxisValueLabel {
+                if let v = valor.as(Double.self) {
+                    Text(v == 0 ? "0" : "\(EscalaGrafico.rotuloX(v)) \(unidade)")
+                }
+            }
+        }
     }
 }
 

@@ -217,3 +217,11 @@ O "Ritmo atual" agora é a média da velocidade que o GPS informa nos últimos 1
 2. Hoje, com plano: toque no nome do treino de hoje. Sem fazer, abre a tela do treino com "Começar"; depois de feito, abre a corrida, igual à do Histórico.
 3. Volume por semana: segure o dedo numa barra e veja os números na linha acima do gráfico (sem balão por cima). Arraste para os lados até o fim do plano; as setas andam uma semana de cada vez. Em "Meses", o gráfico vai mês a mês até o mês da prova, e as setas andam um mês.
 4. Ajustes > Tênis: cadastre um tênis com "Km que ele já tem" e veja "Rodados" somar esses km com os das corridas. Num tênis já cadastrado, mude "Antes do app".
+
+## Gráficos da corrida mais legíveis (0.13.1)
+
+- [ ] Ritmo, batimentos e altitude começam no zero e terminam onde os dados acabam, sem sobra à direita.
+- [ ] Os números do eixo x trazem a unidade ("2 km", "20 min") e não há mais a linha "km"/"min" embaixo.
+- [ ] Ritmo: uma parada no meio não achata o gráfico (o pico sai cortado); a média aparece tracejada e no topo.
+- [ ] Batimentos: a linha sai contínua mesmo com leituras espaçadas; só some depois de mais de 1 min sem sinal.
+- [ ] Altitude: terreno plano não vira montanha nem sobra faixa de -10 m; o topo mostra mínima e máxima.

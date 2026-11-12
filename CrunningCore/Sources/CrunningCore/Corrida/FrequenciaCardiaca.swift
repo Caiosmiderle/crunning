@@ -90,8 +90,22 @@ extension FrequenciaCardiaca {
     }
 
     /// Série para o gráfico: média por janela de `janela` segundos (no meio da janela), com um
-    /// trecho novo quando passam mais de `buraco` segundos sem leitura.
-    public static func serieGrafico(_ amostras: [AmostraFC], janela: TimeInterval = 10, buraco: TimeInterval = 20) -> [PontoGrafico] {
+    /// trecho novo quando passam mais de `buraco` segundos sem leitura. Depois, cada ponto vira a
+    /// média dele com `suavizar` vizinhos de cada lado no mesmo trecho, para a linha não serrilhar.
+    /// 60 s de buraco: com a pulseira só no sinal, leituras a cada 20–40 s são comuns e, com 20 s,
+    /// a linha saía picotada.
+    public static func serieGrafico(_ amostras: [AmostraFC], janela: TimeInterval = 10, buraco: TimeInterval = 60,
+                                    suavizar: Int = 1) -> [PontoGrafico] {
+        let pontos = baldes(amostras, janela: janela, buraco: buraco)
+        guard suavizar > 0 else { return pontos }
+        return pontos.indices.map { i in
+            let p = pontos[i]
+            let vizinhos = pontos[max(0, i - suavizar)...min(pontos.count - 1, i + suavizar)].filter { $0.trecho == p.trecho }
+            return PontoGrafico(t: p.t, bpm: vizinhos.map(\.bpm).reduce(0, +) / Double(vizinhos.count), trecho: p.trecho)
+        }
+    }
+
+    static func baldes(_ amostras: [AmostraFC], janela: TimeInterval, buraco: TimeInterval) -> [PontoGrafico] {
         let validas = amostras.filter { faixaValida.contains($0.bpm) }.sorted { $0.t < $1.t }
         guard janela > 0 else { return [] }
         var pontos: [PontoGrafico] = []
