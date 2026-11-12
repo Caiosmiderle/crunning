@@ -134,48 +134,57 @@ struct HojeView: View {
                   let p = agenda.posicao(de: data, calendario: calendario) else { return nil }
             return agenda.sessao(semana: p.semana, dia: p.dia)
         }
-        let maximo = max(1, (0..<7).map { max(feitos[$0], planejados[$0]?.distancia ?? 0) }.max() ?? 1)
+        let maiores: [Double] = (0..<7).map { d in max(feitos[d], planejados[d]?.distancia ?? 0) }
+        let maximo: Double = max(1, maiores.max() ?? 1)
         let hoje = (calendario.dateComponents([.day], from: inicio, to: calendario.startOfDay(for: .now)).day ?? 0)
-        let alturaMaxima: CGFloat = 40
         return HStack(alignment: .bottom, spacing: 6) {
             ForEach(0..<7, id: \.self) { d in
-                let feito = feitos[d]
-                let plano = planejados[d]
-                let ehHoje = d == hoje
-                VStack(spacing: 5) {
-                    ZStack(alignment: .bottom) {
-                        Capsule().fill(Color.primary.opacity(0.06))
-                            .frame(width: 14, height: alturaMaxima)
-                        if let plano {
-                            Capsule().fill(plano.tipo.cor.opacity(feito > 0 ? 0.25 : 0.4))
-                                .frame(width: 14, height: max(6, alturaMaxima * plano.distancia / maximo))
-                        }
-                        if feito > 0 {
-                            Capsule().fill(VolumeSemanalView.verde)
-                                .frame(width: 14, height: max(6, alturaMaxima * feito / maximo))
-                        }
-                    }
-                    Text(feito > 0 ? kmCurto(feito) : (plano.map { kmCurto($0.distancia) } ?? "–"))
-                        .font(.caption2.weight(feito > 0 ? .semibold : .regular))
-                        .monospacedDigit()
-                        .foregroundStyle(feito > 0 ? AnyShapeStyle(.primary) : AnyShapeStyle(.tertiary))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    Text(PlanoAtivoView.letrasDias[d])
-                        .font(.caption2.weight(ehHoje ? .bold : .semibold))
-                        .foregroundStyle(ehHoje ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.secondary))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 6)
-                .background {
-                    if ehHoje { RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.accentColor.opacity(0.1)) }
-                }
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(PlanoAtivoView.nomesDias[d] + ": "
-                    + (feito > 0 ? Formatador.distancia(feito, unidade: unidade) + L(" feitos", " done") : L("nada corrido", "no run"))
-                    + (plano.map { L(", plano ", ", plan ") + Formatador.distancia($0.distancia, unidade: unidade) } ?? ""))
+                colunaDia(d, feito: feitos[d], plano: planejados[d], ehHoje: d == hoje, maximo: maximo)
             }
         }
+    }
+
+    /// Uma coluna da faixa (separada para o compilador checar os tipos em partes).
+    private func colunaDia(_ d: Int, feito: Double, plano: SessaoPlanejada?, ehHoje: Bool, maximo: Double) -> some View {
+        let alturaMaxima: CGFloat = 40
+        let alturaFeito = CGFloat(max(6, 40 * feito / maximo))
+        let alturaPlano = CGFloat(max(6, 40 * (plano?.distancia ?? 0) / maximo))
+        let corPlano: Color = plano.map { $0.tipo.cor.opacity(feito > 0 ? 0.25 : 0.4) } ?? .clear
+        let texto: String = feito > 0 ? kmCurto(feito) : (plano.map { kmCurto($0.distancia) } ?? "–")
+        let estiloTexto: AnyShapeStyle = feito > 0 ? AnyShapeStyle(.primary) : AnyShapeStyle(.tertiary)
+        let estiloLetra: AnyShapeStyle = ehHoje ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.secondary)
+        let fundo: Color = ehHoje ? Color.accentColor.opacity(0.1) : .clear
+        var rotulo = PlanoAtivoView.nomesDias[d] + ": "
+        rotulo += feito > 0 ? Formatador.distancia(feito, unidade: unidade) + L(" feitos", " done") : L("nada corrido", "no run")
+        if let plano { rotulo += L(", plano ", ", plan ") + Formatador.distancia(plano.distancia, unidade: unidade) }
+        return VStack(spacing: 5) {
+            ZStack(alignment: .bottom) {
+                Capsule().fill(Color.primary.opacity(0.06))
+                    .frame(width: 14, height: alturaMaxima)
+                if plano != nil {
+                    Capsule().fill(corPlano)
+                        .frame(width: 14, height: alturaPlano)
+                }
+                if feito > 0 {
+                    Capsule().fill(VolumeSemanalView.verde)
+                        .frame(width: 14, height: alturaFeito)
+                }
+            }
+            Text(texto)
+                .font(.caption2.weight(feito > 0 ? .semibold : .regular))
+                .monospacedDigit()
+                .foregroundStyle(estiloTexto)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+            Text(PlanoAtivoView.letrasDias[d])
+                .font(.caption2.weight(ehHoje ? .bold : .semibold))
+                .foregroundStyle(estiloLetra)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 6)
+        .background(fundo, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(rotulo)
     }
 
     private func kmCurto(_ metros: Double) -> String {
