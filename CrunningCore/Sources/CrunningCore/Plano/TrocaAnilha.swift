@@ -81,15 +81,15 @@ public enum TrocaAnilha {
         }
     }
 
-    /// Item de uma corrida feita. Nil se não dá para mandar (sem distância ou sem tempo):
-    /// o Anilha exige distância e duração maiores que zero numa corrida.
+    /// Item de uma corrida feita. Nil se o Anilha não aceitaria: distância de 5 m a 300 km e
+    /// tempo em movimento de 1 s a 48 h (os limites da tabela de corridas dele).
     public static func corrida(
         codigo: String, inicio: Date, atualizadaEm: Date, distancia: Double, duracaoMovimento: TimeInterval,
         tipo t: TipoTreino?, esforco: Int?, esteira: Bool, planejado: (semana: Int, dia: Int)?,
         stravaID: Int64?, calendario: Calendar = CalendarioTreino.padrao()
     ) -> ItemCorrida? {
         let duracao = Int(duracaoMovimento.rounded())
-        guard !codigo.isEmpty, distancia > 0, duracao > 0 else { return nil }
+        guard !codigo.isEmpty, distancia >= 5, distancia <= 300_000, duracao > 0, duracao <= 172_800 else { return nil }
         return ItemCorrida(
             origemID: codigo, atualizadoEm: instante(atualizadaEm, calendario: calendario), apagado: false,
             inicio: instante(inicio, calendario: calendario), dataLocal: dataLocal(inicio, calendario: calendario),

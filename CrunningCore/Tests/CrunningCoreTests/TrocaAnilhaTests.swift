@@ -48,6 +48,11 @@ struct TrocaAnilhaTests {
                                     tipo: nil, esforco: nil, esteira: true, planejado: nil, stravaID: nil) == nil)
         #expect(TrocaAnilha.corrida(codigo: "", inicio: agora, atualizadaEm: agora, distancia: 5000, duracaoMovimento: 600,
                                     tipo: nil, esforco: nil, esteira: false, planejado: nil, stravaID: nil) == nil)
+        // Fora dos limites do Anilha: menos de 5 m ou mais de 48 h não vai.
+        #expect(TrocaAnilha.corrida(codigo: "x", inicio: agora, atualizadaEm: agora, distancia: 4, duracaoMovimento: 60,
+                                    tipo: nil, esforco: nil, esteira: false, planejado: nil, stravaID: nil) == nil)
+        #expect(TrocaAnilha.corrida(codigo: "x", inicio: agora, atualizadaEm: agora, distancia: 5000, duracaoMovimento: 172_801,
+                                    tipo: nil, esforco: nil, esteira: false, planejado: nil, stravaID: nil) == nil)
         // Esforço fora de 1 a 10 vira desconhecido.
         let item = TrocaAnilha.corrida(codigo: "x", inicio: agora, atualizadaEm: agora, distancia: 5000, duracaoMovimento: 1500,
                                        tipo: nil, esforco: 11, esteira: false, planejado: nil, stravaID: nil)
