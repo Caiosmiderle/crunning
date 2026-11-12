@@ -7,13 +7,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "CRUNNING listens to the heart rate your band broadcasts over Bluetooth to show it during your run. It doesn't pair or connect to the band."
+            "value": "CRUNNING reads the heart rate your band sends over Bluetooth to show it during your run, even with the screen locked. It connects to the band only for that."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "O CRUNNING escuta os batimentos que a sua pulseira transmite por Bluetooth para mostrar na corrida. Ele não pareia nem se conecta à pulseira."
+            "value": "O CRUNNING lê os batimentos que a sua pulseira envia por Bluetooth para mostrar na corrida, inclusive com a tela bloqueada. Ele se conecta à pulseira só para isso."
           }
         }
       }
@@ -65,6 +65,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "O CRUNNING usa a localização para medir a distância, o ritmo e o trajeto das suas corridas, inclusive com a tela bloqueada. A rota fica no seu iPhone, a não ser que você envie a corrida ao Strava."
+          }
+        }
+      }
+    },
+    "NSPhotoLibraryAddUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CRUNNING saves to your Photos the run image you chose to share. It doesn't read your photos."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O CRUNNING salva nas suas Fotos a imagem da corrida que você escolheu compartilhar. Ele não lê as suas fotos."
           }
         }
       }

@@ -243,3 +243,14 @@ O "Ritmo atual" agora é a média da velocidade que o GPS informa nos últimos 1
 - [ ] Rolando para cima, aparece a seta no canto: toque e volta para a mensagem mais recente.
 - [ ] Teclado: arrastar a conversa para baixo abaixa o teclado; o botão do teclado ao lado do campo também.
 - [ ] Apagar a conversa que está aberta e fechar a lista: a tela volta para uma conversa nova, sem travar.
+
+## Imagem para compartilhar a corrida (0.16.0)
+
+- [ ] Detalhe da corrida > "Compartilhar a corrida": prévia grande e, embaixo, os modelos Números, Rota, Faixa, Parciais, Cartão e Mapa.
+- [ ] Adesivos (fundo xadrez na prévia = transparente): Copiar e, no story do Instagram, segurar e Colar por cima de uma foto. O fundo continua transparente?
+- [ ] Salvar: pede permissão de adicionar às Fotos na primeira vez; a imagem aparece nas Fotos em 1080 × 1920.
+- [ ] Enviar: abre o menu do iOS com Instagram, WhatsApp etc.
+- [ ] "Esconder começo e fim (200 m)" ligado por padrão: a rota desenhada não chega à porta de casa. "Mostrar a rota" desligado tira Rota e Mapa.
+- [ ] Mapa: mapa escuro com a rota verde por cima; o aviso diz que o mapa mostra o bairro.
+- [ ] Esteira: sem rota, só os modelos de números.
+- [ ] Ajustes do iPhone > CRUNNING > Bluetooth: o texto agora diz que o app se conecta à pulseira para ler os batimentos.

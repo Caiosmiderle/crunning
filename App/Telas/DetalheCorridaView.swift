@@ -53,6 +53,7 @@ struct DetalheCorridaView: View {
     @State var carregou = false
     @State var confirmandoApagar = false
     @State var enviandoStrava = false
+    @State var compartilhando = false
     @Query(filter: #Predicate<Tenis> { !$0.aposentado }, sort: \Tenis.criadoEm) var tenisAtivos: [Tenis]
 
     init(corrida: Corrida) {
@@ -100,6 +101,18 @@ struct DetalheCorridaView: View {
                 }
                 .padding(20)
                 .cartaoVidro()
+
+                if dados.distancia > 0 {
+                    Button {
+                        compartilhando = true
+                    } label: {
+                        Label(L("Compartilhar a corrida", "Share the run"), systemImage: "square.and.arrow.up")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 48)
+                    }
+                    .buttonStyle(.glass)
+                    .disabled(!carregou)
+                }
 
                 if !dados.resultados.isEmpty {
                     TabelaBlocos(resultados: dados.resultados, unidade: unidade, fc: fc, inicioCorrida: dados.inicio)
@@ -199,6 +212,9 @@ struct DetalheCorridaView: View {
                 }
                 .accessibilityLabel("Mais opções")
             }
+        }
+        .sheet(isPresented: $compartilhando) {
+            CompartilharCorridaView(corrida: dados, amostras: amostras)
         }
         .confirmationDialog("Apagar esta corrida?", isPresented: $confirmandoApagar, titleVisibility: .visible) {
             Button("Apagar", role: .destructive) {
