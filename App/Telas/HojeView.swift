@@ -149,15 +149,19 @@ struct HojeView: View {
         let maiores: [Double] = (0..<7).map { d in max(feitos[d], planejados[d]?.distancia ?? 0) }
         let maximo: Double = max(1, maiores.max() ?? 1)
         let hoje = (calendario.dateComponents([.day], from: inicio, to: calendario.startOfDay(for: .now)).day ?? 0)
+        let forcas: [ForcaDoDia.Marca] = (0..<7).map { d in
+            guard let data = calendario.date(byAdding: .day, value: d, to: inicio) else { return .nenhuma }
+            return ForcaDoDia.marca(data)
+        }
         return HStack(alignment: .bottom, spacing: 6) {
             ForEach(0..<7, id: \.self) { d in
-                colunaDia(d, feito: feitos[d], plano: planejados[d], ehHoje: d == hoje, maximo: maximo)
+                colunaDia(d, feito: feitos[d], plano: planejados[d], ehHoje: d == hoje, maximo: maximo, forca: forcas[d])
             }
         }
     }
 
     /// Uma coluna da faixa (separada para o compilador checar os tipos em partes).
-    private func colunaDia(_ d: Int, feito: Double, plano: SessaoPlanejada?, ehHoje: Bool, maximo: Double) -> some View {
+    private func colunaDia(_ d: Int, feito: Double, plano: SessaoPlanejada?, ehHoje: Bool, maximo: Double, forca: ForcaDoDia.Marca) -> some View {
         let alturaMaxima: CGFloat = 40
         let alturaFeito = CGFloat(max(6, 40 * feito / maximo))
         let alturaPlano = CGFloat(max(6, 40 * (plano?.distancia ?? 0) / maximo))
@@ -169,6 +173,7 @@ struct HojeView: View {
         var rotulo = PlanoAtivoView.nomesDias[d] + ": "
         rotulo += feito > 0 ? Formatador.distancia(feito, unidade: unidade) + L(" feitos", " done") : L("nada corrido", "no run")
         if let plano { rotulo += L(", plano ", ", plan ") + Formatador.distancia(plano.distancia, unidade: unidade) }
+        rotulo += forca.rotulo
         return VStack(spacing: 5) {
             ZStack(alignment: .bottom) {
                 Capsule().fill(Color.primary.opacity(0.06))
@@ -191,6 +196,10 @@ struct HojeView: View {
             Text(PlanoAtivoView.letrasDias[d])
                 .font(.caption2.weight(ehHoje ? .bold : .semibold))
                 .foregroundStyle(estiloLetra)
+            Image(systemName: forca.icone ?? "dumbbell")
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(forca.pernas ? AnyShapeStyle(ForcaDoDia.corPerna) : AnyShapeStyle(.secondary))
+                .opacity(forca.icone == nil ? 0 : 1)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 6)

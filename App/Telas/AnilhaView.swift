@@ -53,6 +53,7 @@ struct AnilhaView: View {
                 Section {
                     Button("Desconectar", role: .destructive) {
                         Anilha.desconectar()
+                        ForcaAnilha.shared.limpar()
                         conectado = false
                         mensagem = L("Desconectado. O que já foi para o Anilha continua lá; para apagar, revogue o token no Anilha e apague as corridas lá.", "Disconnected. What already went to Anilha stays there; to remove it, revoke the token in Anilha and delete the runs there.")
                     }

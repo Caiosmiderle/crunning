@@ -236,6 +236,7 @@ struct PlanoAtivoView: View {
         let data = agenda.data(semana: semana, dia: dia)
         let ehHoje = Calendar.current.isDate(data, inSameDayAs: hoje)
         let status = agenda.status(semana: semana, dia: dia)
+        VStack(alignment: .leading, spacing: 8) {
         HStack(spacing: 12) {
             VStack(spacing: 2) {
                 Text(Self.nomesDias[dia]).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
@@ -259,6 +260,9 @@ struct PlanoAtivoView: View {
                 Text("Descanso").foregroundStyle(.tertiary)
                 Spacer()
             }
+        }
+            ForcaDoDia(data: data)
+                .padding(.leading, 52)
         }
         .padding(12)
         .background {
@@ -377,25 +381,26 @@ struct PlanoAtivoView: View {
         let status = pos.map { agenda.status(semana: $0.semana, dia: $0.dia) } ?? .planejada
         let ehHoje = Calendar.current.isDate(data, inSameDayAs: hoje)
         let rotulo = data.formatted(.dateTime.weekday(.wide).day().month())
+        let forca = doMes ? ForcaDoDia.marca(data) : .nenhuma
         if let pos, let sessao {
             NavigationLink {
                 detalhe(agenda, sessao, semana: pos.semana, dia: pos.dia)
             } label: {
-                conteudoCelula(data: data, doMes: doMes, sessao: sessao, status: status, ehHoje: ehHoje)
+                conteudoCelula(data: data, doMes: doMes, sessao: sessao, status: status, ehHoje: ehHoje, forca: forca)
             }
             .buttonStyle(.plain)
             .menuComPrevia(sessao.treino, subtitulo: rotulo) {
                 menuDia(agenda, semana: pos.semana, dia: pos.dia)
             }
-            .accessibilityLabel(rotulo + ": " + sessao.treino.nome)
+            .accessibilityLabel(rotulo + ": " + sessao.treino.nome + forca.rotulo)
         } else {
-            conteudoCelula(data: data, doMes: doMes, sessao: nil, status: .planejada, ehHoje: ehHoje)
+            conteudoCelula(data: data, doMes: doMes, sessao: nil, status: .planejada, ehHoje: ehHoje, forca: forca)
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel(rotulo + (doMes ? L(": descanso", ": rest") : ""))
+                .accessibilityLabel(rotulo + (doMes ? L(": descanso", ": rest") : "") + forca.rotulo)
         }
     }
 
-    private func conteudoCelula(data: Date, doMes: Bool, sessao: SessaoPlanejada?, status: StatusSessao, ehHoje: Bool) -> some View {
+    private func conteudoCelula(data: Date, doMes: Bool, sessao: SessaoPlanejada?, status: StatusSessao, ehHoje: Bool, forca: ForcaDoDia.Marca) -> some View {
         VStack(spacing: 3) {
             Text(data.formatted(.dateTime.day()))
                 .font(.footnote.weight(ehHoje ? .bold : .semibold))
@@ -416,6 +421,11 @@ struct PlanoAtivoView: View {
                         .strikethrough(status == .perdida)
                         .foregroundStyle(status == .perdida ? AnyShapeStyle(.tertiary) : AnyShapeStyle(.secondary))
                 }
+            }
+            if let icone = forca.icone {
+                Image(systemName: icone)
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(forca.pernas ? AnyShapeStyle(ForcaDoDia.corPerna) : AnyShapeStyle(.secondary))
             }
         }
         .frame(maxWidth: .infinity, minHeight: 54, alignment: .top)

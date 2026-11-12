@@ -62,6 +62,7 @@ struct RaizView: View {
             }
             await EnvioStrava.processarFila()
             await EnvioAnilha.processar()
+            await ForcaAnilha.shared.atualizar()
         }
         .onChange(of: fase) { _, nova in
             // A fila do Strava anda sempre que o app volta para a tela.
@@ -69,6 +70,7 @@ struct RaizView: View {
                 Task {
                     await EnvioStrava.processarFila()
                     await EnvioAnilha.processar()
+                    await ForcaAnilha.shared.atualizar()
                 }
             }
         }

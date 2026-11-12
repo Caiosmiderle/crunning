@@ -61,9 +61,12 @@ enum Anilha {
     }
 
     /// Uma chamada à função. O token vai só no cabeçalho; nunca em log nem na URL.
-    static func chamar(_ metodo: String, caminho: String, corpo: Data?) async throws -> Data {
+    static func chamar(_ metodo: String, caminho: String, corpo: Data?, consulta: [URLQueryItem] = []) async throws -> Data {
         guard let token else { throw Erro.semToken }
-        var pedido = URLRequest(url: endereco.appendingPathComponent(caminho))
+        var componentes = URLComponents(url: endereco.appendingPathComponent(caminho), resolvingAgainstBaseURL: false)
+        if !consulta.isEmpty { componentes?.queryItems = consulta }
+        guard let url = componentes?.url else { throw Erro.resposta }
+        var pedido = URLRequest(url: url)
         pedido.httpMethod = metodo
         pedido.timeoutInterval = 30
         pedido.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
