@@ -282,7 +282,7 @@ Conferido antes deste roteiro: em 12/11 a leitura de força (`GET /forca` da fun
 1. **Conexão:** Ajustes > Anilha (musculação). "Conexão: ativa". Se não estiver, gere o token no Anilha (Você > Conexões > CRUNNING > Gerar token) e cole aqui.
 2. **Marcas na semana:** na aba Hoje, a faixa da semana mostra um halter nos dias com musculação do Anilha: cheio quando já foi feita, vazado quando está prevista. Confira contra o Plano do Anilha (site, aba Plano).
 3. **No plano:** na aba Plano, abra um dia com treino de força previsto. Aparece a linha do treino do Anilha com o nome da ficha.
-4. **Aviso de perna pesada:** só aparece quando há treino de perna com 6 séries ou mais no Anilha até 48 h antes de um treino forte (longão ou intervalado). Para provocar: no Anilha, ponha a ficha de perna para a véspera do seu próximo longão e abra o CRUNNING (puxe para atualizar o Hoje). O cartão "Perna pesada perto de ..." mostra o motivo e uma sugestão de troca.
+4. **Aviso de perna pesada:** só aparece quando há treino de perna com 6 séries ou mais no Anilha até 48 h antes de um treino forte (longão ou intervalado). Para provocar: no Anilha, ponha a ficha de perna para a véspera do seu próximo longão e abra o CRUNNING (ele lê a força do Anilha ao abrir e sempre que volta para a tela). O cartão "Perna pesada perto de ..." mostra o motivo e uma sugestão de troca.
    - "Ver no plano" (na aba Hoje) ou "Ver troca" (no Plano) mostra a prévia; nada muda sem você confirmar.
    - "Manter assim" esconde aquele aviso; ele não volta para o mesmo par de treinos.
 5. **Coach:** abra o chat do coach e pergunte "como está minha semana de força?". Ele deve citar os treinos de força (dia e se tem perna), sem nomes de exercícios, cargas ou notas.
