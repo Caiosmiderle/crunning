@@ -125,13 +125,30 @@ struct VolumeSemanalView: View {
         .background { FundoView() }
         .navigationTitle("Volume por semana")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear { inicioVisivel = inicioAoAbrir(lista) }
         .onChange(of: modo) { _, novo in
             selecionada = nil
-            inicioVisivel = Self.inicioPadrao(novo, calendario: calendario)
+            let nova = novo == .semanas ? listaSemanas : meses(corridasFeitas)
+            inicioVisivel = inicioAoAbrir(nova, modo: novo)
         }
     }
 
     // MARK: Navegação
+
+    /// Onde o gráfico abre: até 5 semanas (ou 3 meses) antes da atual, mas nunca antes da primeira
+    /// corrida, para quem começou agora não ver um monte de semanas vazias; o plano fica à direita.
+    private func inicioAoAbrir(_ lista: [VolumeSemana], modo: Modo? = nil) -> Date {
+        let modo = modo ?? self.modo
+        let padrao = Self.inicioPadrao(modo, calendario: calendario)
+        let primeiraComCorrida = lista.first { $0.feito > 0 }?.inicio ?? (modo == .semanas ? CalendarioTreino.inicioDaSemana(.now, calendario: calendario) : (calendario.dateInterval(of: .month, for: .now)?.start ?? .now))
+        var inicio = max(padrao, primeiraComCorrida)
+        // Sem dados suficientes à direita, recua para a janela ficar cheia.
+        if let ultimo = lista.last?.inicio,
+           let maximo = calendario.date(byAdding: modo == .semanas ? .weekOfYear : .month, value: -(Self.visiveis(modo) - 1), to: ultimo) {
+            inicio = min(inicio, max(lista.first?.inicio ?? inicio, maximo))
+        }
+        return inicio
+    }
 
     private var unidadeTempo: Calendar.Component { modo == .semanas ? .weekOfYear : .month }
 
