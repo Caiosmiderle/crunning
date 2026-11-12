@@ -34,6 +34,29 @@ Registro do que foi feito e descoberto no Amazfit Pace, para retomar sem precisa
 
 **Ferramentas:** registros copiados para `crunning-artifacts/pace-sonda/registros`. O GitHub Actions teve um incidente em 11/11 (duas falhas na partida que não eram do código).
 
+## 11/11/2026 (noite): as páginas do launcher sumiram e voltaram
+
+**O que o Caio viu:** só sobraram Esportes, Batimento, Clima, Música, Atividades e a página do CRUNNING. Sumiram Timer, Cronômetro, Bússola, Alarme, Dados (passos), Sono, Central de treino e Local.
+
+**Nada foi desinstalado.** Os apps da Huami ficam em `/system` e não saem sem root. O que mudou foi a configuração de páginas do launcher.
+
+**Onde fica a configuração:** na tabela `system` do Android.
+- `springboard_widget_order_in`: a lista que o launcher segue. Formato JSON `{"data":[{pkg, cls, title, srl, enable}]}`, em que `srl` é a ordem e `enable` vale 1 ou 0. A primeira página fica à esquerda do mostrador e as outras à direita.
+- `springboard_widget_order_out`: as 14 páginas que existem neste relógio.
+
+A lista `_in` estava no padrão de fábrica: títulos em chinês, apps chineses que nem existem no Pace, e só 5 páginas ligadas.
+
+**Causa provável:** o travamento do launcher com a versão 4, que forçava retrato. Ao recriar o launcher, ele voltou para a lista de fábrica. A montagem das 19:34 (logo depois) já mostrava a lista reduzida.
+
+**Correção:** um `settings put system springboard_widget_order_in '<json>'`, mantendo o formato e ligando de novo as 8 páginas instaladas, na ordem do `_out`.
+- O launcher aplicou na hora, sem reiniciar (log `Hmspringboard: mark 即将ENABLE widget`).
+- Ele também salvou a lista em `l.widget.sort`, que vai para o app do celular.
+- Nenhuma falha no log. As 13 páginas e o CRUNNING aparecem (`crunning-artifacts/pace-sonda/paginas-restauradas.png`).
+
+**Cópias:** `crunning-artifacts/pace-sonda/launcher-backup/` guarda a lista resetada, a restaurada, a `_out` e o script que montou a nova.
+
+**Regra daqui em diante:** depois de instalar ou atualizar o app no Pace, conferir `adb shell settings get system springboard_widget_order_in`. Se voltar ao padrão, dar push do `.restaurado.txt` dentro de um `settings put` (por script em `/data/local/tmp`, por causa das aspas).
+
 ## Próximo teste (na rua)
 
 1. Fora de casa, abra o CRUNNING no relógio (última página), toque em **Começar** e espere **GPS ok** (3 a 5 min na primeira vez) antes de correr.
