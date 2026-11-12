@@ -8,6 +8,7 @@ struct TreinosView: View {
     @AppStorage(Preferencias.unidade) var unidade: UnidadeDistancia = .quilometros
     @AppStorage(Preferencias.provaTempo) var tempoReferencia: Double = 0
     @State var criando = false
+    @Environment(EstadoApp.self) var estadoApp
 
     var body: some View {
         let zonas = ZonasDoUsuario.atuais()
@@ -44,6 +45,7 @@ struct TreinosView: View {
                                 CartaoTreino(treino: treino, zonas: zonas, unidade: unidade)
                             }
                             .buttonStyle(.plain)
+                            .menuComPrevia(treino) { botaoComecar(treino) }
                         }
                     }
                 }
@@ -58,6 +60,7 @@ struct TreinosView: View {
                                 CartaoTreino(treino: treino, zonas: zonas, unidade: unidade)
                             }
                             .buttonStyle(.plain)
+                            .menuComPrevia(treino) { botaoComecar(treino) }
                         }
                     }
                 }
@@ -70,6 +73,7 @@ struct TreinosView: View {
                         CartaoTreino(treino: pronto.treino, zonas: zonas, unidade: unidade)
                     }
                     .buttonStyle(.plain)
+                    .menuComPrevia(pronto.treino) { botaoComecar(pronto.treino) }
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
@@ -78,6 +82,12 @@ struct TreinosView: View {
                     ConstrutorTreinoView(salvo: nil, inicial: nil)
                 }
             }
+        }
+    }
+
+    private func botaoComecar(_ treino: Treino) -> some View {
+        Button(L("Começar este treino", "Start this workout"), systemImage: "play.fill") {
+            estadoApp.abrirTreino(treino)
         }
     }
 

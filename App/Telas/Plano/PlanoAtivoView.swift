@@ -266,7 +266,10 @@ struct PlanoAtivoView: View {
         }
         .cartaoVidro(raio: 18)
         .contentShape(Rectangle())
-        .contextMenu { menuDia(agenda, semana: semana, dia: dia) }
+        .menuComPrevia(agenda.sessao(semana: semana, dia: dia)?.treino,
+                       subtitulo: data.formatted(.dateTime.weekday(.wide).day().month())) {
+            menuDia(agenda, semana: semana, dia: dia)
+        }
         .accessibilityElement(children: .combine)
     }
 
@@ -381,7 +384,9 @@ struct PlanoAtivoView: View {
                 conteudoCelula(data: data, doMes: doMes, sessao: sessao, status: status, ehHoje: ehHoje)
             }
             .buttonStyle(.plain)
-            .contextMenu { menuDia(agenda, semana: pos.semana, dia: pos.dia) }
+            .menuComPrevia(sessao.treino, subtitulo: rotulo) {
+                menuDia(agenda, semana: pos.semana, dia: pos.dia)
+            }
             .accessibilityLabel(rotulo + ": " + sessao.treino.nome)
         } else {
             conteudoCelula(data: data, doMes: doMes, sessao: nil, status: .planejada, ehHoje: ehHoje)

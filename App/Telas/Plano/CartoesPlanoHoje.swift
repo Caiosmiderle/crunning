@@ -88,6 +88,13 @@ struct CartoesPlanoHoje: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .menuComPrevia(sessao.treino, subtitulo: L("hoje", "today")) {
+                        if !feita {
+                            Button(L("Começar treino", "Start workout"), systemImage: "play.fill") {
+                                estadoApp.abrirTreino(sessao.treino, plano: (p.semana, p.dia))
+                            }
+                        }
+                    }
                     .accessibilityHint(feita ? L("Abre a corrida feita", "Opens the finished run") : L("Abre o treino para começar", "Opens the workout to start"))
                     NavigationLink {
                         DetalheTreinoView(

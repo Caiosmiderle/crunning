@@ -264,3 +264,11 @@ O "Ritmo atual" agora é a média da velocidade que o GPS informa nos últimos 1
 - [ ] "Mandar as corridas dos últimos 90 dias" põe as antigas na fila uma vez.
 - [ ] Marcar um treino do plano como feito ou perdido manda os planejados de novo.
 - [ ] Desconectar apaga o token só deste iPhone.
+
+## Coach na tela Hoje e prévia ao segurar (0.18.0)
+
+- [ ] Hoje (com plano): botão "Falar com o coach" logo abaixo do treino do dia; abre a conversa (com as conversas salvas da 0.15).
+- [ ] Segurar o dedo no treino de hoje: aparece a prévia (tipo, nome, totais, linha do tempo e trechos) e "Começar treino" (some se já foi feito).
+- [ ] Plano > Semana e Plano > Mês: segurar um dia com treino mostra a prévia em cima das opções (feito, perdido, mover, trocar). Descanso: só as opções.
+- [ ] Treinos: segurar qualquer treino (meus, modelos, prontos) mostra a prévia e "Começar este treino".
+- [ ] Anilha: apagar uma corrida manda a lápide em cerca de 1 s (sem precisar de Enviar agora); corridas com menos de 5 m ou mais de 48 h não vão.

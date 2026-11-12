@@ -26,6 +26,18 @@ struct HojeView: View {
                     }
                 }
                 .entradaCascata(2)
+                if let ativo = ativos.first {
+                    NavigationLink {
+                        ChatCoachView(ativo: ativo)
+                    } label: {
+                        Label(L("Falar com o coach", "Talk to the coach"), systemImage: "bubble.left.and.text.bubble.right")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 50)
+                    }
+                    .buttonStyle(.glass)
+                    .accessibilityHint(L("Abre a conversa com o coach de IA sobre o seu plano", "Opens the AI coach chat about your plan"))
+                    .entradaCascata(2)
+                }
                 NavigationLink {
                     VolumeSemanalView()
                 } label: {
