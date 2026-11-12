@@ -21,6 +21,9 @@ struct PlanoAtivoView: View {
     @State var provaSemana = 1
     @State var provaDia = 5
     @State var provaKm = 5.0
+    /// Calendário do mês inteiro em vez da semana (lembra a escolha).
+    @AppStorage(PreferenciasPlano.verMes) var verMes = false
+    @State var mesVisto: Date?
 
     nonisolated static var nomesDias: [String] { [L("Seg", "Mon"), L("Ter", "Tue"), L("Qua", "Wed"), L("Qui", "Thu"), L("Sex", "Fri"), L("Sáb", "Sat"), L("Dom", "Sun")] }
 
@@ -39,25 +42,35 @@ struct PlanoAtivoView: View {
         let semana = agenda.plano.semanas[numero - 1]
         return Tela(selo: L("Semana \(numero) de \(agenda.plano.semanas.count) · \(semana.fase.nome)", "Week \(numero) of \(agenda.plano.semanas.count) · \(semana.fase.nome)") + (semana.alivio ? L(" · alívio", " · recovery week") : ""),
                     iconeSelo: "calendar", titulo: agenda.plano.entrada.objetivo.nome) {
-            HStack {
-                Button { semanaVista = numero - 1 } label: { Image(systemName: "chevron.left") }
-                    .disabled(numero <= 1)
-                Spacer()
-                VStack(spacing: 2) {
-                    Text(intervalo(agenda, numero)).font(.subheadline.weight(.semibold))
-                    Text(Formatador.distancia(semana.volumeTreino, unidade: unidade, casas: 0) + L(" planejados", " planned") + (semana.temProva ? L(" + prova", " + race") : ""))
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-                Spacer()
-                Button { semanaVista = numero + 1 } label: { Image(systemName: "chevron.right") }
-                    .disabled(numero >= agenda.plano.semanas.count)
+            Picker(L("Ver", "View"), selection: $verMes) {
+                Text(L("Semana", "Week")).tag(false)
+                Text(L("Mês", "Month")).tag(true)
             }
-            .font(.title3.weight(.semibold))
-            .padding(14)
-            .cartaoVidro(raio: 22)
+            .pickerStyle(.segmented)
 
-            ForEach(0..<7, id: \.self) { dia in
-                diaComDetalhe(agenda, semana: numero, dia: dia, hoje: hoje)
+            if verMes {
+                calendarioMes(agenda, hoje: hoje)
+            } else {
+                HStack {
+                    Button { semanaVista = numero - 1 } label: { Image(systemName: "chevron.left") }
+                        .disabled(numero <= 1)
+                    Spacer()
+                    VStack(spacing: 2) {
+                        Text(intervalo(agenda, numero)).font(.subheadline.weight(.semibold))
+                        Text(Formatador.distancia(semana.volumeTreino, unidade: unidade, casas: 0) + L(" planejados", " planned") + (semana.temProva ? L(" + prova", " + race") : ""))
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Button { semanaVista = numero + 1 } label: { Image(systemName: "chevron.right") }
+                        .disabled(numero >= agenda.plano.semanas.count)
+                }
+                .font(.title3.weight(.semibold))
+                .padding(14)
+                .cartaoVidro(raio: 22)
+
+                ForEach(0..<7, id: \.self) { dia in
+                    diaComDetalhe(agenda, semana: numero, dia: dia, hoje: hoje)
+                }
             }
 
             if let mensagem {
@@ -261,15 +274,8 @@ struct PlanoAtivoView: View {
     @ViewBuilder
     private func diaComDetalhe(_ agenda: AgendaPlano, semana: Int, dia: Int, hoje: Date) -> some View {
         if let sessao = agenda.sessao(semana: semana, dia: dia) {
-            let data = agenda.data(semana: semana, dia: dia)
             NavigationLink {
-                DetalheTreinoView(
-                    treino: sessao.treino,
-                    porque: sessao.treino.modeloID.flatMap { Modelos.modelo(id: $0)?.porque },
-                    salvo: nil,
-                    plano: (semana, dia),
-                    subtitulo: L("Semana \(semana) · ", "Week \(semana) · ") + data.formatted(.dateTime.weekday(.wide).day().month())
-                )
+                detalhe(agenda, sessao, semana: semana, dia: dia)
             } label: {
                 linhaDia(agenda, semana: semana, dia: dia, hoje: hoje)
             }
@@ -277,6 +283,146 @@ struct PlanoAtivoView: View {
         } else {
             linhaDia(agenda, semana: semana, dia: dia, hoje: hoje)
         }
+    }
+
+    private func detalhe(_ agenda: AgendaPlano, _ sessao: SessaoPlanejada, semana: Int, dia: Int) -> some View {
+        DetalheTreinoView(
+            treino: sessao.treino,
+            porque: sessao.treino.modeloID.flatMap { Modelos.modelo(id: $0)?.porque },
+            salvo: nil,
+            plano: (semana, dia),
+            subtitulo: L("Semana \(semana) · ", "Week \(semana) · ") + agenda.data(semana: semana, dia: dia).formatted(.dateTime.weekday(.wide).day().month())
+        )
+    }
+
+    // MARK: Mês inteiro
+
+    nonisolated static var letrasDias: [String] {
+        [L("S", "M"), L("T", "T"), L("Q", "W"), L("Q", "T"), L("S", "F"), L("S", "S"), L("D", "S")]
+    }
+
+    /// O mês em grade de segunda a domingo: cada dia com treino tem a cor do tipo e os km; feito
+    /// ganha o visto, perdido fica apagado e hoje tem contorno. Toque abre o treino; segurar dá
+    /// as mesmas opções da semana.
+    private func calendarioMes(_ agenda: AgendaPlano, hoje: Date) -> some View {
+        let cal = CalendarioTreino.padrao()
+        func mesDe(_ d: Date) -> Date { cal.dateInterval(of: .month, for: d)?.start ?? d }
+        let primeiro = mesDe(agenda.inicio), ultimo = mesDe(agenda.fim)
+        let mes = min(max(mesVisto ?? mesDe(hoje), primeiro), ultimo)
+        let fimMes = cal.date(byAdding: .month, value: 1, to: mes) ?? mes
+        var dias: [Date] = []
+        var d = CalendarioTreino.inicioDaSemana(mes, calendario: cal)
+        while d < fimMes || dias.count % 7 != 0 {
+            dias.append(d)
+            guard let proximo = cal.date(byAdding: .day, value: 1, to: d) else { break }
+            d = proximo
+        }
+        let sessoes = dias
+            .filter { cal.isDate($0, equalTo: mes, toGranularity: .month) }
+            .compactMap { agenda.posicao(de: $0, calendario: cal).flatMap { agenda.sessao(semana: $0.semana, dia: $0.dia) } }
+        let kmMes = sessoes.reduce(0) { $0 + $1.distancia }
+        let titulo = mes.formatted(.dateTime.month(.wide).year())
+        return VStack(spacing: 12) {
+            HStack {
+                Button { mesVisto = cal.date(byAdding: .month, value: -1, to: mes) } label: { Image(systemName: "chevron.left") }
+                    .disabled(mes <= primeiro)
+                    .accessibilityLabel(L("Mês anterior", "Previous month"))
+                Spacer()
+                VStack(spacing: 2) {
+                    Text(titulo.prefix(1).uppercased() + titulo.dropFirst()).font(.subheadline.weight(.semibold))
+                    Text(Formatador.distancia(kmMes, unidade: unidade, casas: 0) + L(" planejados · \(sessoes.count) treinos", " planned · \(sessoes.count) workouts"))
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+                Button { mesVisto = cal.date(byAdding: .month, value: 1, to: mes) } label: { Image(systemName: "chevron.right") }
+                    .disabled(mes >= ultimo)
+                    .accessibilityLabel(L("Próximo mês", "Next month"))
+            }
+            .font(.title3.weight(.semibold))
+            .padding(14)
+            .cartaoVidro(raio: 22)
+
+            VStack(spacing: 6) {
+                HStack(spacing: 4) {
+                    ForEach(0..<7, id: \.self) { i in
+                        Text(Self.letrasDias[i])
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 7), spacing: 4) {
+                    ForEach(dias, id: \.self) { data in
+                        celulaMes(agenda, data: data, doMes: cal.isDate(data, equalTo: mes, toGranularity: .month), hoje: hoje)
+                    }
+                }
+            }
+            .padding(10)
+            .cartaoVidro(raio: 22)
+
+            Text(L("Toque num dia para ver o treino; segure para marcar, mover ou trocar.", "Tap a day to see the workout; press and hold to mark, move or swap."))
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    @ViewBuilder
+    private func celulaMes(_ agenda: AgendaPlano, data: Date, doMes: Bool, hoje: Date) -> some View {
+        let pos = doMes ? agenda.posicao(de: data) : nil
+        let sessao = pos.flatMap { agenda.sessao(semana: $0.semana, dia: $0.dia) }
+        let status = pos.map { agenda.status(semana: $0.semana, dia: $0.dia) } ?? .planejada
+        let ehHoje = Calendar.current.isDate(data, inSameDayAs: hoje)
+        let rotulo = data.formatted(.dateTime.weekday(.wide).day().month())
+        if let pos, let sessao {
+            NavigationLink {
+                detalhe(agenda, sessao, semana: pos.semana, dia: pos.dia)
+            } label: {
+                conteudoCelula(data: data, doMes: doMes, sessao: sessao, status: status, ehHoje: ehHoje)
+            }
+            .buttonStyle(.plain)
+            .contextMenu { menuDia(agenda, semana: pos.semana, dia: pos.dia) }
+            .accessibilityLabel(rotulo + ": " + sessao.treino.nome)
+        } else {
+            conteudoCelula(data: data, doMes: doMes, sessao: nil, status: .planejada, ehHoje: ehHoje)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(rotulo + (doMes ? L(": descanso", ": rest") : ""))
+        }
+    }
+
+    private func conteudoCelula(data: Date, doMes: Bool, sessao: SessaoPlanejada?, status: StatusSessao, ehHoje: Bool) -> some View {
+        VStack(spacing: 3) {
+            Text(data.formatted(.dateTime.day()))
+                .font(.footnote.weight(ehHoje ? .bold : .semibold))
+                .monospacedDigit()
+                .foregroundStyle(doMes ? (ehHoje ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.primary)) : AnyShapeStyle(.quaternary))
+            if let sessao {
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                    .fill(sessao.tipo.cor.opacity(status == .perdida ? 0.3 : 1))
+                    .frame(height: 4)
+                    .padding(.horizontal, 6)
+                if status == .feita {
+                    Image(systemName: "checkmark")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(Paleta.dentroDaFaixa)
+                } else {
+                    Text(Formatador.numero(Formatador.distanciaNaUnidade(sessao.distancia, unidade: unidade), casas: 0))
+                        .font(.caption2.monospacedDigit())
+                        .strikethrough(status == .perdida)
+                        .foregroundStyle(status == .perdida ? AnyShapeStyle(.tertiary) : AnyShapeStyle(.secondary))
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 54, alignment: .top)
+        .padding(.vertical, 6)
+        .background {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(status == .feita ? Paleta.dentroDaFaixa.opacity(0.12) : (sessao != nil ? Color.primary.opacity(0.05) : Color.clear))
+        }
+        .overlay {
+            if ehHoje { RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(Color.accentColor, lineWidth: 1.5) }
+        }
+        .contentShape(Rectangle())
     }
 
     @ViewBuilder

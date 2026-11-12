@@ -60,6 +60,8 @@ enum PreferenciasPlano {
     static let ultimoTenis = "ultimoTenis"
     /// Tênis principal (Tenis.codigo): toda corrida começa com ele (Ajustes > Tênis).
     static let tenisPrincipal = "tenisPrincipal"
+    /// Aba Plano mostrando o mês inteiro em vez da semana.
+    static let verMes = "planoVerMes"
 
     static var principal: String? {
         let d = UserDefaults.standard

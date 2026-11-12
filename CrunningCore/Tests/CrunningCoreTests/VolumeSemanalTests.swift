@@ -24,6 +24,15 @@ struct VolumeSemanalTests {
         #expect(A.calendario.component(.day, from: m[2].inicio) == 1)
     }
 
+    @Test func somaPorDiaDaSemana() {
+        // Hoje: quarta, 11/11/2026 (A.dia(9)). Duas corridas hoje, uma na terça e uma na semana passada.
+        let corridas: [(inicio: Date, distancia: Double)] = [
+            (A.dia(8), 5000), (A.dia(9), 8000), (A.dia(9).addingTimeInterval(3600), 2000), (A.dia(6), 10_000),
+        ]
+        let dias = VolumeSemanal.porDia(corridas: corridas, hoje: A.dia(9), calendario: A.calendario)
+        #expect(dias == [0, 5000, 10_000, 0, 0, 0, 0])
+    }
+
     @Test func somaPorSemanaComPlano() throws {
         // Hoje: quarta da semana de 9/11/2026 (A.dia(9)). Corridas nesta semana, na passada e há 3 semanas.
         let hoje = A.dia(9)

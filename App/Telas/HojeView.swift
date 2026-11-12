@@ -113,10 +113,74 @@ struct HojeView: View {
                 Spacer()
                 numero(Formatador.duracao(tempo), legenda: L("em movimento", "moving"))
             }
+            faixaDias(semana)
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .cartaoVidro()
+    }
+
+    // MARK: Semana dia a dia
+
+    /// Segunda a domingo: barra verde com o que foi corrido e, atrás, a do treino do plano na cor
+    /// do tipo; embaixo, os km feitos (ou os planejados, apagados). Hoje fica destacado.
+    private func faixaDias(_ semana: [Corrida]) -> some View {
+        let calendario = CalendarioTreino.padrao()
+        let inicio = CalendarioTreino.inicioDaSemana(.now, calendario: calendario)
+        let feitos = VolumeSemanal.porDia(corridas: semana.map { (inicio: $0.inicio, distancia: $0.distanciaMetros) }, hoje: .now, calendario: calendario)
+        let agenda = ativos.first?.agenda
+        let planejados: [SessaoPlanejada?] = (0..<7).map { d in
+            guard let agenda, let data = calendario.date(byAdding: .day, value: d, to: inicio),
+                  let p = agenda.posicao(de: data, calendario: calendario) else { return nil }
+            return agenda.sessao(semana: p.semana, dia: p.dia)
+        }
+        let maximo = max(1, (0..<7).map { max(feitos[$0], planejados[$0]?.distancia ?? 0) }.max() ?? 1)
+        let hoje = (calendario.dateComponents([.day], from: inicio, to: calendario.startOfDay(for: .now)).day ?? 0)
+        let alturaMaxima: CGFloat = 40
+        return HStack(alignment: .bottom, spacing: 6) {
+            ForEach(0..<7, id: \.self) { d in
+                let feito = feitos[d]
+                let plano = planejados[d]
+                let ehHoje = d == hoje
+                VStack(spacing: 5) {
+                    ZStack(alignment: .bottom) {
+                        Capsule().fill(Color.primary.opacity(0.06))
+                            .frame(width: 14, height: alturaMaxima)
+                        if let plano {
+                            Capsule().fill(plano.tipo.cor.opacity(feito > 0 ? 0.25 : 0.4))
+                                .frame(width: 14, height: max(6, alturaMaxima * plano.distancia / maximo))
+                        }
+                        if feito > 0 {
+                            Capsule().fill(VolumeSemanalView.verde)
+                                .frame(width: 14, height: max(6, alturaMaxima * feito / maximo))
+                        }
+                    }
+                    Text(feito > 0 ? kmCurto(feito) : (plano.map { kmCurto($0.distancia) } ?? "–"))
+                        .font(.caption2.weight(feito > 0 ? .semibold : .regular))
+                        .monospacedDigit()
+                        .foregroundStyle(feito > 0 ? AnyShapeStyle(.primary) : AnyShapeStyle(.tertiary))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    Text(PlanoAtivoView.letrasDias[d])
+                        .font(.caption2.weight(ehHoje ? .bold : .semibold))
+                        .foregroundStyle(ehHoje ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.secondary))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 6)
+                .background {
+                    if ehHoje { RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.accentColor.opacity(0.1)) }
+                }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(PlanoAtivoView.nomesDias[d] + ": "
+                    + (feito > 0 ? Formatador.distancia(feito, unidade: unidade) + L(" feitos", " done") : L("nada corrido", "no run"))
+                    + (plano.map { L(", plano ", ", plan ") + Formatador.distancia($0.distancia, unidade: unidade) } ?? ""))
+            }
+        }
+    }
+
+    private func kmCurto(_ metros: Double) -> String {
+        let v = Formatador.distanciaNaUnidade(metros, unidade: unidade)
+        return Formatador.numero(v, casas: v < 10 && v != v.rounded() ? 1 : 0)
     }
 
     private func numero(_ valor: String, legenda: String) -> some View {

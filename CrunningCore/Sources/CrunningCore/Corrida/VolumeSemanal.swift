@@ -64,6 +64,19 @@ public enum VolumeSemanal {
         return lista
     }
 
+    /// Distância feita em cada dia (segunda a domingo) da semana de `hoje`.
+    public static func porDia(corridas: [(inicio: Date, distancia: Double)], hoje: Date,
+                              calendario: Calendar = CalendarioTreino.padrao()) -> [Double] {
+        let inicio = CalendarioTreino.inicioDaSemana(hoje, calendario: calendario)
+        var dias = Array(repeating: 0.0, count: 7)
+        for c in corridas where c.distancia > 0 {
+            guard let d = calendario.dateComponents([.day], from: inicio, to: calendario.startOfDay(for: c.inicio)).day,
+                  (0..<7).contains(d) else { continue }
+            dias[d] += c.distancia
+        }
+        return dias
+    }
+
     /// Média das `n` semanas completas antes da semana de `hoje`.
     public static func media(_ semanas: [VolumeSemana], ultimas n: Int, hoje: Date,
                              calendario: Calendar = CalendarioTreino.padrao()) -> Double {

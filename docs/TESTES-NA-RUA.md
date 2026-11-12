@@ -225,3 +225,12 @@ O "Ritmo atual" agora é a média da velocidade que o GPS informa nos últimos 1
 - [ ] Ritmo: uma parada no meio não achata o gráfico (o pico sai cortado); a média aparece tracejada e no topo.
 - [ ] Batimentos: a linha sai contínua mesmo com leituras espaçadas; só some depois de mais de 1 min sem sinal.
 - [ ] Altitude: terreno plano não vira montanha nem sobra faixa de -10 m; o topo mostra mínima e máxima.
+
+## Semana dia a dia e plano por mês (0.14.0)
+
+- [ ] Hoje > "Esta semana": embaixo dos números, segunda a domingo com barra verde do que foi corrido e, atrás, a do treino do plano na cor do tipo; hoje destacado.
+- [ ] Dia sem corrida mostra os km planejados apagados; descanso mostra "–".
+- [ ] Plano: seletor Semana / Mês no topo. A semana continua igual; a escolha fica lembrada.
+- [ ] Mês: grade de segunda a domingo, setas até o mês da prova, km planejados do mês no topo.
+- [ ] Cada dia com treino tem a cor do tipo e os km; feito com visto verde, perdido riscado, hoje com contorno.
+- [ ] Tocar num dia abre o treino; segurar dá marcar feito/perdido, mover e trocar.
