@@ -458,6 +458,7 @@ struct PlanoAtivoView: View {
         nova.marcar(semana: semana, dia: dia, status)
         ativo.agenda = nova
         try? contexto.save()
+        EnvioAnilha.planoMudou()
     }
 
     private func propor(_ correcao: CorrecaoPlano, _ agenda: AgendaPlano) {
@@ -476,6 +477,7 @@ struct PlanoAtivoView: View {
         agenda.trocarPlano(p.novo)
         ativo.agenda = agenda
         try? contexto.save()
+        EnvioAnilha.planoMudou()
         mensagem = L("Aplicado: ", "Applied: ") + p.correcao.descricao + "."
         proposta = nil
     }

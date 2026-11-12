@@ -103,10 +103,15 @@ struct AjustesView: View {
                     } label: {
                         Label("Strava", systemImage: "arrow.up.circle")
                     }
+                    NavigationLink {
+                        AnilhaView()
+                    } label: {
+                        Label("Anilha (musculação)", systemImage: "dumbbell")
+                    }
                 } header: {
                     Text("Conexões")
                 } footer: {
-                    Text("O batimento fica no iPhone e só sai no TCX que vai ao Strava ou que você exporta. O CRUNNING só envia ao Strava; não lê nada de lá, e nada disso vai para o Coach de IA.")
+                    Text("O batimento fica no iPhone e só sai no TCX que vai ao Strava ou que você exporta. O CRUNNING só envia ao Strava; não lê nada de lá, e nada disso vai para o Coach de IA. Ao Anilha vão só resumos das corridas e do plano, sem rota nem batimentos.")
                 }
 
                 Section {

@@ -43,6 +43,13 @@ final class Corrida {
     var stravaPendente: Bool = false
     /// Análise pós-treino do treinador de IA ([AnaliseSalva] em JSON), com o custo que a API informou.
     var analiseIA: Data? = nil
+    /// Código estável da corrida para a troca com o Anilha (UUID; preenchido na primeira abertura
+    /// das corridas antigas). Vazio por padrão para cada corrida ganhar o seu.
+    var codigo: String = ""
+    /// Na fila de envio ao Anilha, e quando ele aceitou.
+    var anilhaPendente: Bool = false
+    var anilhaEnviadaEm: Date? = nil
+    var anilhaErro: String? = nil
 
     init(
         inicio: Date,

@@ -29,6 +29,7 @@ struct HistoricoView: View {
                         .buttonStyle(.plain)
                         .contextMenu {
                             Button("Apagar corrida", systemImage: "trash", role: .destructive) {
+                                EnvioAnilha.registrarApagada(corrida)
                                 contexto.delete(corrida)
                                 try? contexto.save()
                             }

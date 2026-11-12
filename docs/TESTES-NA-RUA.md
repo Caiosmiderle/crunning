@@ -254,3 +254,13 @@ O "Ritmo atual" agora é a média da velocidade que o GPS informa nos últimos 1
 - [ ] Mapa: mapa escuro com a rota verde por cima; o aviso diz que o mapa mostra o bairro.
 - [ ] Esteira: sem rota, só os modelos de números.
 - [ ] Ajustes do iPhone > CRUNNING > Bluetooth: o texto agora diz que o app se conecta à pulseira para ler os batimentos.
+
+## Conexão com o Anilha (0.17.0)
+
+- [ ] Ajustes > Conexões > Anilha (musculação): sem token, só o campo e a explicação do que vai e do que não vai.
+- [ ] Colar um texto qualquer: recusa ("começa com anl_"). Colar o token gerado no Anilha: conecta.
+- [ ] Depende da função troca-crunning publicada no Supabase do Anilha (ainda não publicada em 12/11/2026). Antes disso, "Enviar agora" mostra erro e a corrida fica na fila, sem travar nada.
+- [ ] Depois de publicada: salvar uma corrida, abrir o Anilha e ver a corrida "do CRUNNING" no histórico; apagar no CRUNNING e ver sumir lá.
+- [ ] "Mandar as corridas dos últimos 90 dias" põe as antigas na fila uma vez.
+- [ ] Marcar um treino do plano como feito ou perdido manda os planejados de novo.
+- [ ] Desconectar apaga o token só deste iPhone.

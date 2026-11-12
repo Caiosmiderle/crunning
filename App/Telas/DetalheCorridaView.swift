@@ -220,6 +220,7 @@ struct DetalheCorridaView: View {
             Button("Apagar", role: .destructive) {
                 let alvo = corrida
                 fechar()
+                EnvioAnilha.registrarApagada(alvo)
                 contexto.delete(alvo)
                 try? contexto.save()
             }

@@ -105,6 +105,7 @@ struct ResumoCorridaView: View {
                         if Strava.envioAutomatico, !corrida.simulada {
                             Task { await EnvioStrava.enfileirar(corrida) }
                         }
+                        Task { await EnvioAnilha.enfileirar(corrida) }
                     } label: {
                         Text("Salvar corrida")
                             .font(.headline)
