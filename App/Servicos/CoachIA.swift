@@ -97,7 +97,7 @@ enum CoachIA {
     static let modelo = "claude-sonnet-5-5"
     static let endereco = URL(string: "https://api.anthropic.com/v1/messages")!
 
-    static func analisar(_ plano: Plano, alertas: [String]) async throws -> AnaliseIA {
+    static func analisar(_ plano: Plano, alertas: [String], forca: ForcaParaCoach? = nil) async throws -> AnaliseIA {
         guard let chave = Chaveiro.ler() else { throw ErroCoachIA.semChave }
         var pedido = URLRequest(url: endereco, timeoutInterval: 180)
         pedido.httpMethod = "POST"
@@ -106,7 +106,7 @@ enum CoachIA {
         pedido.setValue("2026-10-21", forHTTPHeaderField: "anthropic-version")
         // Se o Sonnet 5.5 recusar por engano, a API tenta de novo em outro modelo na mesma chamada.
         pedido.setValue("server-side-fallback-2026-07-01", forHTTPHeaderField: "anthropic-beta")
-        pedido.httpBody = try corpo(plano, alertas: alertas)
+        pedido.httpBody = try corpo(plano, alertas: alertas, forca: forca)
 
         for tentativa in 0..<2 {
             let (dados, resposta) = try await URLSession.shared.data(for: pedido)
@@ -133,10 +133,12 @@ enum CoachIA {
 
     // MARK: Pedido
 
-    static func corpo(_ plano: Plano, alertas: [String]) throws -> Data {
+    static func corpo(_ plano: Plano, alertas: [String], forca: ForcaParaCoach? = nil) throws -> Data {
         let codificador = JSONEncoder()
         codificador.outputFormatting = [.sortedKeys]
-        let resumo = String(decoding: try codificador.encode(ResumoPlanoIA(plano: plano, alertas: alertas)), as: UTF8.self)
+        var resumoPlano = ResumoPlanoIA(plano: plano, alertas: alertas)
+        resumoPlano.forcaAnilha = forca
+        let resumo = String(decoding: try codificador.encode(resumoPlano), as: UTF8.self)
         let corpo: [String: Any] = [
             "model": modelo,
             "max_tokens": 16000,
@@ -229,8 +231,12 @@ enum CoachIA {
     - Aponte problemas concretos, com as semanas envolvidas e uma sugestão prática. Separe gravidade: alta (faz o plano errar o objetivo ou arrisca lesão), média (atrapalha o rendimento), baixa (ajuste fino).
     - Se o plano estiver bom, diga isso e liste poucos pontos.
     - Não dê conselho médico.
+    - \(regraForca)
     - Escreva em \(Idioma.atual == .ingles ? "inglês (English)" : "português do Brasil"), de forma direta, como um treinador falando com o atleta.
     """
+
+    /// Como o coach usa a força do Anilha (mesma base do aviso de perna pesada, ConflitoForca).
+    static let regraForca = "Se vier \"forcaAnilha\" (treinos de força do Anilha feitos e previstos, em dias relativos a hoje e com dia da semana 0 = segunda), considere que perna pesada (a partir de \"seriesPernaPesada\" séries de perna) pode deixar a corrida mais custosa por até 48 h (Doma e colegas, 2017 e 2019). Evite propor treino de qualidade ou longão no dia seguinte a perna pesada; se o plano já estiver assim, diga e proponha mover com as operações. Treino de força não é seu para mudar: só comente."
 
     static let instrucoesDasOperacoes = """
     Correções que o app sabe aplicar (campo "correcao" de cada ponto):
@@ -328,6 +334,8 @@ struct ResumoPlanoIA: Encodable {
     let alertasDoMotor: [String]
     let regrasDoMotor: [String]
     let plano: [Semana]
+    /// Força do Anilha (14 dias para trás e para frente), quando conectado. Nil não vai no JSON.
+    var forcaAnilha: ForcaParaCoach?
 
     init(plano p: Plano, alertas: [String]) {
         func km(_ m: Double) -> Double { (m / 100).rounded() / 10 }

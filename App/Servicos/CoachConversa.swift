@@ -110,8 +110,12 @@ struct ContextoAgendaIA: Encodable {
     /// Treinos de qualidade recentes: "rapido", "lento" ou "na faixa".
     let ritmoDosTreinosDeQualidade: [String]
     let plano: ResumoPlanoIA
+    /// Força registrada e prevista no Anilha (14 dias para trás e para frente), só agregados.
+    let forcaAnilha: ForcaParaCoach?
 
+    @MainActor
     init(agenda: AgendaPlano, ladosRecentes: [Bool?], hoje: Date = .now) {
+        forcaAnilha = ConflitoForca.paraCoach(ForcaAnilha.shared.estado, hoje: hoje)
         let p = agenda.posicao(de: hoje)
         self.hoje = hoje.formatted(.iso8601.year().month().day())
         semanaAtual = p?.semana
@@ -161,6 +165,7 @@ enum CoachChat {
         - Use só as operações do esquema; nunca invente treinos ou números. Não mexa em semanas que já passaram (antes de "semanaAtual").
         - Dor que muda a passada ou que persiste, febre ou sintomas abaixo do pescoço: oriente parar e procurar um profissional; não prescreva treino por cima. Não dê conselho médico.
         - Se o pedido não couber nas operações, explique o que dá para fazer.
+        - \(CoachIA.regraForca)
 
         \(CoachIA.instrucoesDasOperacoes)
 
@@ -300,6 +305,7 @@ enum CriadorPlanoCoach {
     - volumeAtualKm e longaoAtualKm: use o que ele contou; reduza só se houver lesão recente ou volta de pausa, e explique;
     - tetoPercentual (5 a 20): aumento máximo do volume por semana. Use 10 por padrão; menos com lesão recente, histórico de lesões ou iniciante; nunca mais de 10 sem motivo claro.
     Não invente tempo de prova nem dados que ele não deu. Se ele já tiver prova de referência no app, os ritmos saem dela.
+    Se vier a força do Anilha, prefira dias de corrida que não caiam no dia seguinte a treino com perna, sobretudo para o longão (o motor não sabe disso; você escolhe os dias).
 
     Em "explicacao", diga em 2 a 4 frases, em \(Idioma.atual == .ingles ? "inglês (English)" : "português do Brasil"), por que escolheu assim (em especial o que mudou em relação ao que ele pediu). Não dê conselho médico.
     """
@@ -328,7 +334,13 @@ enum CriadorPlanoCoach {
         let codificador = JSONEncoder()
         codificador.outputFormatting = [.sortedKeys]
         let respostas = String(decoding: try codificador.encode(q), as: UTF8.self)
-        var mensagens = [ClienteClaude.Mensagem(papel: "user", texto: "Respostas do corredor:\n\n" + respostas)]
+        var texto = "Respostas do corredor:\n\n" + respostas
+        // Força do Anilha (dias em que costuma ter perna): ajuda a escolher os dias de corrida.
+        if let forca = await ConflitoForca.paraCoach(ForcaAnilha.shared.estado, hoje: .now),
+           let json = try? codificador.encode(forca) {
+            texto += "\n\nForça no Anilha (últimos e próximos 14 dias):\n\n" + String(decoding: json, as: UTF8.self)
+        }
+        var mensagens = [ClienteClaude.Mensagem(papel: "user", texto: texto)]
         for tentativa in 0..<2 {
             let escolha: EscolhaPlanoIA
             if ClienteClaude.simulado {

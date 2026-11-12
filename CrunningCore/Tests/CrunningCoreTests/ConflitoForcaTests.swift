@@ -84,6 +84,22 @@ struct ConflitoForcaTests {
         #expect(!avisos.contains { $0.semana == 2 && $0.dia == alvo.dia })
     }
 
+    @Test func forcaParaCoachUltimosEProximos14Dias() throws {
+        var e = Self.estado(feitaEm: A.dia(9))
+        let chaveFutura = EstadoForcaAnilha.chave(A.dia(12), calendario: A.calendario)
+        e.planejadas = [ForcaPlanejadaAnilha(dataLocal: chaveFutura, nome: "Costas", pernas: false)]
+        let f = try #require(ConflitoForca.paraCoach(e, hoje: A.dia(10), calendario: A.calendario))
+        #expect(f.feitas == [.init(diasAtras: 1, ficha: "Pernas A", perna: true, seriesPerna: 9, parcial: false)])
+        // A.dia(12) é 14 de novembro, sábado (a segunda do teste é dia 2): índice 5.
+        #expect(f.previstas == [.init(diasAFrente: 2, diaDaSemana: 5, ficha: "Costas", perna: false)])
+        #expect(f.seriesPernaPesada == ConflitoForca.seriesPesada)
+        // Fora da janela de 14 dias, nada vai.
+        #expect(ConflitoForca.paraCoach(e, hoje: A.dia(40), calendario: A.calendario) == nil)
+        // Nenhum campo de carga, horário ou identificador.
+        let json = String(decoding: try JSONEncoder().encode(f), as: UTF8.self)
+        #expect(!json.contains("origem") && !json.contains("inicio") && !json.contains("kg"))
+    }
+
     @Test func resumoParaOCoachSoComAgregados() throws {
         let corrida = A.dia(10)
         let e = Self.estado(feitaEm: A.dia(9))

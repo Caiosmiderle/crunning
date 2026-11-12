@@ -36,6 +36,30 @@ public struct AvisoForca: Equatable, Sendable, Identifiable {
     }
 }
 
+/// O que o coach recebe da força do Anilha (JSON com chaves em português, só agregados).
+public struct ForcaParaCoach: Codable, Sendable, Equatable {
+    public struct Feita: Codable, Sendable, Equatable {
+        public let diasAtras: Int
+        public let ficha: String
+        public let perna: Bool
+        public let seriesPerna: Int
+        public let parcial: Bool
+    }
+
+    public struct Prevista: Codable, Sendable, Equatable {
+        public let diasAFrente: Int
+        /// 0 = segunda, como `indiceDia` do plano.
+        public let diaDaSemana: Int
+        public let ficha: String
+        public let perna: Bool
+    }
+
+    public let feitas: [Feita]
+    public let previstas: [Prevista]
+    /// A partir de quantas séries de perna o app considera a sessão pesada.
+    public let seriesPernaPesada: Int
+}
+
 public enum ConflitoForca {
     /// Séries de trabalho de perna a partir das quais a sessão conta como pesada (escolha do app).
     public static let seriesPesada = 6
@@ -101,6 +125,33 @@ public enum ConflitoForca {
             if (try? correcao.aplicar(agenda.plano)) != nil { return correcao }
         }
         return nil
+    }
+
+    /// Força do Anilha para o coach e a revisão do plano: últimos e próximos 14 dias, só agregados
+    /// (dia relativo, nome da ficha, se teve perna e quantas séries de perna). Nil sem nada.
+    public static func paraCoach(_ forca: EstadoForcaAnilha, hoje: Date,
+                                 calendario: Calendar = CalendarioTreino.padrao()) -> ForcaParaCoach? {
+        let inicio = calendario.startOfDay(for: hoje)
+        var feitas: [ForcaParaCoach.Feita] = []
+        var previstas: [ForcaParaCoach.Prevista] = []
+        for d in -14...14 {
+            guard let data = calendario.date(byAdding: .day, value: d, to: inicio) else { continue }
+            let dia = forca.doDia(EstadoForcaAnilha.chave(data, calendario: calendario))
+            if d <= 0 {
+                feitas += dia.feitas.map {
+                    .init(diasAtras: -d, ficha: $0.nome ?? "Força", perna: $0.pernas == true,
+                          seriesPerna: $0.seriesPernas ?? 0, parcial: $0.status == "parcial")
+                }
+            }
+            if d >= 0 {
+                let semana = (calendario.component(.weekday, from: data) + 5) % 7
+                previstas += dia.planejadas.map {
+                    .init(diasAFrente: d, diaDaSemana: semana, ficha: $0.nome, perna: $0.pernas)
+                }
+            }
+        }
+        if feitas.isEmpty && previstas.isEmpty { return nil }
+        return ForcaParaCoach(feitas: feitas, previstas: previstas, seriesPernaPesada: seriesPesada)
     }
 
     /// Linha para o coach: força das últimas 48 h antes de uma corrida (só agregados).

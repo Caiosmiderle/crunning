@@ -266,7 +266,8 @@ struct PreviaPlanoView: View {
         erroAnalise = nil
         defer { analisando = false }
         do {
-            analise = try await CoachIA.analisar(plano, alertas: GeradorPlano.alertas(plano))
+            analise = try await CoachIA.analisar(plano, alertas: GeradorPlano.alertas(plano),
+                                                 forca: ConflitoForca.paraCoach(ForcaAnilha.shared.estado, hoje: .now))
         } catch {
             erroAnalise = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
         }
