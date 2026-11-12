@@ -81,6 +81,8 @@ public struct ResumoTreinoIA: Codable, Sendable, Equatable {
     public var parciais: [ParcialKm]
     public var totais: Totais
     public var ultimoTreinoParecido: Anterior?
+    /// Força registrada no Anilha até 2 dias antes (nome da ficha, dias antes, séries de perna).
+    public var forcaRecente: String?
 
     public init(
         treino: String, plano: String?, esteira: Bool, corredor: Corredor?, esforco: Int?,

@@ -8,6 +8,7 @@ struct HojeView: View {
     @Environment(EstadoApp.self) var estadoApp
     @Binding var aba: Aba
     @Query var ativos: [PlanoAtivo]
+    @AppStorage(CartaoAvisoForca.chaveDispensados) var dispensados = ""
 
     var body: some View {
         NavigationStack {
@@ -23,6 +24,14 @@ struct HojeView: View {
                         CartoesPlanoHoje(ativo: ativo, aba: $aba)
                     } else {
                         cartaoTreinoDoDia
+                    }
+                }
+                .entradaCascata(2)
+                ForEach(avisosForca) { aviso in
+                    CartaoAvisoForca(aviso: aviso, unidade: unidade, textoAcao: L("Ver no plano", "See in plan")) {
+                        aba = .plano
+                    } manter: {
+                        dispensados = (dispensados.isEmpty ? "" : dispensados + ",") + aviso.id
                     }
                 }
                 .entradaCascata(2)
@@ -82,6 +91,14 @@ struct HojeView: View {
             }
             .toolbar(.hidden, for: .navigationBar)
         }
+    }
+
+    /// Perna pesada no Anilha perto de treino forte de hoje ou dos próximos dois dias.
+    private var avisosForca: [AvisoForca] {
+        guard let agenda = ativos.first?.agenda else { return [] }
+        let fora = Set(dispensados.split(separator: ",").map(String.init))
+        return ConflitoForca.avisos(agenda: agenda, forca: ForcaAnilha.shared.estado, hoje: .now)
+            .filter { !fora.contains($0.id) }
     }
 
     private var cartaoTreinoDoDia: some View {

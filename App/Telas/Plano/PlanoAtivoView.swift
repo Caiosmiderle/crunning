@@ -24,6 +24,7 @@ struct PlanoAtivoView: View {
     /// Calendário do mês inteiro em vez da semana (lembra a escolha).
     @AppStorage(PreferenciasPlano.verMes) var verMes = false
     @State var mesVisto: Date?
+    @AppStorage(CartaoAvisoForca.chaveDispensados) var dispensados = ""
 
     nonisolated static var nomesDias: [String] { [L("Seg", "Mon"), L("Ter", "Tue"), L("Qua", "Wed"), L("Qui", "Thu"), L("Sex", "Fri"), L("Sáb", "Sat"), L("Dom", "Sun")] }
 
@@ -47,6 +48,14 @@ struct PlanoAtivoView: View {
                 Text(L("Mês", "Month")).tag(true)
             }
             .pickerStyle(.segmented)
+
+            ForEach(avisosForca(agenda, hoje: hoje)) { aviso in
+                CartaoAvisoForca(aviso: aviso, unidade: unidade) {
+                    if let s = aviso.sugestao { propor(s, agenda) }
+                } manter: {
+                    dispensados = (dispensados.isEmpty ? "" : dispensados + ",") + aviso.id
+                }
+            }
 
             if verMes {
                 calendarioMes(agenda, hoje: hoje)
@@ -224,6 +233,13 @@ struct PlanoAtivoView: View {
         } else {
             mensagem = L("Não deu para criar o calendário CRUNNING.", "Could not create the CRUNNING calendar.")
         }
+    }
+
+    /// Perna pesada no Anilha perto de treino forte, menos os que você mandou manter.
+    private func avisosForca(_ agenda: AgendaPlano, hoje: Date) -> [AvisoForca] {
+        let fora = Set(dispensados.split(separator: ",").map(String.init))
+        return ConflitoForca.avisos(agenda: agenda, forca: ForcaAnilha.shared.estado, hoje: hoje)
+            .filter { !fora.contains($0.id) }
     }
 
     private func intervalo(_ agenda: AgendaPlano, _ semana: Int) -> String {

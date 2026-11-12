@@ -146,12 +146,15 @@ enum AnaliseTreinoIA {
             vdot: ZonasDoUsuario.atuais().map { ($0.vdot * 10).rounded() / 10 }
         )
 
-        return ResumoTreinoIA(
+        var resumo = ResumoTreinoIA(
             treino: corrida.titulo, plano: plano, esteira: corrida.esteira, corredor: corredor, esforco: corrida.esforcoPercebido,
             resultados: resultados, fc: corrida.carregarFC(), inicioCorrida: corrida.inicio, parciais: parciais,
             distancia: corrida.distanciaMetros, tempoEmMovimento: corrida.duracaoEmMovimento, tempoTotal: corrida.duracaoTotal,
             subida: corrida.subidaMetros, anterior: resultados.isEmpty ? nil : anterior(a: corrida, em: contexto)
         )
+        // Só nome da ficha, dias antes e séries de perna; nada de carga ou dado de saúde.
+        resumo.forcaRecente = ConflitoForca.resumoParaCoach(antesDe: corrida.inicio, forca: ForcaAnilha.shared.estado)
+        return resumo
     }
 
     /// O último treino com o mesmo nome, feito antes deste (só treinos por etapas).
@@ -186,6 +189,7 @@ enum AnaliseTreinoIA {
         - Use só os dados enviados. Não invente números, etapas, sensações nem condições. Cálculos simples a partir dos dados (diferenças, médias) são permitidos; confira cada conta.
         - Batimento alto em tiros curtos é esperado; só comente zona cardíaca onde o planejado pedir uma. Sem dados de batimento, não fale de batimento.
         - Não atribua o resultado a calor, sono, alimentação ou outro fator que os dados não mostrem.
+        - Se vier "forcaRecente" (treino de força registrado no Anilha até 2 dias antes), considere que perna pesada pode deixar a corrida mais custosa por até 48 h; mencione só se ajudar a explicar o que os números mostram.
         - Não dê conselho médico nem diagnóstico.
         - Seja breve: o texto aparece num cartão do app. Resumo com até 2 frases; no máximo 3 positivos e 3 ajustes.
         - Escreva em \(Idioma.atual == .ingles ? "inglês (English)" : "português do Brasil"), de forma direta, como um treinador falando com o atleta (trate por "você").

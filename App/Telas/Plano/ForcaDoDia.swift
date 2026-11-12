@@ -1,6 +1,53 @@
 import CrunningCore
 import SwiftUI
 
+/// Aviso de perna pesada no Anilha perto de um treino forte: o motivo, com a fonte, e duas
+/// saídas. "Ver troca" abre a prévia da mudança (nada muda sem confirmar); "Manter" esconde.
+struct CartaoAvisoForca: View {
+    static let chaveDispensados = "forcaAvisosDispensados"
+
+    let aviso: AvisoForca
+    let unidade: UnidadeDistancia
+    var textoAcao = L("Ver troca", "See swap")
+    let verTroca: () -> Void
+    let manter: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label(L("Perna pesada perto de \(aviso.treino)", "Heavy legs near \(aviso.treino)"), systemImage: "dumbbell.fill")
+                .font(.headline)
+                .foregroundStyle(ForcaDoDia.corPerna)
+            Text(aviso.motivo)
+                .font(.subheadline)
+                .fixedSize(horizontal: false, vertical: true)
+            if let s = aviso.sugestao {
+                Text(L("Sugestão: ", "Suggestion: ") + s.descricao + ".")
+                    .font(.subheadline.weight(.medium))
+                    .fixedSize(horizontal: false, vertical: true)
+            } else {
+                Text(L("Sem um dia leve livre nesta semana para trocar. Se for fazer hoje, vá pela sensação e alivie se a perna pesar.",
+                       "No free easy day this week to swap with. If you run it, go by feel and back off if your legs feel heavy."))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            HStack(spacing: 10) {
+                if aviso.sugestao != nil {
+                    Button(textoAcao, action: verTroca)
+                        .buttonStyle(.glassProminent)
+                }
+                Button(L("Manter assim", "Keep as is"), action: manter)
+                    .buttonStyle(.glass)
+            }
+            .font(.subheadline.weight(.semibold))
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .cartaoVidro(raio: 20)
+        .accessibilityElement(children: .contain)
+    }
+}
+
 /// O treino de força do Anilha num dia do plano: feito (halter cheio) ou previsto (halter vazado),
 /// com a marca "perna" quando teve membros inferiores. Sem conexão com o Anilha, não aparece.
 struct ForcaDoDia: View {
