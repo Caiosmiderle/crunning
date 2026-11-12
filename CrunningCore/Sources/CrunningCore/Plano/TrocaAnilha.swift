@@ -74,6 +74,11 @@ public enum TrocaAnilha {
     public struct LoteCorridas: Codable, Sendable, Equatable {
         public var versao: Int
         public var itens: [ItemCorrida]
+
+        public init(versao: Int = TrocaAnilha.versao, itens: [ItemCorrida]) {
+            self.versao = versao
+            self.itens = itens
+        }
     }
 
     /// Item de uma corrida feita. Nil se não dá para mandar (sem distância ou sem tempo):

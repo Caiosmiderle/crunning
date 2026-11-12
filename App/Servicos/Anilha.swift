@@ -189,7 +189,8 @@ enum EnvioAnilha {
             let corpo = try TrocaAnilha.codificar(TrocaAnilha.LoteCorridas(versao: TrocaAnilha.versao, itens: lote))
             let dados = try await Anilha.chamar("POST", caminho: "corridas", corpo: corpo)
             guard let resposta = try? JSONDecoder().decode(TrocaAnilha.RespostaCorridas.self, from: dados) else { throw Anilha.Erro.resposta }
-            let recusados = Dictionary(resposta.rejeitados.map { ($0.origemID, $0.motivo) }, uniquingKeysWith: { a, _ in a })
+            var recusados: [String: String] = [:]
+            for r in resposta.rejeitados where recusados[r.origemID] == nil { recusados[r.origemID] = r.motivo }
             var restantes = UserDefaults.standard.stringArray(forKey: Anilha.Chaves.apagadas) ?? []
             for item in lote {
                 if item.apagado {
