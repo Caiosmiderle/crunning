@@ -135,6 +135,11 @@ enum EnvioAnilha {
         var lista = UserDefaults.standard.stringArray(forKey: Anilha.Chaves.apagadas) ?? []
         if !lista.contains(corrida.codigo) { lista.append(corrida.codigo) }
         UserDefaults.standard.set(lista, forKey: Anilha.Chaves.apagadas)
+        // A lápide vai logo depois de a corrida sair do banco local (sem esperar o app voltar à tela).
+        Task {
+            try? await Task.sleep(for: .seconds(1))
+            await processar()
+        }
     }
 
     static var pendentes: Int {
