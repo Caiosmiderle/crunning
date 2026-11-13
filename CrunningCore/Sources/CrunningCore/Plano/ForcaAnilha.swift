@@ -1,7 +1,62 @@
 import Foundation
 
-/// Treinos de força vindos do Anilha (`GET /forca`, contrato v1). Só o que o calendário precisa:
-/// dia, nome da ficha, status e se teve perna. Nada de carga, série a série ou dado de saúde.
+/// Detalhes locais do treino, usados apenas na tela de força, nunca nos resumos para IA.
+public struct SerieAnilha: Codable, Sendable, Equatable {
+    public let tipo: String
+    public let cargaKg: Double?
+    public let reps: Int?
+    public let segundos: Int?
+
+    enum CodingKeys: String, CodingKey { case tipo, cargaKg = "carga_kg", reps, segundos }
+
+    public init(tipo: String = "trabalho", cargaKg: Double? = nil, reps: Int? = nil, segundos: Int? = nil) {
+        self.tipo = tipo
+        self.cargaKg = cargaKg
+        self.reps = reps
+        self.segundos = segundos
+    }
+}
+
+public struct ExercicioFeitoAnilha: Codable, Sendable, Equatable {
+    public let nome: String
+    public let grupo: String?
+    public let series: [SerieAnilha]
+
+    public init(nome: String, grupo: String? = nil, series: [SerieAnilha] = []) {
+        self.nome = nome
+        self.grupo = grupo
+        self.series = series
+    }
+}
+
+public struct ExercicioPrevistoAnilha: Codable, Sendable, Equatable {
+    public let nome: String
+    public let grupo: String?
+    public let series: Int
+    public let repsMin: Int?
+    public let repsMax: Int?
+
+    enum CodingKeys: String, CodingKey { case nome, grupo, series, repsMin = "reps_min", repsMax = "reps_max" }
+
+    public init(nome: String, grupo: String? = nil, series: Int = 0, repsMin: Int? = nil, repsMax: Int? = nil) {
+        self.nome = nome
+        self.grupo = grupo
+        self.series = series
+        self.repsMin = repsMin
+        self.repsMax = repsMax
+    }
+}
+
+/// Aceita apenas os destinos de treino e ficha do Anilha.
+public enum LinkForcaAnilha {
+    public static func url(_ link: String?) -> URL? {
+        guard let link,
+              link.hasPrefix("anilha://treino/") || link.hasPrefix("anilha://ficha/") else { return nil }
+        return URL(string: link)
+    }
+}
+
+/// Treinos de força vindos do Anilha (`GET /forca`, contrato v1), com detalhes opcionais.
 public struct SessaoForcaAnilha: Codable, Sendable, Equatable, Identifiable {
     public var id: String { origemID }
     public let origemID: String
@@ -16,15 +71,19 @@ public struct SessaoForcaAnilha: Codable, Sendable, Equatable, Identifiable {
     public let seriesPernas: Int?
     public let duracaoS: Int?
     public let nome: String?
+    public let link: String?
+    public let exercicios: [ExercicioFeitoAnilha]?
 
     enum CodingKeys: String, CodingKey {
         case origemID = "origem_id", atualizadoEm = "atualizado_em", apagado, dataLocal = "data_local"
         case inicio, fim, status, pernas, seriesPernas = "series_pernas", duracaoS = "duracao_s", nome
+        case link, exercicios
     }
 
     public init(origemID: String, atualizadoEm: String, apagado: Bool = false, dataLocal: String?,
                 inicio: String? = nil, fim: String? = nil, status: String? = "concluida",
-                pernas: Bool? = false, seriesPernas: Int? = 0, duracaoS: Int? = nil, nome: String?) {
+                pernas: Bool? = false, seriesPernas: Int? = 0, duracaoS: Int? = nil, nome: String?,
+                link: String? = nil, exercicios: [ExercicioFeitoAnilha]? = nil) {
         self.origemID = origemID
         self.atualizadoEm = atualizadoEm
         self.apagado = apagado
@@ -36,6 +95,8 @@ public struct SessaoForcaAnilha: Codable, Sendable, Equatable, Identifiable {
         self.seriesPernas = seriesPernas
         self.duracaoS = duracaoS
         self.nome = nome
+        self.link = link
+        self.exercicios = exercicios
     }
 }
 
@@ -46,14 +107,23 @@ public struct ForcaPlanejadaAnilha: Codable, Sendable, Equatable {
     public let pernas: Bool
     /// `planejado`, `feito`, `pulado` ou `movido`.
     public let status: String
+    public let fichaID: String?
+    public let link: String?
+    public let exercicios: [ExercicioPrevistoAnilha]?
 
-    enum CodingKeys: String, CodingKey { case dataLocal = "data_local", nome, pernas, status }
+    enum CodingKeys: String, CodingKey {
+        case dataLocal = "data_local", nome, pernas, status, fichaID = "ficha_id", link, exercicios
+    }
 
-    public init(dataLocal: String, nome: String, pernas: Bool, status: String = "planejado") {
+    public init(dataLocal: String, nome: String, pernas: Bool, status: String = "planejado",
+                fichaID: String? = nil, link: String? = nil, exercicios: [ExercicioPrevistoAnilha]? = nil) {
         self.dataLocal = dataLocal
         self.nome = nome
         self.pernas = pernas
         self.status = status
+        self.fichaID = fichaID
+        self.link = link
+        self.exercicios = exercicios
     }
 }
 
@@ -71,12 +141,19 @@ public struct EstadoForcaAnilha: Codable, Sendable, Equatable {
     public var cursor: String?
     public var feitas: [String: SessaoForcaAnilha]
     public var planejadas: [ForcaPlanejadaAnilha]
+    /// 1 depois da primeira leitura com exercícios e séries. Estado salvo antes disso (nil) relê
+    /// as duas últimas semanas inteiras uma vez, para os treinos já guardados ganharem o detalhe.
+    public var versaoDetalhe: Int?
 
     public init() {
         cursor = nil
         feitas = [:]
         planejadas = []
+        versaoDetalhe = nil
     }
+
+    /// Cursor da próxima leitura: nenhum enquanto o detalhe ainda não foi lido.
+    public var cursorParaLeitura: String? { versaoDetalhe == 1 ? cursor : nil }
 
     /// Aplica uma resposta. Versão desconhecida não muda nada.
     @discardableResult
@@ -88,6 +165,7 @@ public struct EstadoForcaAnilha: Codable, Sendable, Equatable {
         }
         planejadas = r.planejadas
         cursor = r.cursor
+        versaoDetalhe = 1
         return true
     }
 

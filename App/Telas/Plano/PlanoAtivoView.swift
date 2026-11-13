@@ -247,13 +247,13 @@ struct PlanoAtivoView: View {
         return a.formatted(.dateTime.day().month(.abbreviated)) + L(" a ", " – ") + b.formatted(.dateTime.day().month(.abbreviated))
     }
 
+    /// Corrida e força têm ações independentes dentro do cartão do dia.
     @ViewBuilder
-    private func linhaDia(_ agenda: AgendaPlano, semana: Int, dia: Int, hoje: Date) -> some View {
+    private func diaComDetalhe(_ agenda: AgendaPlano, semana: Int, dia: Int, hoje: Date) -> some View {
         let data = agenda.data(semana: semana, dia: dia)
         let ehHoje = Calendar.current.isDate(data, inSameDayAs: hoje)
         let status = agenda.status(semana: semana, dia: dia)
-        VStack(alignment: .leading, spacing: 8) {
-        HStack(spacing: 12) {
+        let linhaCorrida = HStack(spacing: 12) {
             VStack(spacing: 2) {
                 Text(Self.nomesDias[dia]).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
                 Text(data.formatted(.dateTime.day())).font(.headline.monospacedDigit())
@@ -277,6 +277,19 @@ struct PlanoAtivoView: View {
                 Spacer()
             }
         }
+        VStack(alignment: .leading, spacing: 8) {
+            if let sessao = agenda.sessao(semana: semana, dia: dia) {
+                NavigationLink {
+                    detalhe(agenda, sessao, semana: semana, dia: dia)
+                } label: {
+                    linhaCorrida
+                        .contentShape(Rectangle())
+                        .accessibilityElement(children: .combine)
+                }
+                .buttonStyle(.plain)
+            } else {
+                linhaCorrida.accessibilityElement(children: .combine)
+            }
             ForcaDoDia(data: data)
                 .padding(.leading, 52)
         }
@@ -290,22 +303,7 @@ struct PlanoAtivoView: View {
                        subtitulo: data.formatted(.dateTime.weekday(.wide).day().month())) {
             menuDia(agenda, semana: semana, dia: dia)
         }
-        .accessibilityElement(children: .combine)
-    }
-
-    /// Dia do plano: com treino, abre o detalhe (blocos, ritmos, zonas e o botão de começar).
-    @ViewBuilder
-    private func diaComDetalhe(_ agenda: AgendaPlano, semana: Int, dia: Int, hoje: Date) -> some View {
-        if let sessao = agenda.sessao(semana: semana, dia: dia) {
-            NavigationLink {
-                detalhe(agenda, sessao, semana: semana, dia: dia)
-            } label: {
-                linhaDia(agenda, semana: semana, dia: dia, hoje: hoje)
-            }
-            .buttonStyle(.plain)
-        } else {
-            linhaDia(agenda, semana: semana, dia: dia, hoje: hoje)
-        }
+        .accessibilityElement(children: .contain)
     }
 
     private func detalhe(_ agenda: AgendaPlano, _ sessao: SessaoPlanejada, semana: Int, dia: Int) -> some View {

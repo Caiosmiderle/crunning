@@ -52,6 +52,7 @@ struct CartaoAvisoForca: View {
 /// com a marca "perna" quando teve membros inferiores. Sem conexão com o Anilha, não aparece.
 struct ForcaDoDia: View {
     let data: Date
+    @State private var selecionado: TreinoForcaAnilha?
 
     static let corPerna = Color.orange
 
@@ -60,12 +61,27 @@ struct ForcaDoDia: View {
         if !dia.feitas.isEmpty || !dia.planejadas.isEmpty {
             VStack(alignment: .leading, spacing: 4) {
                 ForEach(dia.feitas) { s in
-                    linha(s.nome ?? L("Treino de força", "Strength workout"), feito: true,
-                          pernas: s.pernas == true, estado: s.status == "parcial" ? L("parcial", "partial") : L("feito", "done"))
+                    Button {
+                        selecionado = .feita(s)
+                    } label: {
+                        linha(s.nome ?? L("Treino de força", "Strength workout"), feito: true,
+                              pernas: s.pernas == true, estado: s.status == "parcial" ? L("parcial", "partial") : L("feito", "done"))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint(L("Abre os detalhes da força", "Opens strength workout details"))
                 }
                 ForEach(Array(dia.planejadas.enumerated()), id: \.offset) { _, p in
-                    linha(p.nome, feito: false, pernas: p.pernas, estado: L("previsto", "planned"))
+                    Button {
+                        selecionado = .prevista(p)
+                    } label: {
+                        linha(p.nome, feito: false, pernas: p.pernas, estado: L("previsto", "planned"))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityHint(L("Abre os detalhes da força", "Opens strength workout details"))
                 }
+            }
+            .sheet(item: $selecionado) { treino in
+                DetalheForcaAnilhaView(treino: treino, data: data)
             }
         }
     }
@@ -85,9 +101,13 @@ struct ForcaDoDia: View {
             }
             Spacer(minLength: 4)
             Text(estado)
+            Image(systemName: "chevron.right")
+                .accessibilityHidden(true)
         }
         .font(.caption)
         .foregroundStyle(.secondary)
+        .frame(minHeight: 44)
+        .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L("Anilha: ", "Anilha: ") + nome + (pernas ? L(", com perna", ", with legs") : "") + ", " + estado)
     }

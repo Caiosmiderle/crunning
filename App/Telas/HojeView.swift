@@ -55,6 +55,8 @@ struct HojeView: View {
                 .buttonStyle(.plain)
                 .accessibilityHint("Abre o volume por semana")
                 .entradaCascata(3)
+                ForcaDoDia(data: .now)
+                    .entradaCascata(3)
                 Button {
                     estadoApp.abrirCorridaLivre()
                 } label: {

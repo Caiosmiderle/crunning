@@ -35,7 +35,7 @@ final class ForcaAnilha {
         lendo = true
         defer { lendo = false }
         var consulta = [URLQueryItem(name: "versao", value: "1")]
-        if let cursor = estado.cursor { consulta.append(URLQueryItem(name: "desde", value: cursor)) }
+        if let cursor = estado.cursorParaLeitura { consulta.append(URLQueryItem(name: "desde", value: cursor)) }
         do {
             let dados = try await Anilha.chamar("GET", caminho: "forca", corpo: nil, consulta: consulta)
             let resposta = try JSONDecoder().decode(RespostaForcaAnilha.self, from: dados)

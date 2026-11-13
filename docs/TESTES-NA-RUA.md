@@ -288,6 +288,13 @@ Conferido antes deste roteiro: em 12/11 a leitura de força (`GET /forca` da fun
 5. **Coach:** abra o chat do coach e pergunte "como está minha semana de força?". Ele deve citar os treinos de força (dia e se tem perna), sem nomes de exercícios, cargas ou notas.
 6. **Revisão do plano:** crie ou revise um plano. A prévia deve levar em conta a perna pesada (por exemplo, não marcar longão no dia seguinte a uma perna forte).
 
+### Detalhe da força (0.22.0, só dados fictícios)
+
+1. **Feito e parcial:** em um ambiente de teste do Anilha, crie a ficha fictícia "Ficha A" com supino (20 kg × 12 de aquecimento, 40,5 kg × 10 de trabalho), uma série sem carga (× 12) e prancha (45 s). Abra a linha no Plano e confira nome, data, estado, duração, grupo, ordem e total de séries de trabalho. Confira também uma sessão parcial e o selo "perna" em uma ficha de pernas. Com VoiceOver, cada série deve ler quilos, repetições ou segundos por extenso, incluindo "aquecimento".
+2. **Previsto e Hoje:** planeje uma ficha fictícia para hoje, com 3 × 8–12 e outro exercício de 3 × 10. Toque na linha abaixo da faixa da semana em Hoje e confira o mesmo detalhe do Plano. Após concluir a ficha no Anilha e atualizar, Hoje deve mostrar a sessão feita e abrir seus detalhes.
+3. **Abrir no Anilha:** com o Anilha instalado, toque no botão de uma sessão feita e de uma ficha prevista; confira o destino correspondente. Em um iPhone de teste sem o Anilha, o botão deve mostrar "Não consegui abrir o Anilha. Ele está instalado neste iPhone?".
+4. **Compatibilidade:** com uma resposta fictícia sem exercícios (campos ausentes ou lista vazia), confira "Detalhes aparecem quando o Anilha atualizar." e o botão quando houver link válido. Com link ausente, `https://` ou `anilha://outra/`, o botão não aparece. Um arquivo salvo pela versão anterior deve continuar abrindo.
+
 ### O que me contar
 
 - As marcas de halter bateram com o que está no Anilha?
