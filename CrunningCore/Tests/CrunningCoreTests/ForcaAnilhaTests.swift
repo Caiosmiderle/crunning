@@ -83,7 +83,8 @@ struct ForcaAnilhaTests {
     @Test func aplicarEPersistirMantemDetalhes() throws {
         let resposta = try Self.resposta(Self.jsonComDetalhes)
         var estado = EstadoForcaAnilha()
-        #expect(estado.aplicar(resposta))
+        let aplicou1 = estado.aplicar(resposta)
+        #expect(aplicou1)
         #expect(estado.doDia("2026-11-10").feitas == [resposta.feitas[0]])
         #expect(estado.doDia("2026-11-13").planejadas == [resposta.planejadas[0]])
         let dados = try JSONEncoder().encode(estado)
@@ -158,7 +159,8 @@ struct ForcaAnilhaTests {
 
     @Test func lerRespostaDoContrato() throws {
         var estado = EstadoForcaAnilha()
-        #expect(estado.aplicar(try Self.resposta()))
+        let aplicou2 = estado.aplicar(try Self.resposta())
+        #expect(aplicou2)
         #expect(estado.cursor == "42")
         let dia = estado.doDia("2026-11-10")
         #expect(dia.feitas.map(\.nome) == ["Pernas A"])
@@ -222,7 +224,8 @@ struct ForcaAnilhaTests {
     @Test func versaoDesconhecidaNaoMuda() throws {
         var estado = EstadoForcaAnilha()
         let v2 = #"{"versao":2,"cursor":"9","feitas":[],"planejadas":[]}"#
-        #expect(!estado.aplicar(try Self.resposta(v2)))
+        let aplicou3 = estado.aplicar(try Self.resposta(v2))
+        #expect(!aplicou3)
         #expect(estado == EstadoForcaAnilha())
     }
 
@@ -247,7 +250,8 @@ struct ForcaAnilhaTests {
         #expect(estado.cursor == "40")
         #expect(estado.cursorParaLeitura == nil)
         let resposta = #"{"versao":1,"cursor":"41","feitas":[],"planejadas":[]}"#
-        #expect(estado.aplicar(try JSONDecoder().decode(RespostaForcaAnilha.self, from: Data(resposta.utf8))))
+        let aplicou4 = estado.aplicar(try JSONDecoder().decode(RespostaForcaAnilha.self, from: Data(resposta.utf8)))
+        #expect(aplicou4)
         #expect(estado.cursorParaLeitura == "41")
         let salvo = try JSONDecoder().decode(EstadoForcaAnilha.self, from: JSONEncoder().encode(estado))
         #expect(salvo.cursorParaLeitura == "41")
