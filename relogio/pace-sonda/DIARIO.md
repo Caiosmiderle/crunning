@@ -57,6 +57,32 @@ A lista `_in` estava no padrão de fábrica: títulos em chinês, apps chineses 
 
 **Regra daqui em diante:** depois de instalar ou atualizar o app no Pace, conferir `adb shell settings get system springboard_widget_order_in`. Se voltar ao padrão, dar push do `.restaurado.txt` dentro de um `settings put` (por script em `/data/local/tmp`, por causa das aspas).
 
+## 15/11/2026: primeira gravação fora de casa (5 min)
+
+**Gravações:**
+- Às 14:13, uma de 10 s, sem GPS: começou e parou.
+- Às 14:15, outra de 5 min 19 s, parada pelo botão. O evento `fim` saiu e o mostrador voltou 3 s depois.
+- Nenhum buraco além de 1 s.
+
+**Sobrevivência:** a tela ficou acesa e o app na frente os 319 s, então o teste com a tela apagada continua faltando. Duas notificações do iPhone apareceram por cima sem derrubar nada.
+
+**GPS:** primeiro fix com 104 s. Houve posição em 202 s, com até 7 satélites e SNR máximo de 37.
+
+**Velocidade do sistema:**
+- Nos 50 s logo depois do fix, ficou entre 9,6 e 15,7 m/s. O corte de 10 m/s descartou quase tudo.
+- Depois vieram trechos estáveis de 2,1 a 2,5 m/s e um final de 5,8 a 6,9 m/s.
+- O Huami repete o mesmo valor por 5 a 10 s seguidos, com carimbo de tempo novo a cada segundo. O app só soma posições com carimbo novo, então a repetição vem do sistema.
+
+**Distância:** 456 m. Sem percurso de referência não dá para medir o erro.
+
+**Batimento:** leitura em 96% dos segundos, a primeira com 13 s.
+
+**Bateria:** caiu 1%. Como a medida é de 1 em 1%, não dá para concluir nada.
+
+**Detalhe:** o cabeçalho saiu duplicado (`# 0 inicio` e o sensor de FC duas vezes). O serviço recebeu o pedido de início duas vezes.
+
+**Launcher:** as 13 páginas continuam ligadas.
+
 ## Próximo teste (na rua)
 
 1. Fora de casa, abra o CRUNNING no relógio (última página), toque em **Começar** e espere **GPS ok** (3 a 5 min na primeira vez) antes de correr.
