@@ -75,6 +75,8 @@ A lista `_in` estava no padrão de fábrica: títulos em chinês, apps chineses 
 
 **Distância:** 456 m. Sem percurso de referência não dá para medir o erro.
 
+**O Caio estava de carro.** As velocidades acima de 10 m/s eram reais, e o corte as descartou como devia numa corrida. A curva acompanhou as acelerações e freadas, então a velocidade Doppler responde. Esta gravação não vale para medir distância de corrida.
+
 **Batimento:** leitura em 96% dos segundos, a primeira com 13 s.
 
 **Bateria:** caiu 1%. Como a medida é de 1 em 1%, não dá para concluir nada.
