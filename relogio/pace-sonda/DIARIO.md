@@ -75,7 +75,18 @@ A lista `_in` estava no padrão de fábrica: títulos em chinês, apps chineses 
 
 **Distância:** 456 m. Sem percurso de referência não dá para medir o erro.
 
-**O Caio estava de carro.** As velocidades acima de 10 m/s eram reais, e o corte as descartou como devia numa corrida. A curva acompanhou as acelerações e freadas, então a velocidade Doppler responde. Esta gravação não vale para medir distância de corrida.
+**O Caio estava de carro, depois desceu e andou.** As fases:
+
+| Fase | Segundos | Distância somada | Velocidade média |
+|---|---|---|---|
+| Carro | 104 a 200 | 167 m | 6,3 km/h |
+| Parado, descendo | 200 a 216 | 0 m | 0 |
+| Andando, estável | 216 a 305 | 190 m | 7,7 km/h |
+| Fim | 305 a 319 | 98 m | 25 km/h |
+
+- **Carro:** a soma ficou baixa porque o corte de 10 m/s descartou os trechos rápidos, como devia numa corrida. A curva acompanhou acelerações e freadas, então a velocidade Doppler responde.
+- **Andando:** 7,7 km/h é rápido para caminhada. Pode ser que o Huami superestime a velocidade a pé; só um percurso conhecido responde.
+- **Fim:** 25 km/h andando é erro do GPS. Isso somou uns 95 m a mais, e o corte de 36 km/h não pega. Falta um filtro de aceleração: a pé ou correndo, a velocidade não sobe de 1,5 para 5,8 m/s em 1 s.
 
 **Batimento:** leitura em 96% dos segundos, a primeira com 13 s.
 
