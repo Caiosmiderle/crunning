@@ -31,6 +31,9 @@ public enum UnidadeDistancia: String, CaseIterable, Codable, Sendable, Identifia
 
     /// Sufixo do ritmo: "/km" ou "/mi".
     public var siglaRitmo: String { "/" + sigla }
+
+    /// O que o painel da esteira mostra: "km/h" ou "mph".
+    public var siglaVelocidade: String { self == .quilometros ? "km/h" : "mph" }
 }
 
 /// Formatação em português do Brasil, sem depender do idioma do aparelho
@@ -77,6 +80,23 @@ public enum Formatador {
         let casas = max(0, min(casas, 6))
         guard valor.isFinite else { return "0" }
         return String(format: "%.\(casas)f", valor).replacingOccurrences(of: ".", with: separadorDecimal)
+    }
+
+    /// Velocidade para digitar na esteira (km/h ou mph) a partir de um pace em segundos por km,
+    /// arredondada a 0,1, o passo do painel: 330 s/km (5:30 /km) -> 10,9 km/h.
+    public static func velocidadeEsteira(segundosPorKm: Double, unidade: UnidadeDistancia = .quilometros) -> Double {
+        guard segundosPorKm.isFinite, segundosPorKm > 0 else { return 0 }
+        let porHora = 3600 / segundosPorKm * 1000 / unidade.metros
+        return (porHora * 10).rounded() / 10
+    }
+
+    /// Faixa de velocidade da esteira, da mais lenta à mais rápida: "10,9–11,4 km/h"
+    /// (um valor só quando as duas pontas arredondam igual).
+    public static func faixaEsteira(lento: Double, rapido: Double, unidade: UnidadeDistancia = .quilometros) -> String {
+        let a = velocidadeEsteira(segundosPorKm: lento, unidade: unidade)
+        let b = velocidadeEsteira(segundosPorKm: rapido, unidade: unidade)
+        let sigla = " " + unidade.siglaVelocidade
+        return a == b ? numero(a, casas: 1) + sigla : numero(a, casas: 1) + "–" + numero(b, casas: 1) + sigla
     }
 
     private static func doisDigitos(_ n: Int) -> String {

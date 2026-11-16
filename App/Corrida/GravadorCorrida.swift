@@ -237,7 +237,8 @@ final class GravadorCorrida: Identifiable {
             if let k = etapa.repeticao, let n = etapa.totalRepeticoes, n > 1 {
                 detalhe = L("Repetição \(k) de \(n)", "Rep \(k) of \(n)")
             } else if let faixa = etapa.faixa {
-                detalhe = "Pace " + TextoTreino.faixa(faixa, unidade: unidade)
+                detalhe = esteira ? L("Esteira ", "Treadmill ") + TextoTreino.faixaEsteira(faixa, unidade: unidade)
+                    : "Pace " + TextoTreino.faixa(faixa, unidade: unidade)
             }
             progresso = execucao.progressoTotal(l)
             let resta = max(0, execucao.restante(l) ?? 0)
@@ -561,7 +562,7 @@ final class GravadorCorrida: Identifiable {
                 contagemVisivel = nil
                 if avisos.vibracao { locutor.vibrar() }
                 if avisos.bipe { locutor.bipe(longo: true) }
-                if avisos.voz { locutor.falar(Fala.etapa(execucao.etapas[i], unidade: unidade), interromper: interromperFala) }
+                if avisos.voz { locutor.falar(Fala.etapa(execucao.etapas[i], unidade: unidade, esteira: esteira), interromper: interromperFala) }
                 salvarSessao(forcar: true)
             case let .contagem(n):
                 contagemVisivel = n

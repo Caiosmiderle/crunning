@@ -285,4 +285,14 @@ struct FalasTests {
         let semZonas = ExecucaoTreino(treino: treino, zonas: nil, aquecimentoGuiado: false, esteira: false)
         #expect(Fala.etapa(semZonas.etapas[2]) == "Recuperação 1 de 6. 1 minuto e 30 segundos. " + Intensidade.facil.testeDaFala)
     }
+
+    @Test func anuncioNaEsteiraDizAVelocidade() throws {
+        let treino = Treino(nome: "6 × 400 m", tipo: .intervalado, blocos: TextoRapidoTests.exemplo)
+        let e = ExecucaoTreino(treino: treino, zonas: Zonas(vdot: 50), aquecimentoGuiado: false, esteira: true)
+        let faixa = try #require(e.etapas[1].faixa)
+        let v = Formatador.numero(Formatador.velocidadeEsteira(segundosPorKm: faixa.alvo), casas: 1)
+        let fala = Fala.etapa(e.etapas[1], esteira: true)
+        #expect(fala.hasSuffix(", esteira a \(v) quilômetros por hora."))
+        #expect(!fala.contains("ritmo"))
+    }
 }

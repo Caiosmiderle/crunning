@@ -3,6 +3,21 @@ import Testing
 
 @Suite("Formatação de distância, ritmo e duração")
 struct FormatadorTests {
+    @Test func velocidadeDaEsteira() {
+        // 5:30 /km = 10,909 km/h; 5:00 /km = 12 km/h; arredonda a 0,1, o passo do painel.
+        #expect(Formatador.velocidadeEsteira(segundosPorKm: 330) == 10.9)
+        #expect(Formatador.velocidadeEsteira(segundosPorKm: 300) == 12.0)
+        #expect(Formatador.velocidadeEsteira(segundosPorKm: 240) == 15.0)
+        // Em milhas: 12 km/h = 7,46 mph.
+        #expect(Formatador.velocidadeEsteira(segundosPorKm: 300, unidade: .milhas) == 7.5)
+        #expect(Formatador.velocidadeEsteira(segundosPorKm: 0) == 0)
+        #expect(Formatador.velocidadeEsteira(segundosPorKm: .infinity) == 0)
+        // Do pace lento ao rápido: a velocidade sobe.
+        #expect(Formatador.faixaEsteira(lento: 330, rapido: 315) == "10,9–11,4 km/h")
+        #expect(Formatador.faixaEsteira(lento: 300, rapido: 299) == "12,0 km/h")
+        #expect(Formatador.faixaEsteira(lento: 330, rapido: 315, unidade: .milhas) == "6,8–7,1 mph")
+    }
+
     @Test func distanciaEmQuilometros() {
         #expect(Formatador.distancia(5234) == "5,23 km")
         #expect(Formatador.distancia(10_000, casas: 1) == "10,0 km")

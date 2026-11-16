@@ -48,13 +48,13 @@ enum Planilha {
         }
     }
 
-    private static func detalhes(_ p: Passo, zonas: Zonas?, unidade: UnidadeDistancia) -> [String] {
-        var lista = [TextoTreino.alvo(p, zonas: zonas, unidade: unidade)]
+    private static func detalhes(_ p: Passo, zonas: Zonas?, unidade: UnidadeDistancia, esteira: Bool) -> [String] {
+        var lista = [TextoTreino.alvo(p, zonas: zonas, unidade: unidade, esteira: esteira)]
         if let c = TextoTreino.complemento(p, zonas: zonas, unidade: unidade) { lista.append(c) }
         return lista
     }
 
-    static func secoes(_ treino: Treino, zonas: Zonas?, unidade: UnidadeDistancia) -> [Secao] {
+    static func secoes(_ treino: Treino, zonas: Zonas?, unidade: UnidadeDistancia, esteira: Bool = false) -> [Secao] {
         var aquecimento = Secao(id: "aquecimento", nome: L("Aquecimento", "Warm-up"), linhas: [])
         var principal = Secao(id: "principal", nome: L("Parte principal", "Main set"), linhas: [])
         var desaquecimento = Secao(id: "desaquecimento", nome: L("Desaquecimento", "Cool-down"), linhas: [])
@@ -65,7 +65,7 @@ enum Planilha {
             switch bloco {
             case let .passo(p):
                 let linha = Linha(id: proximo(), titulo: medida(p.medida, unidade: unidade) + " " + descricao(p),
-                                  detalhes: detalhes(p, zonas: zonas, unidade: unidade), tipo: p.tipoParaCor)
+                                  detalhes: detalhes(p, zonas: zonas, unidade: unidade, esteira: esteira), tipo: p.tipoParaCor)
                 switch p.funcao {
                 case .aquecimento: aquecimento.linhas.append(linha)
                 case .desaquecimento: desaquecimento.linhas.append(linha)
@@ -75,7 +75,7 @@ enum Planilha {
                 if passos.count == 2, passos[1].funcao == .recuperacao, passos[0].funcao != .recuperacao {
                     // O caso clássico: "6 × 400 m forte, com 1'30" de trote".
                     let w = passos[0], r = passos[1]
-                    var d = detalhes(w, zonas: zonas, unidade: unidade)
+                    var d = detalhes(w, zonas: zonas, unidade: unidade, esteira: esteira)
                     d.append(L("com ", "with ") + medida(r.medida, unidade: unidade) + " " + descricao(r) + L(" entre eles", " between reps"))
                     principal.linhas.append(Linha(
                         id: proximo(), titulo: "\(vezes) × " + medida(w.medida, unidade: unidade) + " " + descricao(w),
@@ -88,7 +88,7 @@ enum Planilha {
                     for p in passos {
                         principal.linhas.append(Linha(
                             id: proximo(), titulo: medida(p.medida, unidade: unidade) + " " + descricao(p),
-                            detalhes: detalhes(p, zonas: zonas, unidade: unidade), tipo: p.tipoParaCor, recuo: true
+                            detalhes: detalhes(p, zonas: zonas, unidade: unidade, esteira: esteira), tipo: p.tipoParaCor, recuo: true
                         ))
                     }
                 }
@@ -120,9 +120,11 @@ struct PlanilhaTreino: View {
     let treino: Treino
     var zonas: Zonas?
     var unidade: UnidadeDistancia = .quilometros
+    /// Na esteira: velocidade em km/h (ou mph) para digitar no painel, além do pace.
+    var esteira = false
 
     var body: some View {
-        let secoes = Planilha.secoes(treino, zonas: zonas, unidade: unidade)
+        let secoes = Planilha.secoes(treino, zonas: zonas, unidade: unidade, esteira: esteira)
         VStack(alignment: .leading, spacing: 16) {
             ForEach(secoes) { secao in
                 VStack(alignment: .leading, spacing: 10) {

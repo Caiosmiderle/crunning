@@ -24,12 +24,14 @@ enum TextoTreino {
     }
 
     /// Faixa de ritmo "4:05–4:15 /km", ou o esforço quando não há ritmos de referência.
-    static func alvo(_ passo: Passo, zonas: Zonas?, unidade: UnidadeDistancia) -> String {
+    /// Na esteira, a velocidade para digitar no painel, com o pace ao lado.
+    static func alvo(_ passo: Passo, zonas: Zonas?, unidade: UnidadeDistancia, esteira: Bool = false) -> String {
         if passo.intensidade == .caminhada { return L("Caminhada", "Walk") }
         if let zonas {
             let distanciaProva: Double?
             if case let .distancia(d) = passo.medida { distanciaProva = d } else { distanciaProva = nil }
-            return pace(zonas.faixa(passo.intensidade, distanciaProva: distanciaProva), unidade: unidade)
+            let f = zonas.faixa(passo.intensidade, distanciaProva: distanciaProva)
+            return esteira ? velocidade(f, unidade: unidade) + " · " + faixa(f, unidade: unidade) : pace(f, unidade: unidade)
         }
         let e = passo.intensidade.esforco
         return L("\(passo.intensidade.nome) · esforço \(e.lowerBound) a \(e.upperBound)", "\(passo.intensidade.nome) · effort \(e.lowerBound) to \(e.upperBound)")
@@ -61,6 +63,21 @@ enum TextoTreino {
     static func pace(_ f: FaixaRitmo, unidade: UnidadeDistancia) -> String {
         L("pace entre ", "pace between ") + Formatador.ritmo(segundosPorKm: f.rapido, unidade: unidade) + L(" e ", " and ")
             + Formatador.ritmo(segundosPorKm: f.lento, unidade: unidade) + " " + unidade.siglaRitmo
+    }
+
+    /// "esteira entre 10,9 e 11,4 km/h", ou "esteira a 11,0 km/h" quando arredondam igual.
+    static func velocidade(_ f: FaixaRitmo, unidade: UnidadeDistancia) -> String {
+        let a = Formatador.velocidadeEsteira(segundosPorKm: f.lento, unidade: unidade)
+        let b = Formatador.velocidadeEsteira(segundosPorKm: f.rapido, unidade: unidade)
+        let sigla = " " + unidade.siglaVelocidade
+        if a == b { return L("esteira a ", "treadmill at ") + Formatador.numero(a, casas: 1) + sigla }
+        return L("esteira entre ", "treadmill between ") + Formatador.numero(a, casas: 1) + L(" e ", " and ")
+            + Formatador.numero(b, casas: 1) + sigla
+    }
+
+    /// "10,9–11,4 km/h".
+    static func faixaEsteira(_ f: FaixaRitmo, unidade: UnidadeDistancia) -> String {
+        Formatador.faixaEsteira(lento: f.lento, rapido: f.rapido, unidade: unidade)
     }
 
     static func faixa(_ f: FaixaRitmo, unidade: UnidadeDistancia) -> String {

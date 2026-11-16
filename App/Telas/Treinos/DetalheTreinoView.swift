@@ -51,7 +51,7 @@ struct DetalheTreinoView: View {
                     .cartaoVidro(raio: 24)
 
                 VStack(alignment: .leading, spacing: 12) {
-                    PlanilhaTreino(treino: treino, zonas: zonas, unidade: unidade)
+                    PlanilhaTreino(treino: treino, zonas: zonas, unidade: unidade, esteira: esteira)
                     if ZonasDoUsuario.fcMaxima() == nil {
                         Text("Para ver a zona de batimento de cada trecho, informe sua idade em Ajustes > Meus ritmos.")
                             .font(.caption)
@@ -76,7 +76,8 @@ struct DetalheTreinoView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Toggle("Na esteira", isOn: $esteira)
                     if esteira {
-                        Text("Sem GPS: trechos por distância viram tempo pelo seu ritmo-alvo, e a distância total você digita no fim.")
+                        Text(L("A planilha acima mostra a velocidade para pôr na esteira. Sem GPS: trechos por distância viram tempo pelo seu ritmo-alvo, e a distância total você digita no fim.",
+                               "The plan above shows the speed to set on the treadmill. No GPS: distance segments become time at your target pace, and you enter the total distance at the end."))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }

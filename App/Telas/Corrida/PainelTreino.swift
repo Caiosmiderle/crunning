@@ -54,6 +54,8 @@ struct CartaoEtapaAtual: View {
     let zonas: Zonas?
     /// Batimento de agora, se a pulseira estiver transmitindo.
     var bpm: Int? = nil
+    /// Na esteira, a velocidade para o painel aparece grande, no lugar do medidor de pace.
+    var esteira = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -80,6 +82,12 @@ struct CartaoEtapaAtual: View {
             ProgressView(value: progresso)
                 .tint(etapa.tipo.cor)
                 .scaleEffect(x: 1, y: 2, anchor: .center)
+            if esteira, let faixa = etapa.faixa {
+                Label(TextoTreino.faixaEsteira(faixa, unidade: unidade), systemImage: "figure.run.treadmill")
+                    .font(.title2.weight(.bold))
+                    .monospacedDigit()
+                    .accessibilityLabel(TextoTreino.velocidade(faixa, unidade: unidade))
+            }
             Text(textoAlvo)
                 .font(.headline)
                 .monospacedDigit()
@@ -296,7 +304,8 @@ struct ListaEtapasExecucao: View {
                         Text((i == 0 ? L("A seguir: ", "Next: ") : "") + etapa.nome)
                             .font(i == 0 ? .headline : .subheadline)
                         if i == 0, let faixa = etapa.faixa {
-                            Text(TextoTreino.faixa(faixa, unidade: unidade))
+                            Text(execucao.esteira ? TextoTreino.faixaEsteira(faixa, unidade: unidade) + " · " + TextoTreino.faixa(faixa, unidade: unidade)
+                                 : TextoTreino.faixa(faixa, unidade: unidade))
                                 .font(.caption.monospacedDigit())
                                 .foregroundStyle(.secondary)
                         }

@@ -40,7 +40,7 @@ public enum Fala {
     }
 
     /// Anúncio de uma etapa nova: o que é, quanto dura e o alvo.
-    public static func etapa(_ e: EtapaExecucao, unidade: UnidadeDistancia = .quilometros) -> String {
+    public static func etapa(_ e: EtapaExecucao, unidade: UnidadeDistancia = .quilometros, esteira: Bool = false) -> String {
         switch e.conteudo {
         case let .exercicio(x):
             return "\(x.nome). \(medidaExercicio(x.medida)). \(x.comoFazer)"
@@ -56,7 +56,11 @@ public enum Fala {
             case let (_, .distancia(d)):
                 texto += distancia(d)
             }
-            if let faixa = e.faixa {
+            if let faixa = e.faixa, esteira {
+                let v = Formatador.numero(Formatador.velocidadeEsteira(segundosPorKm: faixa.alvo, unidade: unidade), casas: 1)
+                let por = unidade == .quilometros ? L("quilômetros por hora", "kilometers per hour") : L("milhas por hora", "miles per hour")
+                texto += L(", esteira a \(v) \(por).", ", treadmill at \(v) \(por).")
+            } else if let faixa = e.faixa {
                 let alvo = ritmo(faixa.alvo, unidade: unidade)
                 texto += L(", ritmo \(alvo).", ", pace \(alvo).")
             } else {
